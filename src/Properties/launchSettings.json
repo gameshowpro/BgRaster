@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "VentuzRestreamer": {
+      "commandName": "Project",
+      "commandLineArgs": "--ffplay"
+    }
+  }
+}
