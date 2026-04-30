@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BgRaster Configuration Schema",
+  "description": "Schema for BgRaster user configuration files (config.toml). Include a $schema comment at the top: # $schema: https://raw.githubusercontent.com/gameshowpro/GameshowPro/<version-tag>/BgRaster/docs/schemas/bgraster-config.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "text": {
+      "$ref": "./bgraster-common.schema.json#/definitions/textTable"
+    },
+    "background": {
+      "$ref": "./bgraster-common.schema.json#/definitions/backgroundTable"
+    },
+    "grid": {
+      "$ref": "./bgraster-common.schema.json#/definitions/gridTable"
+    },
+    "circle": {
+      "$ref": "./bgraster-common.schema.json#/definitions/circleTable"
+    },
+    "crosshair": {
+      "$ref": "./bgraster-common.schema.json#/definitions/crosshairTable"
+    },
+    "logo": {
+      "$ref": "./bgraster-common.schema.json#/definitions/logoTable"
+    },
+    "render": {
+      "$ref": "./bgraster-common.schema.json#/definitions/renderTable"
+    },
+    "output": {
+      "$ref": "./bgraster-common.schema.json#/definitions/outputList"
+    }
+  }
+}

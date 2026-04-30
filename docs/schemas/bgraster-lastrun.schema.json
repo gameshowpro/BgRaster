@@ -1,0 +1,130 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BgRaster Runtime State Schema",
+  "description": "Schema for BgRaster runtime state files (lastRun.toml, lastRun.dry.toml). Include a $schema comment at the top: # $schema: https://raw.githubusercontent.com/gameshowpro/GameshowPro/<version-tag>/BgRaster/docs/schemas/bgraster-lastrun.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Runtime metadata and state",
+      "additionalProperties": false,
+      "properties": {
+        "version": {
+          "type": "string",
+          "description": "Executable semantic version (SemVer2) from Nerdbank.GitVersioning, e.g. 1.0.0+build.1"
+        },
+        "settingsHash": {
+          "type": "string",
+          "description": "SHA-256 hash of the effective configuration model (post TOML+CLI merge) used in this run"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 UTC timestamp when this run occurred"
+        },
+        "assignedFiles": {
+          "type": "object",
+          "description": "Map of hardware output IDs to successfully assigned PNG file paths",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "unrecycledFiles": {
+          "type": "array",
+          "description": "List of stale PNG files that could not be recycled (locked, permission denied)",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["version", "settingsHash", "timestamp"]
+    },
+    "hardware_output": {
+      "type": "array",
+      "description": "Detected physical outputs and their properties (hardware profile)",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "index", "desktopX", "desktopY", "widthPx", "heightPx", "dpiX", "dpiY", "rotation", "adapterName", "friendlyName"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Stable PnP device instance path (monitorDevicePath) from DisplayConfigGetDeviceInfo, e.g. \\\\?\\DISPLAY#SAM0C7F#5&1a2b3c4d&0&UID256#{e6f07b5f-...}"
+          },
+          "index": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Zero-based output index assigned by sort order (desktopY asc, desktopX asc, id asc)"
+          },
+          "desktopX": {
+            "type": "integer",
+            "description": "Virtual desktop position X in pixels (top-left corner)"
+          },
+          "desktopY": {
+            "type": "integer",
+            "description": "Virtual desktop position Y in pixels (top-left corner)"
+          },
+          "widthPx": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "True hardware width in pixels (PerMonitorV2 DPI-aware, not scaled by OS DPI factor)"
+          },
+          "heightPx": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "True hardware height in pixels (PerMonitorV2 DPI-aware, not scaled by OS DPI factor)"
+          },
+          "dpiX": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Logical DPI X from GetDpiForMonitor(MDT_EFFECTIVE_DPI)"
+          },
+          "dpiY": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Logical DPI Y from GetDpiForMonitor(MDT_EFFECTIVE_DPI)"
+          },
+          "rotation": {
+            "type": "integer",
+            "enum": [0, 90, 180, 270],
+            "description": "Display rotation in degrees"
+          },
+          "adapterName": {
+            "type": "string",
+            "description": "Adapter device name (e.g. \\\\.\\DISPLAY1) for logging purposes"
+          },
+          "friendlyName": {
+            "type": "string",
+            "description": "Friendly monitor name from DisplayConfigGetDeviceInfo, used in diagnostics and ${OutputName} substitution"
+          }
+        }
+      }
+    },
+    "text": {
+      "$ref": "./bgraster-common.schema.json#/definitions/textTable"
+    },
+    "background": {
+      "$ref": "./bgraster-common.schema.json#/definitions/backgroundTable"
+    },
+    "grid": {
+      "$ref": "./bgraster-common.schema.json#/definitions/gridTable"
+    },
+    "circle": {
+      "$ref": "./bgraster-common.schema.json#/definitions/circleTable"
+    },
+    "crosshair": {
+      "$ref": "./bgraster-common.schema.json#/definitions/crosshairTable"
+    },
+    "logo": {
+      "$ref": "./bgraster-common.schema.json#/definitions/logoTable"
+    },
+    "render": {
+      "$ref": "./bgraster-common.schema.json#/definitions/renderTable"
+    },
+    "output": {
+      "$ref": "./bgraster-common.schema.json#/definitions/outputList"
+    }
+  },
+  "required": ["meta", "hardware_output"]
+}

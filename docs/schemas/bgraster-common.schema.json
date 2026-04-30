@@ -1,0 +1,358 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BgRaster Common Schema Definitions",
+  "description": "Shared schema definitions referenced by bgraster-config.schema.json and bgraster-lastrun.schema.json",
+  "definitions": {
+    "textTable": {
+      "type": "object",
+      "description": "Global text rendering settings",
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["${MachineName} ${Index}"],
+          "description": "Primary label text, supports ${MachineName}, ${Index}, ${Width}, ${Height}, ${IndexPlusOne}, ${OutputName}"
+        },
+        "subtitle": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["${Width}x${Height}"],
+          "description": "Secondary label text below title"
+        },
+        "size": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["1vh"],
+          "description": "Text line height with units (px, vh, vw, vmin, vmax)"
+        },
+        "x": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["75vw"],
+          "description": "Text anchor x-coordinate"
+        },
+        "y": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["75vh"],
+          "description": "Text anchor y-coordinate"
+        }
+      }
+    },
+    "backgroundTable": {
+      "type": "object",
+      "description": "Background rendering settings",
+      "additionalProperties": false,
+      "properties": {
+        "color": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["#FF0000", "#00FF00", "#0000FF"],
+          "description": "Base fill color, cycles by output index with wraparound. Supports #RRGGBB, #RRGGBBAA, rgb(), rgba(), hsl(), hsla()"
+        },
+        "image": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [""],
+          "description": "Optional path to background image (SVG or PNG), rendered over color layer. Empty = no image."
+        },
+        "fit": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["CropTL", "CropTR", "CropC", "CropBL", "CropBR", "BestFit", "CropToFill"]
+          },
+          "default": ["CropToFill"],
+          "description": "Background image fit mode. CropToFill and BestFit use uniform scaling; crop modes do not scale."
+        },
+        "alternating": {
+          "type": "array",
+          "items": { "type": "boolean" },
+          "default": [false],
+          "description": "Enable checkerboard alternating pixel pattern (renders over grid)"
+        },
+        "border": {
+          "type": "array",
+          "items": { "type": "boolean" },
+          "default": [false],
+          "description": "Enable 1-pixel border at viewport edge"
+        },
+        "border-color": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["#FFFFFF"],
+          "description": "Border color"
+        }
+      }
+    },
+    "gridTable": {
+      "type": "object",
+      "description": "Grid rendering settings",
+      "additionalProperties": false,
+      "properties": {
+        "size": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["100px"],
+          "description": "Checker cell size with units"
+        },
+        "odd-color": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["#00000080"],
+          "description": "Color for odd-indexed grid squares"
+        },
+        "even-color": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["transparent"],
+          "description": "Color for even-indexed grid squares"
+        },
+        "stroke": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["0"],
+          "description": "Grid line width. 0 = filled cells, non-zero = line width"
+        },
+        "offset-x": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["0"],
+          "description": "Horizontal grid phase offset"
+        },
+        "offset-y": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["0"],
+          "description": "Vertical grid phase offset"
+        },
+        "coordinates": {
+          "type": "array",
+          "items": { "type": "boolean" },
+          "default": [false],
+          "description": "Enable pixel coordinate display in each grid square"
+        }
+      }
+    },
+    "circleTable": {
+      "type": "object",
+      "description": "Circle rendering settings",
+      "additionalProperties": false,
+      "properties": {
+        "size": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["100vmin"],
+          "description": "Circle diameter with units"
+        },
+        "color": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["#ffffff40"],
+          "description": "Circle fill/stroke color"
+        },
+        "stroke": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["0"],
+          "description": "Circle stroke width. 0 = fill only, non-zero = stroke width"
+        }
+      }
+    },
+    "crosshairTable": {
+      "type": "object",
+      "description": "Crosshair rendering settings",
+      "additionalProperties": false,
+      "properties": {
+        "length": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["5vmin"],
+          "description": "Crosshair arm length (total, not radius)"
+        },
+        "color": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["#ffffff80"],
+          "description": "Crosshair color"
+        },
+        "stroke": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["2px"],
+          "description": "Crosshair line thickness"
+        }
+      }
+    },
+    "logoTable": {
+      "type": "object",
+      "description": "Logo rendering settings",
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [""],
+          "description": "Path to logo image file (SVG or PNG). Empty = no logo. Invalid paths use embedded fallback."
+        },
+        "x": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["75vw"],
+          "description": "Logo fit rectangle left position"
+        },
+        "y": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["25vh"],
+          "description": "Logo fit rectangle top position"
+        },
+        "width": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["15vw"],
+          "description": "Logo fit rectangle width"
+        },
+        "height": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["15vh"],
+          "description": "Logo fit rectangle height"
+        },
+        "opacity": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["1"],
+          "description": "Additional opacity multiplier (0 = transparent, 1 = opaque)"
+        }
+      }
+    },
+    "renderTable": {
+      "type": "object",
+      "description": "Render and output settings",
+      "additionalProperties": false,
+      "properties": {
+        "dry-run": {
+          "type": "boolean",
+          "default": false,
+          "description": "Generate PNGs without assigning wallpaper"
+        },
+        "output": {
+          "type": "string",
+          "default": "",
+          "description": "Output directory override for generated PNGs. Empty = default BgRaster temp directory."
+        },
+        "verbosity": {
+          "type": "string",
+          "enum": ["quiet", "normal", "verbose"],
+          "default": "normal",
+          "description": "Logging verbosity level"
+        }
+      }
+    },
+    "outputOverride": {
+      "type": "object",
+      "description": "Per-output override (scalar, not array)"
+    },
+    "sliceOverride": {
+      "type": "object",
+      "description": "Per-slice override"
+    },
+    "sliceItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y", "width", "height"],
+      "properties": {
+        "x": {
+          "type": "string",
+          "description": "Slice left position in parent output coordinates"
+        },
+        "y": {
+          "type": "string",
+          "description": "Slice top position in parent output coordinates"
+        },
+        "width": {
+          "type": "string",
+          "description": "Slice width"
+        },
+        "height": {
+          "type": "string",
+          "description": "Slice height"
+        },
+        "text": {
+          "$ref": "#/definitions/sliceOverride"
+        },
+        "background": {
+          "$ref": "#/definitions/sliceOverride"
+        },
+        "grid": {
+          "$ref": "#/definitions/sliceOverride"
+        },
+        "circle": {
+          "$ref": "#/definitions/sliceOverride"
+        },
+        "crosshair": {
+          "$ref": "#/definitions/sliceOverride"
+        },
+        "logo": {
+          "$ref": "#/definitions/sliceOverride"
+        }
+      }
+    },
+    "sliceList": {
+      "type": "array",
+      "description": "Per-output slice subdivisions",
+      "items": {
+        "$ref": "#/definitions/sliceItem"
+      }
+    },
+    "outputItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target"],
+      "properties": {
+        "target": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Output matcher: zero-based OS index (integer) or stable OS unique ID (string)"
+        },
+        "text": {
+          "$ref": "#/definitions/outputOverride"
+        },
+        "background": {
+          "$ref": "#/definitions/outputOverride"
+        },
+        "grid": {
+          "$ref": "#/definitions/outputOverride"
+        },
+        "circle": {
+          "$ref": "#/definitions/outputOverride"
+        },
+        "crosshair": {
+          "$ref": "#/definitions/outputOverride"
+        },
+        "logo": {
+          "$ref": "#/definitions/outputOverride"
+        },
+        "slice": {
+          "$ref": "#/definitions/sliceList"
+        }
+      }
+    },
+    "outputList": {
+      "type": "array",
+      "description": "Per-output configuration objects",
+      "items": {
+        "$ref": "#/definitions/outputItem"
+      }
+    }
+  }
+}
