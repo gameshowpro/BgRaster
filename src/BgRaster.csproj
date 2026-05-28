@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <AssemblyName>GameshowPro.BgRaster</AssemblyName>
@@ -7,12 +7,46 @@
     <TargetFramework>net10.0</TargetFramework>
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>full</TrimMode>
+    <PublishAot>true</PublishAot>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <DebuggerSupport>false</DebuggerSupport>
+    <MetadataUpdaterSupport>false</MetadataUpdaterSupport>
+    <StackTraceSupport>true</StackTraceSupport>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ApplicationManifest Condition="'$(Configuration)' != 'Debug'">app.manifest</ApplicationManifest>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <LangVersion>13</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <PublishSingleFile>false</PublishSingleFile>
+    <SelfContained>false</SelfContained>
+    <PublishTrimmed>false</PublishTrimmed>
+    <PublishAot>false</PublishAot>
+    <DebuggerSupport>true</DebuggerSupport>
+    <MetadataUpdaterSupport>true</MetadataUpdaterSupport>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.*" PrivateAssets="all" />
+    <PackageReference Include="SkiaSharp" Version="2.88.*" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="2.88.*" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.*" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.*" />
     <PackageReference Include="System.CommandLine" Version="3.0.0-preview.3.26207.106" />
+    <PackageReference Include="Tomlyn" Version="0.17.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\resources\gidole\Gidolinya-Regular.otf" />
+    <EmbeddedResource Include="..\resources\fallback-logo.svg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="GameshowPro.BgRaster.Tests" />
   </ItemGroup>
 
 </Project>

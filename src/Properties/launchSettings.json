@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "VentuzRestreamer": {
+    "BgRaster": {
       "commandName": "Project",
-      "commandLineArgs": "--ffplay"
+      "commandLineArgs": ""
     }
   }
 }

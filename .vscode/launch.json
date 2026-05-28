@@ -1,0 +1,22 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "C#: BgRaster Debug",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/bin/Debug/net10.0/win-x64/GameshowPro.BgRaster.dll",
+            "args": ["--render-force", "--verbosity", "verbose"],
+            "cwd": "${workspaceFolder}/src",
+            "preLaunchTask": "build BgRaster (Debug win-x64)",
+            "console": "internalConsole",
+            "stopAtEntry": false,
+            "env": {},
+            "justMyCode": true
+        }
+     
+    ]
+}
