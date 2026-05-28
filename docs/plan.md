@@ -16,8 +16,8 @@ The appliction is published under the MIT license, (C) 2026 Hamish Barjonas
 | **target** | The value used to match a config `[[output]]` object to a discovered physical output. Can be a zero-based OS index (integer) or a stable OS unique identifier string. |
 | **viewport** | The coordinate space of the current rendering context. Within an output scope, viewport units are relative to that output's pixel dimensions. Within a slice scope, viewport units are relative to that slice's pixel dimensions. |
 | **hardware profile** | A normalized, serializable snapshot of all connected outputs and their properties, built once per run from Windows APIs. Used for early-exit cache comparison. |
-| **lastRun.toml** | Persisted file written after each successful non-dry-run apply, containing the settings hash, executable version, serialized hardware profile, effective configuration model, and generated diagnostic comments for the run. Used to detect unchanged state and troubleshoot behavior without mutating the user config. |
-| **lastRun.dry.toml** | The dry-run equivalent of `lastRun.toml`. Written and read during dry-run execution instead of `lastRun.toml`. |
+| **lastRun.toml** | Persisted file written after each successful non-no-assignment apply, containing the settings hash, executable version, serialized hardware profile, effective configuration model, and generated diagnostic comments for the run. Used to detect unchanged state and troubleshoot behavior without mutating the user config. |
+| **lastRun.dry.toml** | The no-assignment equivalent of `lastRun.toml`. Written and read during no-assignment execution instead of `lastRun.toml`. |
 
 ## Image rendering
 The desktop image will be composed and rendered using SkiaSharp for maximum performance and flexibility. It's desirable to use SVG semantics for building the image due to the universal familiarity, but that's not as important as performance.
@@ -424,15 +424,15 @@ Processing pipeline:
 1. apply CLI overlay to CLI-enabled global properties
 1. compute SHA-256 settings hash from the serialized in-memory options model (captures the merged result of TOML and CLI; this is the hash stored in the run cache)
 1. query Windows display APIs once and normalize the results into a canonical `HardwareProfile` object model containing only the fields required by later stages
-1. load `lastRun.dry.toml` (if `--dry-run`) or `lastRun.toml` (otherwise) if present and compare stored executable version, stored settings hash, and stored `HardwareProfile` against current values
-1. if not `--dry-run` and executable version, settings hash, and `HardwareProfile` are all unchanged, exit early without rendering or wallpaper apply
+1. load `lastRun.dry.toml` (if `--no-assignment`) or `lastRun.toml` (otherwise) if present and compare stored executable version, stored settings hash, and stored `HardwareProfile` against current values
+1. if not `--no-assignment` and executable version, settings hash, and `HardwareProfile` are all unchanged, exit early without rendering or wallpaper apply
 1. build output mapping via target using only the canonical `HardwareProfile`
 1. resolve effective options per output
 1. resolve effective options per slice
 1. render one PNG per matched physical output into the output directory using a filename-safe ISO 8601 UTC timestamp in each file name
-1. unless `--dry-run`, assign each PNG to its target monitor ID using `IDesktopWallpaper.SetWallpaper`; if `--dry-run`, skip the platform call entirely
-1. after a successful non-dry-run assignment, enumerate older BgRaster-generated files in the output directory and send all files not produced by the current run to the recycle bin; if a file cannot be recycled because it is locked or access is denied, leave it in place and record the failure in `lastRun.toml`
-1. write `lastRun.toml` (non-dry-run) or `lastRun.dry.toml` (dry-run) containing executable version, settings hash, serialized `HardwareProfile`, effective configuration model, generated comments, current output file list, and stale-file cleanup results
+1. unless `--no-assignment`, assign each PNG to its target monitor ID using `IDesktopWallpaper.SetWallpaper`; if `--no-assignment`, skip the platform call entirely
+1. after a successful non-no-assignment assignment, enumerate older BgRaster-generated files in the output directory and send all files not produced by the current run to the recycle bin; if a file cannot be recycled because it is locked or access is denied, leave it in place and record the failure in `lastRun.toml`
+1. write `lastRun.toml` (non-no-assignment) or `lastRun.dry.toml` (no-assignment) containing executable version, settings hash, serialized `HardwareProfile`, effective configuration model, generated comments, current output file list, and stale-file cleanup results
 
 This keeps the user config stable while still persisting enough resolved runtime information to debug behavior and support deterministic early-exit decisions.
 
@@ -487,7 +487,7 @@ Runtime architecture requirements:
 1. `Program` contains only startup orchestration and exit-code handling
 1. configuration layer handles defaults and TOML load plus CLI overlay; it does not mutate the user config file
 1. discovery layer handles one-time Windows API enumeration and normalization into `HardwareProfile`
-1. state cache layer loads and writes `lastRun.toml` (or `lastRun.dry.toml` for dry-run)
+1. state cache layer loads and writes `lastRun.toml` (or `lastRun.dry.toml` for no-assignment)
 1. resolution layer computes effective options for each output and slice
 1. rendering layer draws one tightly-cropped bitmap per matched output in strict render order
 1. wallpaper layer assigns generated PNGs to monitors via COM `IDesktopWallpaper`
@@ -501,13 +501,13 @@ Hardware profile and early-exit requirements:
 1. `HardwareProfile` must contain only fields that matter to later behavior: stable output identifier, output name, width, height, x, y, DPI, rotation, and any other fields required for rendering, targeting, or status reporting
 1. once `HardwareProfile` is created, no later pipeline step may query Windows display APIs again; all later logic must read from the normalized object model
 1. `HardwareProfile` serialization must be deterministic and order-independent by sorting outputs by stable identifier before serialization
-1. BgRaster must persist a `lastRun.toml` file after each successful non-dry-run apply; a dry-run writes `lastRun.dry.toml` instead
+1. BgRaster must persist a `lastRun.toml` file after each successful non-no-assignment apply; a no-assignment writes `lastRun.dry.toml` instead
 1. both `lastRun.toml` and `lastRun.dry.toml` must contain at minimum: executable semantic version, settings hash, serialized `HardwareProfile`, effective configuration model, generated comments, and generated output file metadata
 1. the settings hash is a SHA-256 of the serialized in-memory options model computed after TOML load and CLI overlay are both applied; it is not a hash of raw TOML file bytes; CLI-only overrides that change the in-memory model change the hash and prevent an early-exit skip
-1. early-exit comparison is eligible only for non-dry-run execution
+1. early-exit comparison is eligible only for non-no-assignment execution
 1. early exit occurs only when executable version, settings hash, and serialized `HardwareProfile` all match the values in `lastRun.toml`
 1. when the cached state matches current state, exit with success and log `status=run-skipped-unchanged`
-1. if `lastRun.toml` (or `lastRun.dry.toml` for dry-run) is missing, unreadable, or schema-incompatible, continue normal execution and regenerate it after a successful apply
+1. if `lastRun.toml` (or `lastRun.dry.toml` for no-assignment) is missing, unreadable, or schema-incompatible, continue normal execution and regenerate it after a successful apply
 1. generated output file names must use a filename-safe ISO 8601 UTC timestamp component, for example `2026-04-30T18-42-11.1234567Z`, plus a stable sanitized output identifier suffix so each file name is unique and traceable to its target output
 1. `lastRun.toml` must record the exact file path assigned to each output so stale-file cleanup can distinguish current-run files from recyclable leftovers
 
@@ -531,7 +531,7 @@ AOT and trim validation requirements:
 
 1. CI must run `dotnet publish` with Native AOT and full trimming enabled
 1. produced executable must run on a clean Windows machine without installed .NET runtime
-1. smoke test must cover: config load, output discovery, per-output PNG render, timestamped file naming, dry-run path, and stale-file cleanup planning
+1. smoke test must cover: config load, output discovery, per-output PNG render, timestamped file naming, no-assignment path, and stale-file cleanup planning
 1. release build must fail CI if trimming or AOT analysis introduces warnings in BgRaster code
 
 Performance and quality requirements:
@@ -617,7 +617,7 @@ Required test coverage areas:
 1. background image fit behavior (`CropTL`, `CropTR`, `CropC`, `CropBL`, `CropBR`, `BestFit`, `CropToFill`) with explicit assertions that non-uniform scaling is never used
 1. render order correctness (background color -> background image -> grid -> alternating -> background border -> circle -> crosshair -> logo -> text)
 1. `lastRun.toml` generation behavior for effective configuration capture, generated comments, output file metadata, and stale-file cleanup results
-1. dry-run behavior and output-path behavior
+1. no-assignment behavior and output-path behavior
 1. `HardwareProfile` normalization and deterministic serialization
 1. `lastRun.toml` based early-exit behavior, including executable version, settings hash, hardware profile comparison, and effective-configuration capture
 
@@ -634,7 +634,7 @@ Project documentation must be written to the standard expected of a widely-used 
 Documentation deliverables:
 
 1. repository root `README.md` with a clear project overview, feature summary, and support matrix (Windows versions, output architectures)
-1. quick-start guide in `README.md` covering install/build, first run, dry-run verification, and wallpaper apply flow
+1. quick-start guide in `README.md` covering install/build, first run, no-assignment verification, and wallpaper apply flow
 1. sample command lines in `README.md` for common AV diagnostics (pure color, alternating pixel pattern, border validation, coordinate grid, logo placement)
 1. screenshots in `README.md` showing at minimum: pure color output, alternating pixel output, grid with coordinates, and bordered slices
 1. link from `README.md` to detailed documentation pages for full TOML schema and full CLI schema
@@ -682,7 +682,7 @@ All behavioral edge cases are locked as follows. Implementing code must follow t
 
 1. **CLI override interaction with run cache**: because the hash is computed from the post-merge in-memory model, a CLI-only override (without any TOML file change) changes the hash and prevents a run-skipped-unchanged skip. This is the intended behavior.
 
-1. **dry-run semantics**: dry-run skips the platform call to set the desktop wallpaper entirely. It reads and writes `lastRun.dry.toml` instead of `lastRun.toml`. Dry-run is never eligible for early-exit skip.
+1. **no-assignment semantics**: no-assignment skips the platform call to set the desktop wallpaper entirely. It reads and writes `lastRun.dry.toml` instead of `lastRun.toml`. no-assignment is never eligible for early-exit skip.
 
 1. **output-not-found policy**: unmatched configured outputs are tolerated. Execution continues with the remaining matched outputs. The outcome is recorded in a generated `lastRun.toml` comment. No warning or error is emitted unless verbosity is verbose.
 

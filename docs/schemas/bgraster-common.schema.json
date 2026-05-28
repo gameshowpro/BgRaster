@@ -233,7 +233,7 @@
       "description": "Render and output settings",
       "additionalProperties": false,
       "properties": {
-        "dry-run": {
+        "no-assignment": {
           "type": "boolean",
           "default": false,
           "description": "Generate PNGs without assigning wallpaper"
