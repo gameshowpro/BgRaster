@@ -15,9 +15,19 @@ static class OptionsResolver
             Index: idx,
             OutputName: output.FriendlyName);
 
-        string title = Substitute(ResolveString(global.Text.Title, idx, outputConfig?.Text?.Title), ctx);
-        string subtitle = Substitute(ResolveString(global.Text.Subtitle, idx, outputConfig?.Text?.Subtitle), ctx);
-        float textSizePx = ParseUnit(ResolveString(global.Text.Size, idx, outputConfig?.Text?.Size), vw, vh);
+        ImmutableArray<string> textLines = ResolveTextArray(global.Text.Text, outputConfig?.Text?.Text)
+            .Select(line => Substitute(line, ctx))
+            .ToImmutableArray();
+        ImmutableArray<float> textSizesPx = ResolveTextSizes(
+            global.Text.Size,
+            outputConfig?.Text?.Size,
+            textLines.Length,
+            vw,
+            vh);
+        ImmutableArray<SKColor> textColors = ResolveTextColors(
+            global.Text.Color,
+            outputConfig?.Text?.Color,
+            textLines.Length);
         float textXPx = ParseUnit(ResolveString(global.Text.X, idx, outputConfig?.Text?.X), vw, vh);
         float textYPx = ParseUnit(ResolveString(global.Text.Y, idx, outputConfig?.Text?.Y), vw, vh);
 
@@ -49,13 +59,13 @@ static class OptionsResolver
         float logoYPx = ParseUnit(ResolveString(global.Logo.Y, idx, outputConfig?.Logo?.Y), vw, vh);
         float logoWidthPx = ParseUnit(ResolveString(global.Logo.Width, idx, outputConfig?.Logo?.Width), vw, vh);
         float logoHeightPx = ParseUnit(ResolveString(global.Logo.Height, idx, outputConfig?.Logo?.Height), vw, vh);
-        float logoOpacity = ParseOpacity(ResolveString(global.Logo.Opacity, idx, outputConfig?.Logo?.Opacity));
+        float logoOpacity = ResolveFloat(global.Logo.Opacity, idx, outputConfig?.Logo?.Opacity);
 
         return new ResolvedOptions
         {
-            Title = title,
-            Subtitle = subtitle,
-            TextSizePx = textSizePx,
+            TextLines = textLines,
+            TextSizesPx = textSizesPx,
+            TextColors = textColors,
             TextXPx = textXPx,
             TextYPx = textYPx,
             BackgroundColor = bgColor,
@@ -102,9 +112,24 @@ static class OptionsResolver
             OutputName: output.FriendlyName,
             ParentIndex: idx);
 
-        string title = Substitute(ResolveSliceString(global.Text.Title, idx, outputConfig?.Text?.Title, slice.Text?.Title), ctx);
-        string subtitle = Substitute(ResolveSliceString(global.Text.Subtitle, idx, outputConfig?.Text?.Subtitle, slice.Text?.Subtitle), ctx);
-        float textSizePx = ParseUnit(ResolveSliceString(global.Text.Size, idx, outputConfig?.Text?.Size, slice.Text?.Size), vw, vh);
+        ImmutableArray<string> textLines = ResolveSliceTextArray(
+                global.Text.Text,
+                outputConfig?.Text?.Text,
+                slice.Text?.Text)
+            .Select(line => Substitute(line, ctx))
+            .ToImmutableArray();
+        ImmutableArray<float> textSizesPx = ResolveSliceTextSizes(
+            global.Text.Size,
+            outputConfig?.Text?.Size,
+            slice.Text?.Size,
+            textLines.Length,
+            vw,
+            vh);
+        ImmutableArray<SKColor> textColors = ResolveSliceTextColors(
+            global.Text.Color,
+            outputConfig?.Text?.Color,
+            slice.Text?.Color,
+            textLines.Length);
         float textXPx = ParseUnit(ResolveSliceString(global.Text.X, idx, outputConfig?.Text?.X, slice.Text?.X), vw, vh);
         float textYPx = ParseUnit(ResolveSliceString(global.Text.Y, idx, outputConfig?.Text?.Y, slice.Text?.Y), vw, vh);
 
@@ -136,13 +161,13 @@ static class OptionsResolver
         float logoYPx = ParseUnit(ResolveSliceString(global.Logo.Y, idx, outputConfig?.Logo?.Y, slice.Logo?.Y), vw, vh);
         float logoWidthPx = ParseUnit(ResolveSliceString(global.Logo.Width, idx, outputConfig?.Logo?.Width, slice.Logo?.Width), vw, vh);
         float logoHeightPx = ParseUnit(ResolveSliceString(global.Logo.Height, idx, outputConfig?.Logo?.Height, slice.Logo?.Height), vw, vh);
-        float logoOpacity = ParseOpacity(ResolveSliceString(global.Logo.Opacity, idx, outputConfig?.Logo?.Opacity, slice.Logo?.Opacity));
+        float logoOpacity = ResolveSliceFloat(global.Logo.Opacity, idx, outputConfig?.Logo?.Opacity, slice.Logo?.Opacity);
 
         return new ResolvedOptions
         {
-            Title = title,
-            Subtitle = subtitle,
-            TextSizePx = textSizePx,
+            TextLines = textLines,
+            TextSizesPx = textSizesPx,
+            TextColors = textColors,
             TextXPx = textXPx,
             TextYPx = textYPx,
             BackgroundColor = bgColor,
@@ -179,6 +204,103 @@ static class OptionsResolver
     static string ResolveSliceString(ImmutableArray<string> global, int index, string? outputOverride, string? sliceOverride) =>
         sliceOverride ?? outputOverride ?? global[index % global.Length];
 
+    static float ResolveFloat(ImmutableArray<float> global, int index, float? outputOverride) =>
+        outputOverride ?? global[index % global.Length];
+
+    static float ResolveSliceFloat(ImmutableArray<float> global, int index, float? outputOverride, float? sliceOverride) =>
+        sliceOverride ?? outputOverride ?? global[index % global.Length];
+
+    static ImmutableArray<string> ResolveTextArray(ImmutableArray<string> global, ImmutableArray<string>? outputOverride)
+    {
+        if (outputOverride is { Length: > 0 })
+            return outputOverride.Value;
+
+        return global.Length == 0 ? [""] : global;
+    }
+
+    static ImmutableArray<string> ResolveSliceTextArray(
+        ImmutableArray<string> global,
+        ImmutableArray<string>? outputOverride,
+        ImmutableArray<string>? sliceOverride)
+    {
+        if (sliceOverride is { Length: > 0 })
+            return sliceOverride.Value;
+        if (outputOverride is { Length: > 0 })
+            return outputOverride.Value;
+
+        return global.Length == 0 ? [""] : global;
+    }
+
+    static ImmutableArray<float> ResolveTextSizes(
+        ImmutableArray<string> global,
+        ImmutableArray<string>? outputOverride,
+        int lineCount,
+        float vw,
+        float vh)
+    {
+        ImmutableArray<string> source = ResolveTextArray(global, outputOverride);
+        return ResolveSizedLines(source, lineCount, vw, vh);
+    }
+
+    static ImmutableArray<float> ResolveSliceTextSizes(
+        ImmutableArray<string> global,
+        ImmutableArray<string>? outputOverride,
+        ImmutableArray<string>? sliceOverride,
+        int lineCount,
+        float vw,
+        float vh)
+    {
+        ImmutableArray<string> source = ResolveSliceTextArray(global, outputOverride, sliceOverride);
+        return ResolveSizedLines(source, lineCount, vw, vh);
+    }
+
+    static ImmutableArray<float> ResolveSizedLines(ImmutableArray<string> sizeValues, int lineCount, float vw, float vh)
+    {
+        if (lineCount <= 0)
+            return [];
+
+        ImmutableArray<string> source = sizeValues.Length == 0 ? ["0"] : sizeValues;
+        ImmutableArray<float>.Builder result = ImmutableArray.CreateBuilder<float>(lineCount);
+        for (int i = 0; i < lineCount; i++)
+        {
+            result.Add(ParseUnit(source[i % source.Length], vw, vh));
+        }
+        return result.ToImmutable();
+    }
+
+    static ImmutableArray<SKColor> ResolveTextColors(
+        ImmutableArray<string> global,
+        ImmutableArray<string>? outputOverride,
+        int lineCount)
+    {
+        ImmutableArray<string> source = ResolveTextArray(global, outputOverride);
+        return ResolveColorLines(source, lineCount);
+    }
+
+    static ImmutableArray<SKColor> ResolveSliceTextColors(
+        ImmutableArray<string> global,
+        ImmutableArray<string>? outputOverride,
+        ImmutableArray<string>? sliceOverride,
+        int lineCount)
+    {
+        ImmutableArray<string> source = ResolveSliceTextArray(global, outputOverride, sliceOverride);
+        return ResolveColorLines(source, lineCount);
+    }
+
+    static ImmutableArray<SKColor> ResolveColorLines(ImmutableArray<string> colorValues, int lineCount)
+    {
+        if (lineCount <= 0)
+            return [];
+
+        ImmutableArray<string> source = colorValues.Length == 0 ? ["#fff"] : colorValues;
+        ImmutableArray<SKColor>.Builder result = ImmutableArray.CreateBuilder<SKColor>(lineCount);
+        for (int i = 0; i < lineCount; i++)
+        {
+            result.Add(ParseTextColor(source[i % source.Length]));
+        }
+        return result.ToImmutable();
+    }
+
     static bool ResolveBool(ImmutableArray<bool> global, int index, bool? outputOverride) =>
         outputOverride ?? global[index % global.Length];
 
@@ -197,18 +319,16 @@ static class OptionsResolver
         return SKColors.Transparent;
     }
 
+    static SKColor ParseTextColor(string value)
+    {
+        if (ColorParser.TryParse(value, out SKColor color)) return color;
+        return SKColors.White;
+    }
+
     static FitMode ParseFitMode(string value)
     {
         try { return FitModeParser.Parse(value); }
         catch (FormatException) { return FitMode.CropToFill; }
-    }
-
-    static float ParseOpacity(string value)
-    {
-        if (float.TryParse(value.Trim(), System.Globalization.NumberStyles.Float,
-                System.Globalization.CultureInfo.InvariantCulture, out float f))
-            return Math.Clamp(f, 0f, 1f);
-        return 1f;
     }
 
     static string Substitute(string template, SubstitutionContext ctx) =>

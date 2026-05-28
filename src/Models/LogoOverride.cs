@@ -7,5 +7,5 @@ record LogoOverride
     internal string? Y { get; init; }
     internal string? Width { get; init; }
     internal string? Height { get; init; }
-    internal string? Opacity { get; init; }
+    internal float? Opacity { get; init; }
 }

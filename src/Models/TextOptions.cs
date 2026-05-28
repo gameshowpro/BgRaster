@@ -2,9 +2,9 @@ namespace GameshowPro.BgRaster.Models;
 
 record TextOptions
 {
-    internal ImmutableArray<string> Title { get; init; } = ["${MachineName} ${Index}"];
-    internal ImmutableArray<string> Subtitle { get; init; } = ["${Width}x${Height}"];
-    internal ImmutableArray<string> Size { get; init; } = ["1vh"];
-    internal ImmutableArray<string> X { get; init; } = ["75vw"];
-    internal ImmutableArray<string> Y { get; init; } = ["75vh"];
+    internal ImmutableArray<string> Text { get; init; } = ["${MachineName} ${Index}", "${OutputName}", "${Width}x${Height}"];
+    internal ImmutableArray<string> Size { get; init; } = ["3vh", "2vh", "4vh"];
+    internal ImmutableArray<string> Color { get; init; } = ["#fff"];
+    internal ImmutableArray<string> X { get; init; } = ["85vw"];
+    internal ImmutableArray<string> Y { get; init; } = ["85vh"];
 }

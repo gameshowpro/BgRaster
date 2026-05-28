@@ -98,11 +98,11 @@ public class OptionsResolverTests
     {
         GlobalOptions global = new()
         {
-            Text = new TextOptions { Title = ["Hello ${MachineName}"] },
+            Text = new TextOptions { Text = ["Hello ${MachineName}"] },
         };
 
-        string title = OptionsResolver.Resolve(global, MakeOutput(0), null).Title;
-        title.Should().Contain(Environment.MachineName);
+        string line = OptionsResolver.Resolve(global, MakeOutput(0), null).TextLines[0];
+        line.Should().Contain(Environment.MachineName);
     }
 
     [Fact]
@@ -110,10 +110,10 @@ public class OptionsResolverTests
     {
         GlobalOptions global = new()
         {
-            Text = new TextOptions { Subtitle = ["${Width}x${Height}"] },
+            Text = new TextOptions { Text = ["${Width}x${Height}"] },
         };
 
-        string subtitle = OptionsResolver.Resolve(global, MakeOutput(0, 1920, 1080), null).Subtitle;
-        subtitle.Should().Be("1920x1080");
+        string line = OptionsResolver.Resolve(global, MakeOutput(0, 1920, 1080), null).TextLines[0];
+        line.Should().Be("1920x1080");
     }
 }

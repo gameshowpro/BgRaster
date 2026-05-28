@@ -95,6 +95,9 @@ internal static partial class BgRasterLog
     [LoggerMessage(EventId = 29, Level = LogLevel.Debug, Message = "# bg-raster: status=assignment-skipped reason=no-rendered-files")]
     internal static partial void AssignmentSkippedNoRenderedFiles(this ILogger logger);
 
+    [LoggerMessage(EventId = 30, Level = LogLevel.Information, Message = "# bg-raster: status=execution-time elapsedMs={elapsedMs} elapsed={elapsed} exitCode={exitCode}")]
+    internal static partial void ExecutionTime(this ILogger logger, long elapsedMs, string elapsed, int exitCode);
+
     // ── LastRunWriter diagnostics ─────────────────────────────────────────────
 
     [LoggerMessage(EventId = 40, Level = LogLevel.Warning, Message = "LastRunWriter: round-trip verification failed for '{path}'; previous file kept.")]

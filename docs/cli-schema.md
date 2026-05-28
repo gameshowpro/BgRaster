@@ -16,7 +16,7 @@ There are no sub-commands. There is no positional argument.
 2. Values from `config.toml` (resolved via `--config` or `<exe-dir>\config.toml`)
 3. CLI overrides
 
-A CLI override sets the value as a single-element array (so `--background-color "#000"` becomes `color = ["#000"]`, applied to every output).
+CLI overrides accept either scalar values or TOML array literals, depending on the option type. Example: `--background-color "#000"` becomes `color = ["#000"]`, `--text-size "[\"3vh\",\"2vh\",\"4vh\"]"` preserves all elements, and `--logo-opacity "[0.5,1.0]"` sets numeric opacity values.
 
 ## Options
 
@@ -26,36 +26,36 @@ This table is generated from the CLI option catalog in code (`src/Configuration/
 | Option | Type | TOML equivalent | Description | Default resolution |
 |---|---|---|---|---|
 | `--config <path>` | `string` | `-` | Path to a TOML config file. | if omitted, uses config.toml next to the executable. |
-| `--text-title <s>` | `string` | `[text].title` | Override title text. | if omitted, defers to config.toml [text].title; if missing there, uses ["${MachineName} ${Index}"]. |
-| `--text-subtitle <s>` | `string` | `[text].subtitle` | Override subtitle text. | if omitted, defers to config.toml [text].subtitle; if missing there, uses ["${Width}x${Height}"]. |
-| `--text-size <dim>` | `string` | `[text].size` | Font height. | if omitted, defers to config.toml [text].size; if missing there, uses ["1vh"]. |
+| `--text <s|["s1","s2"]>` | `string` | `[text].text` | Text line(s); accepts a single string or a TOML string array literal. | if omitted, defers to config.toml [text].text; if missing there, uses ["${MachineName} ${Index}", "${OutputName}", "${Width}x${Height}"]. |
+| `--text-size <dim|["d1","d2"]>` | `string` | `[text].size` | Text line height(s); accepts a single dimension or a TOML string array literal. | if omitted, defers to config.toml [text].size; if missing there, uses ["3vh", "2vh", "4vh"]. |
+| `--text-color <color|["c1","c2"]>` | `string` | `[text].color` | Text color(s); accepts a single color or a TOML string array literal. | if omitted, defers to config.toml [text].color; if missing there, uses ["#fff"]. |
 | `--text-x <dim>` | `string` | `[text].x` | Anchor X. | if omitted, defers to config.toml [text].x; if missing there, uses ["75vw"]. |
 | `--text-y <dim>` | `string` | `[text].y` | Anchor Y. | if omitted, defers to config.toml [text].y; if missing there, uses ["75vh"]. |
-| `--background-color <colour>` | `string` | `[background].color` | Background fill colour. | if omitted, defers to config.toml [background].color; if missing there, uses ["#FF0000", "#00FF00", "#0000FF"]. |
+| `--background-color <color>` | `string` | `[background].color` | Background fill color. | if omitted, defers to config.toml [background].color; if missing there, uses ["#FF0000", "#00FF00", "#0000FF"]. |
 | `--background-image <path>` | `string` | `[background].image` | Path to background bitmap. | if omitted, defers to config.toml [background].image; if missing there, uses [""] (disabled). |
 | `--background-fit <mode>` | `string` | `[background].fit` | Background fit mode. | if omitted, defers to config.toml [background].fit; if missing there, uses ["CropToFill"]. |
 | `--background-alternating <bool>` | `bool` | `[background].alternating` | Enable alternating-pixel pattern. | if omitted, defers to config.toml [background].alternating; if missing there, uses [false]. |
 | `--background-border <bool>` | `bool` | `[background].border` | Enable viewport border. | if omitted, defers to config.toml [background].border; if missing there, uses [false]. |
-| `--background-border-color <colour>` | `string` | `[background].border-color` | Border colour. | if omitted, defers to config.toml [background].border-color; if missing there, uses ["#FFFFFF"]. |
+| `--background-border-color <color>` | `string` | `[background].border-color` | Border color. | if omitted, defers to config.toml [background].border-color; if missing there, uses ["#FFFFFF"]. |
 | `--grid-size <dim>` | `string` | `[grid].size` | Grid cell side length. | if omitted, defers to config.toml [grid].size; if missing there, uses ["100px"]. |
-| `--grid-odd-color <colour>` | `string` | `[grid].odd-color` | Odd-cell colour. | if omitted, defers to config.toml [grid].odd-color; if missing there, uses ["#00000080"]. |
-| `--grid-even-color <colour>` | `string` | `[grid].even-color` | Even-cell colour. | if omitted, defers to config.toml [grid].even-color; if missing there, uses ["transparent"]. |
+| `--grid-odd-color <color>` | `string` | `[grid].odd-color` | Odd-cell color. | if omitted, defers to config.toml [grid].odd-color; if missing there, uses ["#00000080"]. |
+| `--grid-even-color <color>` | `string` | `[grid].even-color` | Even-cell color. | if omitted, defers to config.toml [grid].even-color; if missing there, uses ["transparent"]. |
 | `--grid-stroke <dim>` | `string` | `[grid].stroke` | Cell stroke width. | if omitted, defers to config.toml [grid].stroke; if missing there, uses ["0"]. |
 | `--grid-offset-x <dim>` | `string` | `[grid].offset-x` | Grid origin X. | if omitted, defers to config.toml [grid].offset-x; if missing there, uses ["0"]. |
 | `--grid-offset-y <dim>` | `string` | `[grid].offset-y` | Grid origin Y. | if omitted, defers to config.toml [grid].offset-y; if missing there, uses ["0"]. |
 | `--grid-coordinates <bool>` | `bool` | `[grid].coordinates` | Enable per-cell coordinate labels. | if omitted, defers to config.toml [grid].coordinates; if missing there, uses [false]. |
 | `--circle-size <dim>` | `string` | `[circle].size` | Circle diameter. | if omitted, defers to config.toml [circle].size; if missing there, uses ["100vmin"]. |
-| `--circle-color <colour>` | `string` | `[circle].color` | Circle colour. | if omitted, defers to config.toml [circle].color; if missing there, uses ["#ffffff40"]. |
+| `--circle-color <color>` | `string` | `[circle].color` | Circle color. | if omitted, defers to config.toml [circle].color; if missing there, uses ["#ffffff40"]. |
 | `--circle-stroke <dim>` | `string` | `[circle].stroke` | Circle stroke width. | if omitted, defers to config.toml [circle].stroke; if missing there, uses ["0"]. |
 | `--crosshair-length <dim>` | `string` | `[crosshair].length` | Crosshair half-arm length. | if omitted, defers to config.toml [crosshair].length; if missing there, uses ["5vmin"]. |
-| `--crosshair-color <colour>` | `string` | `[crosshair].color` | Crosshair colour. | if omitted, defers to config.toml [crosshair].color; if missing there, uses ["#ffffff80"]. |
-| `--crosshair-stroke <dim>` | `string` | `[crosshair].stroke` | Crosshair stroke width. | if omitted, defers to config.toml [crosshair].stroke; if missing there, uses ["2px"]. |
+| `--crosshair-color <color>` | `string` | `[crosshair].color` | Crosshair color. | if omitted, defers to config.toml [crosshair].color; if missing there, uses ["#ffffff80"]. |
+| `--crosshair-stroke <dim>` | `string` | `[crosshair].stroke` | Crosshair stroke width. | if omitted, defers to config.toml [crosshair].stroke; if missing there, uses ["1px"]. |
 | `--logo-source <path>` | `string` | `[logo].source` | Path to logo file (PNG/JPG/SVG). | if omitted, defers to config.toml [logo].source; if missing there, uses [""] (embedded fallback). |
 | `--logo-x <dim>` | `string` | `[logo].x` | Logo rect left. | if omitted, defers to config.toml [logo].x; if missing there, uses ["75vw"]. |
 | `--logo-y <dim>` | `string` | `[logo].y` | Logo rect top. | if omitted, defers to config.toml [logo].y; if missing there, uses ["25vh"]. |
 | `--logo-width <dim>` | `string` | `[logo].width` | Logo rect width. | if omitted, defers to config.toml [logo].width; if missing there, uses ["15vw"]. |
 | `--logo-height <dim>` | `string` | `[logo].height` | Logo rect height. | if omitted, defers to config.toml [logo].height; if missing there, uses ["15vh"]. |
-| `--logo-opacity <0..1>` | `string` | `[logo].opacity` | Logo alpha multiplier. | if omitted, defers to config.toml [logo].opacity; if missing there, uses ["1"]. |
+| `--logo-opacity <f|[f1,f2]>` | `float|float[]` | `[logo].opacity` | Logo alpha multiplier(s) in range [0, 1]; accepts a single float or a TOML float array literal. | if omitted, defers to config.toml [logo].opacity; if missing there, uses [1.0]. |
 | `--no-assignment <bool>` | `bool` | `[render].no-assignment` | Generate PNGs without assigning wallpaper. | if omitted, defers to config.toml [render].no-assignment; if missing there, uses false. |
 | `--outputs-skip-unspecified <bool>` | `bool` | `[render].outputs-skip-unspecified` | Skip discovered displays that have no explicit [[output]] target. | if omitted, defers to config.toml [render].outputs-skip-unspecified; if missing there, uses false. |
 | `--render-output <path>` | `string` | `[render].output` | Output directory for generated PNGs. | if omitted, defers to config.toml [render].output; if missing there, defaults to %TEMP%/BgRaster. |
@@ -63,7 +63,7 @@ This table is generated from the CLI option catalog in code (`src/Configuration/
 | `--verbosity <level>` | `string` | `[render].verbosity` | Logging verbosity: quiet, normal, verbose. | if omitted, defers to config.toml [render].verbosity; if missing there, uses "normal". |
 <!-- END:CLI_OPTIONS_TABLE -->
 
-For unit, colour, and substitution-token reference see the [TOML schema](toml-schema.md).
+For unit, color, and substitution-token reference see the [TOML schema](toml-schema.md).
 
 ## Exit codes
 
@@ -101,7 +101,7 @@ BgRaster.exe --config "C:\AV\bgraster\studio-a.toml"
 # Dry run to inspect what would be rendered
 BgRaster.exe --no-assignment true --render-output "C:\temp\bgraster-out"
 
-# Force a colour wash without editing config
+# Force a color wash without editing config
 BgRaster.exe --background-color "#101820" --grid-size 0
 
 # Quick coordinate grid for projector calibration

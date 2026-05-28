@@ -1,6 +1,7 @@
 namespace GameshowPro.BgRaster;
 
 using System.CommandLine;
+using System.Diagnostics;
 using System.Reflection;
 using GameshowPro.BgRaster.Configuration;
 using GameshowPro.BgRaster.Discovery;
@@ -22,6 +23,8 @@ static class Program
 
     static async Task<int> RunAsync(string? configPath, CliOverlay cliOverlay)
     {
+        Stopwatch executionTimer = Stopwatch.StartNew();
+
         string resolvedConfigPath = configPath
             ?? Path.Combine(AppContext.BaseDirectory, "config.toml");
         bool configExists = File.Exists(resolvedConfigPath);
@@ -41,6 +44,13 @@ static class Program
             builder.SetMinimumLevel(options.Render.MinimumLogLevel);
         });
         ILogger logger = loggerFactory.CreateLogger("bg-raster");
+
+        int ReturnWithTiming(int exitCode)
+        {
+            executionTimer.Stop();
+            logger.ExecutionTime(executionTimer.ElapsedMilliseconds, executionTimer.Elapsed.ToString("c", System.Globalization.CultureInfo.InvariantCulture), exitCode);
+            return exitCode;
+        }
 
         logger.RunStart(
             resolvedConfigPath,
@@ -105,7 +115,7 @@ static class Program
                 if (!continueAfterUnchanged)
                 {
                     logger.SkipBecauseUnchanged();
-                    return 0;
+                    return ReturnWithTiming(0);
                 }
 
                 logger.ContinueAfterUnchanged();
@@ -199,7 +209,7 @@ static class Program
                 await assigner.ClearAsync(assignedFiles.Keys);
                 logger.WallpaperAssignmentFailed();
                 WriteLastRun(lastRunPath, settingsHash, hardware, options, assignedFiles, unrecycled, runStatus, logger);
-                return 1;
+                return ReturnWithTiming(1);
             }
 
             StaleFileCleaner cleaner = new();
@@ -211,7 +221,7 @@ static class Program
         logger.LastRunWrite(lastRunPath, assignedFiles.Count, unrecycled.Length);
         WriteLastRun(lastRunPath, settingsHash, hardware, options, assignedFiles, unrecycled, runStatus, logger);
         logger.RunComplete();
-        return 0;
+        return ReturnWithTiming(0);
     }
 
     static void WriteLastRun(

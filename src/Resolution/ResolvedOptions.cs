@@ -2,9 +2,9 @@ namespace GameshowPro.BgRaster.Resolution;
 
 record ResolvedOptions
 {
-    internal string Title { get; init; } = "";
-    internal string Subtitle { get; init; } = "";
-    internal float TextSizePx { get; init; }
+    internal ImmutableArray<string> TextLines { get; init; } = [];
+    internal ImmutableArray<float> TextSizesPx { get; init; } = [];
+    internal ImmutableArray<SKColor> TextColors { get; init; } = [];
     internal float TextXPx { get; init; }
     internal float TextYPx { get; init; }
     internal SKColor BackgroundColor { get; init; }

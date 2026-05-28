@@ -5,9 +5,9 @@ static class CliBinding
     internal static RootCommand BuildRootCommand(Func<string?, CliOverlay, Task<int>> handler)
     {
         Option<string?> configOption = CreateStringOption("--config");
-        Option<string?> textTitleOption = CreateStringOption("--text-title");
-        Option<string?> textSubtitleOption = CreateStringOption("--text-subtitle");
+        Option<string?> textOption = CreateStringOption("--text");
         Option<string?> textSizeOption = CreateStringOption("--text-size");
+        Option<string?> textColorOption = CreateStringOption("--text-color");
         Option<string?> textXOption = CreateStringOption("--text-x");
         Option<string?> textYOption = CreateStringOption("--text-y");
         Option<string?> bgColorOption = CreateStringOption("--background-color");
@@ -44,7 +44,7 @@ static class CliBinding
         RootCommand root = new("BgRaster — per-output wallpaper renderer")
         {
             configOption,
-            textTitleOption, textSubtitleOption, textSizeOption, textXOption, textYOption,
+            textOption, textSizeOption, textColorOption, textXOption, textYOption,
             bgColorOption, bgImageOption, bgFitOption, bgAlternatingOption, bgBorderOption, bgBorderColorOption,
             gridSizeOption, gridOddColorOption, gridEvenColorOption, gridStrokeOption,
             gridOffsetXOption, gridOffsetYOption, gridCoordinatesOption,
@@ -59,9 +59,9 @@ static class CliBinding
             string? config = parseResult.GetValue(configOption);
             CliOverlay overlay = new()
             {
-                TextTitle = parseResult.GetValue(textTitleOption),
-                TextSubtitle = parseResult.GetValue(textSubtitleOption),
+                Text = parseResult.GetValue(textOption),
                 TextSize = parseResult.GetValue(textSizeOption),
+                TextColor = parseResult.GetValue(textColorOption),
                 TextX = parseResult.GetValue(textXOption),
                 TextY = parseResult.GetValue(textYOption),
                 BackgroundColor = parseResult.GetValue(bgColorOption),

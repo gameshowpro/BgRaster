@@ -71,7 +71,7 @@ Examples:
 1. [grid] size maps to --grid-size
 1. [grid] odd-color maps to --grid-odd-color
 1. [circle] stroke maps to --circle-stroke
-1. [text] title maps to --text-title
+1. [text] text maps to --text
 1. [crosshair] length maps to --crosshair-length
 1. [logo] width maps to --logo-width
 1. [logo] opacity maps to --logo-opacity

@@ -19,41 +19,68 @@ static class ConfigLoader
         LogoOptions logo = options.Logo;
         RenderOptions render = options.Render;
 
-        if (overlay.TextTitle is not null) text = text with { Title = [overlay.TextTitle] };
-        if (overlay.TextSubtitle is not null) text = text with { Subtitle = [overlay.TextSubtitle] };
-        if (overlay.TextSize is not null) text = text with { Size = [overlay.TextSize] };
-        if (overlay.TextX is not null) text = text with { X = [overlay.TextX] };
-        if (overlay.TextY is not null) text = text with { Y = [overlay.TextY] };
+        if (overlay.Text is not null)
+            text = text with { Text = ParseCliStringOrArray(overlay.Text, "cli --text", warnings) };
+        if (overlay.TextSize is not null)
+            text = text with { Size = ParseCliStringOrArray(overlay.TextSize, "cli --text-size", warnings) };
+        if (overlay.TextColor is not null)
+            text = text with { Color = ParseCliStringOrArray(overlay.TextColor, "cli --text-color", warnings) };
+        if (overlay.TextX is not null)
+            text = text with { X = ParseCliStringOrArray(overlay.TextX, "cli --text-x", warnings) };
+        if (overlay.TextY is not null)
+            text = text with { Y = ParseCliStringOrArray(overlay.TextY, "cli --text-y", warnings) };
 
-        if (overlay.BackgroundColor is not null) bg = bg with { Color = [overlay.BackgroundColor] };
-        if (overlay.BackgroundImage is not null) bg = bg with { Image = [overlay.BackgroundImage] };
-        if (overlay.BackgroundFit is not null) bg = bg with { Fit = [overlay.BackgroundFit] };
+        if (overlay.BackgroundColor is not null)
+            bg = bg with { Color = ParseCliStringOrArray(overlay.BackgroundColor, "cli --background-color", warnings) };
+        if (overlay.BackgroundImage is not null)
+            bg = bg with { Image = ParseCliStringOrArray(overlay.BackgroundImage, "cli --background-image", warnings) };
+        if (overlay.BackgroundFit is not null)
+            bg = bg with { Fit = ParseCliStringOrArray(overlay.BackgroundFit, "cli --background-fit", warnings) };
         if (overlay.BackgroundAlternating is not null) bg = bg with { Alternating = [overlay.BackgroundAlternating.Value] };
         if (overlay.BackgroundBorder is not null) bg = bg with { Border = [overlay.BackgroundBorder.Value] };
-        if (overlay.BackgroundBorderColor is not null) bg = bg with { BorderColor = [overlay.BackgroundBorderColor] };
+        if (overlay.BackgroundBorderColor is not null)
+            bg = bg with { BorderColor = ParseCliStringOrArray(overlay.BackgroundBorderColor, "cli --background-border-color", warnings) };
 
-        if (overlay.GridSize is not null) grid = grid with { Size = [overlay.GridSize] };
-        if (overlay.GridOddColor is not null) grid = grid with { OddColor = [overlay.GridOddColor] };
-        if (overlay.GridEvenColor is not null) grid = grid with { EvenColor = [overlay.GridEvenColor] };
-        if (overlay.GridStroke is not null) grid = grid with { Stroke = [overlay.GridStroke] };
-        if (overlay.GridOffsetX is not null) grid = grid with { OffsetX = [overlay.GridOffsetX] };
-        if (overlay.GridOffsetY is not null) grid = grid with { OffsetY = [overlay.GridOffsetY] };
+        if (overlay.GridSize is not null)
+            grid = grid with { Size = ParseCliStringOrArray(overlay.GridSize, "cli --grid-size", warnings) };
+        if (overlay.GridOddColor is not null)
+            grid = grid with { OddColor = ParseCliStringOrArray(overlay.GridOddColor, "cli --grid-odd-color", warnings) };
+        if (overlay.GridEvenColor is not null)
+            grid = grid with { EvenColor = ParseCliStringOrArray(overlay.GridEvenColor, "cli --grid-even-color", warnings) };
+        if (overlay.GridStroke is not null)
+            grid = grid with { Stroke = ParseCliStringOrArray(overlay.GridStroke, "cli --grid-stroke", warnings) };
+        if (overlay.GridOffsetX is not null)
+            grid = grid with { OffsetX = ParseCliStringOrArray(overlay.GridOffsetX, "cli --grid-offset-x", warnings) };
+        if (overlay.GridOffsetY is not null)
+            grid = grid with { OffsetY = ParseCliStringOrArray(overlay.GridOffsetY, "cli --grid-offset-y", warnings) };
         if (overlay.GridCoordinates is not null) grid = grid with { Coordinates = [overlay.GridCoordinates.Value] };
 
-        if (overlay.CircleSize is not null) circle = circle with { Size = [overlay.CircleSize] };
-        if (overlay.CircleColor is not null) circle = circle with { Color = [overlay.CircleColor] };
-        if (overlay.CircleStroke is not null) circle = circle with { Stroke = [overlay.CircleStroke] };
+        if (overlay.CircleSize is not null)
+            circle = circle with { Size = ParseCliStringOrArray(overlay.CircleSize, "cli --circle-size", warnings) };
+        if (overlay.CircleColor is not null)
+            circle = circle with { Color = ParseCliStringOrArray(overlay.CircleColor, "cli --circle-color", warnings) };
+        if (overlay.CircleStroke is not null)
+            circle = circle with { Stroke = ParseCliStringOrArray(overlay.CircleStroke, "cli --circle-stroke", warnings) };
 
-        if (overlay.CrosshairLength is not null) crosshair = crosshair with { Length = [overlay.CrosshairLength] };
-        if (overlay.CrosshairColor is not null) crosshair = crosshair with { Color = [overlay.CrosshairColor] };
-        if (overlay.CrosshairStroke is not null) crosshair = crosshair with { Stroke = [overlay.CrosshairStroke] };
+        if (overlay.CrosshairLength is not null)
+            crosshair = crosshair with { Length = ParseCliStringOrArray(overlay.CrosshairLength, "cli --crosshair-length", warnings) };
+        if (overlay.CrosshairColor is not null)
+            crosshair = crosshair with { Color = ParseCliStringOrArray(overlay.CrosshairColor, "cli --crosshair-color", warnings) };
+        if (overlay.CrosshairStroke is not null)
+            crosshair = crosshair with { Stroke = ParseCliStringOrArray(overlay.CrosshairStroke, "cli --crosshair-stroke", warnings) };
 
-        if (overlay.LogoSource is not null) logo = logo with { Source = [overlay.LogoSource] };
-        if (overlay.LogoX is not null) logo = logo with { X = [overlay.LogoX] };
-        if (overlay.LogoY is not null) logo = logo with { Y = [overlay.LogoY] };
-        if (overlay.LogoWidth is not null) logo = logo with { Width = [overlay.LogoWidth] };
-        if (overlay.LogoHeight is not null) logo = logo with { Height = [overlay.LogoHeight] };
-        if (overlay.LogoOpacity is not null) logo = logo with { Opacity = [overlay.LogoOpacity] };
+        if (overlay.LogoSource is not null)
+            logo = logo with { Source = ParseCliStringOrArray(overlay.LogoSource, "cli --logo-source", warnings) };
+        if (overlay.LogoX is not null)
+            logo = logo with { X = ParseCliStringOrArray(overlay.LogoX, "cli --logo-x", warnings) };
+        if (overlay.LogoY is not null)
+            logo = logo with { Y = ParseCliStringOrArray(overlay.LogoY, "cli --logo-y", warnings) };
+        if (overlay.LogoWidth is not null)
+            logo = logo with { Width = ParseCliStringOrArray(overlay.LogoWidth, "cli --logo-width", warnings) };
+        if (overlay.LogoHeight is not null)
+            logo = logo with { Height = ParseCliStringOrArray(overlay.LogoHeight, "cli --logo-height", warnings) };
+        if (overlay.LogoOpacity is not null)
+            logo = logo with { Opacity = ParseCliFloatOrArray(overlay.LogoOpacity, "cli --logo-opacity") };
 
         if (overlay.RenderDryRun is not null) render = render with { DryRun = overlay.RenderDryRun.Value };
         if (overlay.RenderOutputsSkipUnspecified is not null)
@@ -133,9 +160,9 @@ static class ConfigLoader
 
     static TextOptions ParseTextOptions(TomlTable t) => new()
     {
-        Title = GetStringArray(t, "title") ?? new TextOptions().Title,
-        Subtitle = GetStringArray(t, "subtitle") ?? new TextOptions().Subtitle,
+        Text = GetStringArray(t, "text") ?? ParseLegacyText(t) ?? new TextOptions().Text,
         Size = GetStringArray(t, "size") ?? new TextOptions().Size,
+        Color = GetStringArray(t, "color") ?? new TextOptions().Color,
         X = GetStringArray(t, "x") ?? new TextOptions().X,
         Y = GetStringArray(t, "y") ?? new TextOptions().Y,
     };
@@ -182,7 +209,7 @@ static class ConfigLoader
         Y = GetStringArray(t, "y") ?? new LogoOptions().Y,
         Width = GetStringArray(t, "width") ?? new LogoOptions().Width,
         Height = GetStringArray(t, "height") ?? new LogoOptions().Height,
-        Opacity = GetStringArray(t, "opacity") ?? new LogoOptions().Opacity,
+        Opacity = GetFloatArrayRequiredRange(t, "opacity", "config [logo].opacity", minInclusive: 0f, maxInclusive: 1f) ?? new LogoOptions().Opacity,
     };
 
     static RenderOptions ParseRenderOptions(TomlTable t, List<string>? warnings)
@@ -244,14 +271,102 @@ static class ConfigLoader
     static TextOverride? ParseTextOverride(TomlTable parent, string key)
     {
         if (!parent.TryGetValue(key, out object? obj) || obj is not TomlTable t) return null;
+
+        ImmutableArray<string>? textOverride = GetStringArray(t, "text") ?? ParseLegacyText(t);
+
         return new TextOverride
         {
-            Title = GetString(t, "title"),
-            Subtitle = GetString(t, "subtitle"),
-            Size = GetString(t, "size"),
+            Text = textOverride,
+            Size = GetStringArray(t, "size"),
+            Color = GetStringArray(t, "color"),
             X = GetString(t, "x"),
             Y = GetString(t, "y"),
         };
+    }
+
+    static ImmutableArray<string>? ParseLegacyText(TomlTable t)
+    {
+        ImmutableArray<string>? title = GetStringArray(t, "title");
+        ImmutableArray<string>? subtitle = GetStringArray(t, "subtitle");
+
+        if (title is null && subtitle is null)
+            return null;
+
+        string[] defaults = new TextOptions().Text.ToArray();
+        defaults[0] = title is { Length: > 0 } ? title.Value[0] : defaults[0];
+        defaults[2] = subtitle is { Length: > 0 } ? subtitle.Value[0] : defaults[2];
+        return [.. defaults];
+    }
+
+    static ImmutableArray<string> ParseCliStringOrArray(string raw, string source, List<string>? warnings)
+    {
+        string trimmed = raw.Trim();
+        if (!trimmed.StartsWith("[", StringComparison.Ordinal))
+            return [raw];
+
+        try
+        {
+            TomlTable model = Toml.ToModel($"value = {trimmed}");
+            if (model.TryGetValue("value", out object? value) && value is TomlArray array)
+            {
+                bool allStrings = array.All(item => item is string);
+                if (allStrings)
+                    return [.. array.Cast<string>()];
+
+                warnings?.Add($"Invalid CLI string-array '{raw}' from {source}; expected all string elements. Treating as literal string.");
+                return [raw];
+            }
+        }
+        catch (Exception)
+        {
+            warnings?.Add($"Invalid CLI string-array '{raw}' from {source}; treating as literal string.");
+        }
+
+        return [raw];
+    }
+
+    static ImmutableArray<float> ParseCliFloatOrArray(string raw, string source)
+    {
+        string trimmed = raw.Trim();
+        if (!trimmed.StartsWith("[", StringComparison.Ordinal))
+        {
+            if (!float.TryParse(trimmed, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float singleValue))
+                throw new FormatException($"Invalid numeric value '{raw}' from {source}; expected a float or TOML float array literal.");
+
+            ValidateRange(singleValue, source);
+            return [singleValue];
+        }
+
+        TomlTable model;
+        try
+        {
+            model = Toml.ToModel($"value = {trimmed}");
+        }
+        catch (Exception ex)
+        {
+            throw new FormatException($"Invalid TOML float array literal '{raw}' from {source}; expected format like [0.5, 1.0].", ex);
+        }
+
+        if (!model.TryGetValue("value", out object? value) || value is not TomlArray array)
+            throw new FormatException($"Invalid numeric value '{raw}' from {source}; expected a float or TOML float array literal.");
+
+        ImmutableArray<float>.Builder values = ImmutableArray.CreateBuilder<float>(array.Count);
+        for (int i = 0; i < array.Count; i++)
+        {
+            if (!TryConvertTomlNumber(array[i], out float parsed))
+                throw new FormatException($"Invalid numeric value at index {i} in {source}: '{array[i]}'; expected a float.");
+
+            ValidateRange(parsed, source);
+            values.Add(parsed);
+        }
+
+        return values.ToImmutable();
+
+        static void ValidateRange(float value, string source)
+        {
+            if (value < 0f || value > 1f)
+                throw new FormatException($"Value {value.ToString(System.Globalization.CultureInfo.InvariantCulture)} from {source} must be within [0, 1].");
+        }
     }
 
     static BackgroundOverride? ParseBackgroundOverride(TomlTable parent, string key)
@@ -315,7 +430,7 @@ static class ConfigLoader
             Y = GetString(t, "y"),
             Width = GetString(t, "width"),
             Height = GetString(t, "height"),
-            Opacity = GetString(t, "opacity"),
+            Opacity = GetFloatRequiredRange(t, "opacity", $"config [{key}].opacity", minInclusive: 0f, maxInclusive: 1f),
         };
     }
 
@@ -325,6 +440,79 @@ static class ConfigLoader
         if (obj is TomlArray arr) return [.. arr.OfType<string>()];
         if (obj is string s) return [s];
         return null;
+    }
+
+    static ImmutableArray<float>? GetFloatArrayRequiredRange(
+        TomlTable t,
+        string key,
+        string source,
+        float minInclusive,
+        float maxInclusive)
+    {
+        if (!t.TryGetValue(key, out object? obj))
+            return null;
+
+        if (obj is TomlArray arr)
+        {
+            ImmutableArray<float>.Builder values = ImmutableArray.CreateBuilder<float>(arr.Count);
+            for (int i = 0; i < arr.Count; i++)
+            {
+                if (!TryConvertTomlNumber(arr[i], out float parsed))
+                    throw new FormatException($"Invalid numeric value in {source}[{i}]: '{arr[i]}'; expected a float.");
+                ValidateRange(parsed, source, minInclusive, maxInclusive);
+                values.Add(parsed);
+            }
+            return values.ToImmutable();
+        }
+
+        if (!TryConvertTomlNumber(obj, out float single))
+            throw new FormatException($"Invalid numeric value in {source}: '{obj}'; expected a float or float array.");
+
+        ValidateRange(single, source, minInclusive, maxInclusive);
+        return [single];
+    }
+
+    static float? GetFloatRequiredRange(TomlTable t, string key, string source, float minInclusive, float maxInclusive)
+    {
+        if (!t.TryGetValue(key, out object? obj))
+            return null;
+
+        if (!TryConvertTomlNumber(obj, out float value))
+            throw new FormatException($"Invalid numeric value in {source}: '{obj}'; expected a float.");
+
+        ValidateRange(value, source, minInclusive, maxInclusive);
+        return value;
+    }
+
+    static bool TryConvertTomlNumber(object? value, out float parsed)
+    {
+        switch (value)
+        {
+            case double d:
+                parsed = (float)d;
+                return true;
+            case long l:
+                parsed = l;
+                return true;
+            case int i:
+                parsed = i;
+                return true;
+            case float f:
+                parsed = f;
+                return true;
+            default:
+                parsed = 0f;
+                return false;
+        }
+    }
+
+    static void ValidateRange(float value, string source, float minInclusive, float maxInclusive)
+    {
+        if (value < minInclusive || value > maxInclusive)
+        {
+            throw new FormatException(
+                $"Invalid numeric value {value.ToString(System.Globalization.CultureInfo.InvariantCulture)} in {source}; expected value in range [{minInclusive.ToString(System.Globalization.CultureInfo.InvariantCulture)}, {maxInclusive.ToString(System.Globalization.CultureInfo.InvariantCulture)}].");
+        }
     }
 
     static ImmutableArray<bool>? GetBoolArray(TomlTable t, string key)

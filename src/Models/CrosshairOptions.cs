@@ -4,5 +4,5 @@ record CrosshairOptions
 {
     internal ImmutableArray<string> Length { get; init; } = ["5vmin"];
     internal ImmutableArray<string> Color { get; init; } = ["#ffffff80"];
-    internal ImmutableArray<string> Stroke { get; init; } = ["2px"];
+    internal ImmutableArray<string> Stroke { get; init; } = ["1px"];
 }
