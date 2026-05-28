@@ -9,24 +9,22 @@ static partial class FontManager
     static SKTypeface LoadEmbeddedFont()
     {
         Assembly asm = Assembly.GetExecutingAssembly();
-
-        // Resource logical names can vary depending on project layout/linking,
-        // so resolve by suffix rather than hard-coding a full name.
         string? resourceName = asm.GetManifestResourceNames()
             .FirstOrDefault(n => n.EndsWith("Gidolinya-Regular.otf", StringComparison.OrdinalIgnoreCase));
 
-        if (resourceName is not null)
+        if (resourceName is null)
         {
-            using Stream? stream = asm.GetManifestResourceStream(resourceName);
-            if (stream is not null)
-            {
-                SKTypeface? embedded = SKTypeface.FromStream(stream);
-                if (embedded is not null)
-                    return embedded;
-            }
+            string available = string.Join(", ", asm.GetManifestResourceNames().OrderBy(n => n, StringComparer.Ordinal));
+            throw new InvalidOperationException(
+                $"Embedded font resource 'Gidolinya-Regular.otf' was not found. Available resources: [{available}]");
         }
 
-        // Fallback keeps rendering functional even if embedded font loading fails.
-        return SKTypeface.FromFamilyName("Segoe UI") ?? SKTypeface.Default;
+        using Stream stream = asm.GetManifestResourceStream(resourceName)
+            ?? throw new InvalidOperationException(
+                $"Embedded font resource '{resourceName}' could not be opened.");
+
+        return SKTypeface.FromStream(stream)
+            ?? throw new InvalidOperationException(
+                $"Embedded font resource '{resourceName}' could not be loaded as a typeface.");
     }
 }

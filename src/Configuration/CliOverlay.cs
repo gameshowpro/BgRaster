@@ -2,9 +2,9 @@ namespace GameshowPro.BgRaster.Configuration;
 
 record CliOverlay
 {
-    internal string? TextTitle { get; init; }
-    internal string? TextSubtitle { get; init; }
+    internal string? Text { get; init; }
     internal string? TextSize { get; init; }
+    internal string? TextColor { get; init; }
     internal string? TextX { get; init; }
     internal string? TextY { get; init; }
     internal string? BackgroundColor { get; init; }

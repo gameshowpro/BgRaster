@@ -21,9 +21,9 @@ static class SettingsHasher
 
     static void WriteTextOptions(StringBuilder sb, TextOptions t)
     {
-        WriteStringArray(sb, "text.title", t.Title);
-        WriteStringArray(sb, "text.subtitle", t.Subtitle);
+        WriteStringArray(sb, "text.text", t.Text);
         WriteStringArray(sb, "text.size", t.Size);
+        WriteStringArray(sb, "text.color", t.Color);
         WriteStringArray(sb, "text.x", t.X);
         WriteStringArray(sb, "text.y", t.Y);
     }
@@ -70,7 +70,7 @@ static class SettingsHasher
         WriteStringArray(sb, "logo.y", l.Y);
         WriteStringArray(sb, "logo.width", l.Width);
         WriteStringArray(sb, "logo.height", l.Height);
-        WriteStringArray(sb, "logo.opacity", l.Opacity);
+        WriteFloatArray(sb, "logo.opacity", l.Opacity);
     }
 
     static void WriteRenderOptions(StringBuilder sb, RenderOptions r)
@@ -104,9 +104,9 @@ static class SettingsHasher
 
             if (o.Text is TextOverride text)
             {
-                WriteNullable(sb, $"{prefix}.text.title", text.Title);
-                WriteNullable(sb, $"{prefix}.text.subtitle", text.Subtitle);
-                WriteNullable(sb, $"{prefix}.text.size", text.Size);
+                WriteNullableArray(sb, $"{prefix}.text.text", text.Text);
+                WriteNullableArray(sb, $"{prefix}.text.size", text.Size);
+                WriteNullableArray(sb, $"{prefix}.text.color", text.Color);
                 WriteNullable(sb, $"{prefix}.text.x", text.X);
                 WriteNullable(sb, $"{prefix}.text.y", text.Y);
             }
@@ -148,7 +148,7 @@ static class SettingsHasher
                 WriteNullable(sb, $"{prefix}.logo.y", logo.Y);
                 WriteNullable(sb, $"{prefix}.logo.width", logo.Width);
                 WriteNullable(sb, $"{prefix}.logo.height", logo.Height);
-                WriteNullable(sb, $"{prefix}.logo.opacity", logo.Opacity);
+                WriteNullableFloat(sb, $"{prefix}.logo.opacity", logo.Opacity);
             }
             WriteSlices(sb, prefix, o.Slices);
             i++;
@@ -191,13 +191,38 @@ static class SettingsHasher
         sb.Append("]\n");
     }
 
+    static void WriteFloatArray(StringBuilder sb, string key, ImmutableArray<float> values)
+    {
+        sb.Append(key).Append("=[");
+        for (int i = 0; i < values.Length; i++)
+        {
+            if (i > 0) sb.Append(',');
+            sb.Append(values[i].ToString(System.Globalization.CultureInfo.InvariantCulture));
+        }
+        sb.Append("]\n");
+    }
+
     static void WriteNullable(StringBuilder sb, string key, string? value)
     {
         if (value is not null) sb.Append(key).Append('=').Append(value).Append('\n');
     }
 
+    static void WriteNullableArray(StringBuilder sb, string key, ImmutableArray<string>? values)
+    {
+        if (values is not { Length: > 0 })
+            return;
+
+        WriteStringArray(sb, key, values.Value);
+    }
+
     static void WriteNullableBool(StringBuilder sb, string key, bool? value)
     {
         if (value.HasValue) sb.Append(key).Append('=').Append(value.Value).Append('\n');
+    }
+
+    static void WriteNullableFloat(StringBuilder sb, string key, float? value)
+    {
+        if (value.HasValue)
+            sb.Append(key).Append('=').Append(value.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)).Append('\n');
     }
 }

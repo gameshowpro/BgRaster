@@ -88,7 +88,7 @@ Each layer reads from `RenderContext` (which carries `OutputRecord`, resolved op
 
 Notable layers:
 - **`AlternatingLayer`** uses `SKBitmap.GetPixels()` with an unsafe pointer to set pixels in O(W×H) without per-pixel allocation.
-- **`GridLayer`** optionally draws WCAG-style luminance-aware coordinate labels: text colour is chosen per cell based on `0.299·R + 0.587·G + 0.114·B` of the cell background colour.
+- **`GridLayer`** optionally draws WCAG-style luminance-aware coordinate labels: text color is chosen per cell based on `0.299·R + 0.587·G + 0.114·B` of the cell background color.
 - **`LogoLayer`** branches by extension: PNG/JPG via `SKBitmap.Decode`; SVG via `SvgRenderer.TryRender` (a hand-rolled XmlReader-based parser supporting a small subset of SVG). On any failure, the embedded `resources/fallback-logo.svg` is used; if even that fails, a programmatic orange cross is drawn.
 - **`TextLayer`** uses an embedded `Gidolinya-Regular.otf` via `Assembly.GetManifestResourceStream`, loaded once into a `static SKTypeface`.
 
@@ -138,7 +138,7 @@ Two resources are embedded into the AOT binary: `resources/gidole/Gidolinya-Regu
 | `src/FileLifecycle/` | Filename generation, stale-file detection. |
 | `src/Hashing/` | Canonical settings hash. |
 | `src/Models/` | Plain `record` types — no behaviour. |
-| `src/Parsing/` | Unit, colour, fit-mode parsing. |
+| `src/Parsing/` | Unit, color, fit-mode parsing. |
 | `src/Rendering/` | SkiaSharp layer pipeline, font, SVG renderer. |
 | `src/Resolution/` | Override merging, target matching, substitution. |
 | `src/StateCache/` | `lastRun.toml` read/write with round-trip verification. |

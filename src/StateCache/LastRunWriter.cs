@@ -154,9 +154,9 @@ static class LastRunWriter
     static void WriteTextSection(StringBuilder sb, TextOptions t)
     {
         sb.AppendLine("[text]");
-        WriteTomlStringArray(sb, "title", t.Title);
-        WriteTomlStringArray(sb, "subtitle", t.Subtitle);
+        WriteTomlStringArray(sb, "text", t.Text);
         WriteTomlStringArray(sb, "size", t.Size);
+        WriteTomlStringArray(sb, "color", t.Color);
         WriteTomlStringArray(sb, "x", t.X);
         WriteTomlStringArray(sb, "y", t.Y);
         sb.AppendLine();
@@ -213,7 +213,7 @@ static class LastRunWriter
         WriteTomlStringArray(sb, "y", l.Y);
         WriteTomlStringArray(sb, "width", l.Width);
         WriteTomlStringArray(sb, "height", l.Height);
-        WriteTomlStringArray(sb, "opacity", l.Opacity);
+        WriteTomlFloatArray(sb, "opacity", l.Opacity);
         sb.AppendLine();
     }
 
@@ -292,6 +292,17 @@ static class LastRunWriter
         {
             if (i > 0) sb.Append(", ");
             sb.Append(values[i].ToString().ToLowerInvariant());
+        }
+        sb.AppendLine("]");
+    }
+
+    static void WriteTomlFloatArray(StringBuilder sb, string key, ImmutableArray<float> values)
+    {
+        sb.Append(key).Append(" = [");
+        for (int i = 0; i < values.Length; i++)
+        {
+            if (i > 0) sb.Append(", ");
+            sb.Append(values[i].ToString(System.Globalization.CultureInfo.InvariantCulture));
         }
         sb.AppendLine("]");
     }

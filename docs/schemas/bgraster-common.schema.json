@@ -8,23 +8,23 @@
       "description": "Global text rendering settings",
       "additionalProperties": false,
       "properties": {
-        "title": {
+        "text": {
           "type": "array",
           "items": { "type": "string" },
-          "default": ["${MachineName} ${Index}"],
-          "description": "Primary label text, supports ${MachineName}, ${Index}, ${Width}, ${Height}, ${IndexPlusOne}, ${OutputName}"
-        },
-        "subtitle": {
-          "type": "array",
-          "items": { "type": "string" },
-          "default": ["${Width}x${Height}"],
-          "description": "Secondary label text below title"
+          "default": ["${MachineName} ${Index}", "${OutputName}", "${Width}x${Height}"],
+          "description": "Text lines, supports ${MachineName}, ${Index}, ${Width}, ${Height}, ${IndexPlusOne}, ${OutputName}"
         },
         "size": {
           "type": "array",
           "items": { "type": "string" },
-          "default": ["1vh"],
-          "description": "Text line height with units (px, vh, vw, vmin, vmax)"
+          "default": ["3vh", "2vh", "4vh"],
+          "description": "Per-line text heights with units (px, vh, vw, vmin, vmax)"
+        },
+        "color": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["#fff"],
+          "description": "Per-line text colors"
         },
         "x": {
           "type": "array",
@@ -180,7 +180,7 @@
         "stroke": {
           "type": "array",
           "items": { "type": "string" },
-          "default": ["2px"],
+          "default": ["1px"],
           "description": "Crosshair line thickness"
         }
       }
@@ -222,8 +222,8 @@
         },
         "opacity": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["1"],
+          "items": { "type": "number", "minimum": 0, "maximum": 1 },
+          "default": [1.0],
           "description": "Additional opacity multiplier (0 = transparent, 1 = opaque)"
         }
       }

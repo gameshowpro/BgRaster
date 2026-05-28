@@ -6,7 +6,7 @@ BgRaster reads its primary configuration from a TOML file (default: `config.toml
 
 - **All multi-value globals are arrays.** `BgRaster` cycles through array elements per output index using `array[index % array.Length]`. Specifying a single-element array applies the value to every output.
 - **Dimension strings** accept the units listed under [Units](#units).
-- **Colour strings** accept the formats listed under [Colours](#colours).
+- **color strings** accept the formats listed under [colors](#colors).
 - **Field substitution** is applied to text and image-source values — see [Substitution tokens](#substitution-tokens).
 - **TOML keys use kebab-case** (e.g. `border-color`, `grid-coordinates`); the C# model uses PascalCase (`BorderColor`, `GridCoordinates`).
 
@@ -14,13 +14,13 @@ BgRaster reads its primary configuration from a TOML file (default: `config.toml
 
 ## `[text]`
 
-Diagnostic title and subtitle text rendered on top of every output.
+Diagnostic text lines rendered on top of every output.
 
 | Key | Type | Default | Description |
 |---|---|---|---|
-| `title` | `string[]` | `["${MachineName} ${Index}"]` | Top line of text. Substitution applied. |
-| `subtitle` | `string[]` | `["${Width}x${Height}"]` | Second line. Substitution applied. |
-| `size` | `string[]` | `["1vh"]` | Font height. Dimension. |
+| `text` | `string[]` | `["${MachineName} ${Index}", "${OutputName}", "${Width}x${Height}"]` | Text lines. Substitution applied. |
+| `size` | `string[]` | `["3vh", "2vh", "4vh"]` | Per-line font heights. Dimension. |
+| `color` | `string[]` | `["#fff"]` | Per-line text colors. |
 | `x` | `string[]` | `["75vw"]` | Anchor X (left edge of text block). Dimension. |
 | `y` | `string[]` | `["75vh"]` | Anchor Y (baseline of first line). Dimension. |
 
@@ -28,16 +28,16 @@ Diagnostic title and subtitle text rendered on top of every output.
 
 ## `[background]`
 
-Solid colour and optional bitmap image fill, plus alternating-pixel and border modes.
+Solid color and optional bitmap image fill, plus alternating-pixel and border modes.
 
 | Key | Type | Default | Description |
 |---|---|---|---|
-| `color` | `string[]` | `["#FF0000", "#00FF00", "#0000FF"]` | Fill colour. Cycled per output. |
+| `color` | `string[]` | `["#FF0000", "#00FF00", "#0000FF"]` | Fill color. Cycled per output. |
 | `image` | `string[]` | `[""]` | Path to PNG/JPG. Empty disables. |
 | `fit` | `string[]` | `["CropToFill"]` | One of: `CropTL`, `CropTR`, `CropC`, `CropBL`, `CropBR`, `BestFit`, `CropToFill`. |
 | `alternating` | `bool[]` | `[false]` | When `true`, replaces background with checkerboard at pixel granularity (signal integrity test). |
 | `border` | `bool[]` | `[false]` | When `true`, draws a 1-px outline at viewport edges. |
-| `border-color` | `string[]` | `["#FFFFFF"]` | Border colour. |
+| `border-color` | `string[]` | `["#FFFFFF"]` | Border color. |
 
 ### `fit` modes
 - `CropTL` / `CropTR` / `CropC` / `CropBL` / `CropBR` — image rendered at its native size, anchored to that corner; excess is cropped, gaps remain transparent.
@@ -53,12 +53,12 @@ Regular grid overlay with optional per-cell coordinate labels.
 | Key | Type | Default | Description |
 |---|---|---|---|
 | `size` | `string[]` | `["100px"]` | Cell side length. Dimension. `0` disables grid. |
-| `odd-color` | `string[]` | `["#00000080"]` | Colour for cells where `(col+row) % 2 == 1`. |
-| `even-color` | `string[]` | `["transparent"]` | Colour for cells where `(col+row) % 2 == 0`. |
+| `odd-color` | `string[]` | `["#00000080"]` | color for cells where `(col+row) % 2 == 1`. |
+| `even-color` | `string[]` | `["transparent"]` | color for cells where `(col+row) % 2 == 0`. |
 | `stroke` | `string[]` | `["0"]` | Outline width. `0` = filled cells; `>0` = stroked outlines only. |
 | `offset-x` | `string[]` | `["0"]` | X shift of grid origin. Dimension. |
 | `offset-y` | `string[]` | `["0"]` | Y shift of grid origin. Dimension. |
-| `coordinates` | `bool[]` | `[false]` | When `true`, each cell renders its `(col, row)` index plus a parity triangle in luminance-aware contrasting colour. Cells smaller than 12 px skip the overlay. |
+| `coordinates` | `bool[]` | `[false]` | When `true`, each cell renders its `(col, row)` index plus a parity triangle in luminance-aware contrasting color. Cells smaller than 12 px skip the overlay. |
 
 ---
 
@@ -69,7 +69,7 @@ Centred circle (useful for verifying aspect ratio and projector keystone).
 | Key | Type | Default | Description |
 |---|---|---|---|
 | `size` | `string[]` | `["100vmin"]` | Diameter. `0` disables. |
-| `color` | `string[]` | `["#ffffff40"]` | Fill or stroke colour. |
+| `color` | `string[]` | `["#ffffff40"]` | Fill or stroke color. |
 | `stroke` | `string[]` | `["0"]` | `0` = filled circle; `>0` = stroked outline. |
 
 ---
@@ -81,8 +81,8 @@ Centred plus-sign for alignment.
 | Key | Type | Default | Description |
 |---|---|---|---|
 | `length` | `string[]` | `["5vmin"]` | Half-length of each arm. `0` disables. |
-| `color` | `string[]` | `["#ffffff80"]` | Stroke colour. |
-| `stroke` | `string[]` | `["2px"]` | Arm thickness. `0` disables. |
+| `color` | `string[]` | `["#ffffff80"]` | Stroke color. |
+| `stroke` | `string[]` | `["1px"]` | Arm thickness. `0` disables. |
 
 ---
 
@@ -97,7 +97,7 @@ Optional logo (PNG, JPG, or minimal SVG subset).
 | `y` | `string[]` | `["25vh"]` | Logo rect top edge. Dimension. |
 | `width` | `string[]` | `["15vw"]` | Logo rect width. Dimension. |
 | `height` | `string[]` | `["15vh"]` | Logo rect height. Dimension. |
-| `opacity` | `string[]` | `["1"]` | Alpha multiplier `0..1`. |
+| `opacity` | `float[]` | `[1.0]` | Alpha multiplier `0..1`. |
 
 The logo is rendered into the rect using `BestFit` (uniform scale, preserves aspect ratio).
 
@@ -168,7 +168,7 @@ Dimension strings accept a numeric value followed by an optional unit suffix (ca
 
 The "viewport" is the output for non-sliced rendering and the slice for sliced rendering.
 
-## Colours
+## colors
 
 | Format | Example |
 |---|---|

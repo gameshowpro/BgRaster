@@ -1,6 +1,6 @@
 # BgRaster
 
-A .NET 10 Native AOT console application that generates per-output diagnostic backgrounds for Windows display configurations and assigns them as desktop wallpaper. Designed for AV technicians, video engineers, and broadcast control rooms that need to quickly identify outputs, verify resolution, check colour, validate scaling, and detect signal-path issues.
+A .NET 10 Native AOT console application that generates per-output diagnostic backgrounds for Windows display configurations and assigns them as desktop wallpaper. Designed for AV technicians, video engineers, and broadcast control rooms that need to quickly identify outputs, verify resolution, check color, validate scaling, and detect signal-path issues.
 
 ## Highlights
 
@@ -69,7 +69,7 @@ size = ["100px"]
 coordinates = [true]
 ```
 
-**Per-output colour wash** — cycle red / green / blue across three outputs:
+**Per-output color wash** — cycle red / green / blue across three outputs:
 ```toml
 [background]
 color = ["#FF0000", "#00FF00", "#0000FF"]
