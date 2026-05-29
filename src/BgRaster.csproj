@@ -42,7 +42,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="..\resources\gidole\Gidolinya-Regular.otf" />
-    <EmbeddedResource Include="..\resources\fallback-logo.svg" />
+    <EmbeddedResource Include="..\resources\gsp.svg" />
   </ItemGroup>
 
   <ItemGroup>

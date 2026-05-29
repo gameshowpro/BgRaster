@@ -2,58 +2,165 @@ namespace GameshowPro.BgRaster.Rendering.Layers;
 
 sealed class LogoLayer : ILayer
 {
+    const string DefaultLogoResourceSuffix = "gsp.svg";
+
     public void Render(RenderContext context, SKCanvas canvas)
     {
-        if (string.IsNullOrEmpty(context.Options.LogoSource)) return;
-
-        float x = context.CanvasOffsetX + context.Options.LogoXPx;
-        float y = context.CanvasOffsetY + context.Options.LogoYPx;
+        float centerX = context.CanvasOffsetX + context.Options.LogoXPx;
+        float centerY = context.CanvasOffsetY + context.Options.LogoYPx;
         float w = context.Options.LogoWidthPx;
         float h = context.Options.LogoHeightPx;
         if (w <= 0f || h <= 0f) return;
 
-        SKRect fitRect = SKRect.Create(x, y, w, h);
+        SKRect fitRect = CreateFitRect(centerX, centerY, w, h);
         byte alpha = (byte)(Math.Clamp(context.Options.LogoOpacity, 0f, 1f) * 255f);
+        bool useDarkTheme = IsDarkBackground(context.Options.BackgroundColor);
 
         string source = context.Options.LogoSource;
-        bool useFallback = false;
 
-        if (source.EndsWith(".svg", StringComparison.OrdinalIgnoreCase))
+        if (string.IsNullOrWhiteSpace(source))
         {
-            try
-            {
-                using FileStream svgStream = File.OpenRead(source);
-                if (!SvgRenderer.TryRender(svgStream, canvas, fitRect, alpha))
-                    useFallback = true;
-            }
-            catch
-            {
-                useFallback = true;
-            }
-        }
-        else
-        {
-            SKBitmap? bitmap = null;
-            try
-            {
-                bitmap = SKBitmap.Decode(source);
-                if (bitmap is null) useFallback = true;
-                else DrawBestFit(canvas, bitmap, fitRect, alpha);
-            }
-            catch
-            {
-                useFallback = true;
-            }
-            finally
-            {
-                bitmap?.Dispose();
-            }
+            RenderDefaultSvgLogo(canvas, fitRect, alpha, useDarkTheme);
+            return;
         }
 
-        if (useFallback)
+        if (TryRenderSvgLogo(source, canvas, fitRect, alpha, useDarkTheme))
+            return;
+
+        if (!string.IsNullOrWhiteSpace(source) && TryRenderBitmapLogo(source, canvas, fitRect, alpha))
+            return;
+
+        Console.WriteLine($"LogoLayer: status=logo-fallback-used source=\"{source}\"");
+        RenderDefaultSvgLogo(canvas, fitRect, alpha, useDarkTheme);
+    }
+
+    internal static SKRect CreateFitRect(float centerX, float centerY, float width, float height) =>
+        SKRect.Create(centerX - (width / 2f), centerY - (height / 2f), width, height);
+
+    internal static bool IsDarkBackground(SKColor color)
+    {
+        static float ChannelToLinear(byte channel)
         {
-            Console.WriteLine($"LogoLayer: status=logo-fallback-used source=\"{source}\"");
-            DrawFallbackLogo(canvas, fitRect, alpha);
+            float normalized = channel / 255f;
+            return normalized <= 0.04045f
+                ? normalized / 12.92f
+                : MathF.Pow((normalized + 0.055f) / 1.055f, 2.4f);
+        }
+
+        float r = ChannelToLinear(color.Red);
+        float g = ChannelToLinear(color.Green);
+        float b = ChannelToLinear(color.Blue);
+
+        float relativeLuminance = (0.2126f * r) + (0.7152f * g) + (0.0722f * b);
+        return relativeLuminance < 0.5f;
+    }
+
+    static bool TryRenderSvgLogo(string source, SKCanvas canvas, SKRect fitRect, byte alpha, bool useDarkTheme)
+    {
+        Stream? svgStream = null;
+        try
+        {
+            if (!TryOpenSvgLogoStream(source, out svgStream) || svgStream is null)
+                return false;
+
+            return SvgRenderer.TryRender(svgStream, canvas, fitRect, alpha, useDarkTheme);
+        }
+        catch
+        {
+            return false;
+        }
+        finally
+        {
+            svgStream?.Dispose();
+        }
+    }
+
+    static void RenderDefaultSvgLogo(SKCanvas canvas, SKRect fitRect, byte alpha, bool useDarkTheme)
+    {
+        using Stream svgStream = OpenEmbeddedDefaultLogoStream();
+        if (!SvgRenderer.TryRender(svgStream, canvas, fitRect, alpha, useDarkTheme))
+            throw new InvalidOperationException("Embedded default logo SVG failed to render.");
+    }
+
+    static bool TryOpenSvgLogoStream(string source, out Stream? svgStream)
+    {
+        svgStream = null;
+
+        if (string.IsNullOrWhiteSpace(source))
+        {
+            svgStream = OpenEmbeddedDefaultLogoStream();
+            return svgStream is not null;
+        }
+
+        if (!TryResolveSvgPath(source, out string? svgPath) || svgPath is null)
+            return false;
+
+        svgStream = File.OpenRead(svgPath);
+        return true;
+    }
+
+    static bool TryResolveSvgPath(string source, out string? svgPath)
+    {
+        svgPath = null;
+
+        if (Uri.TryCreate(source, UriKind.Absolute, out Uri? uri))
+        {
+            if (!uri.IsFile || !uri.LocalPath.EndsWith(".svg", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            svgPath = uri.LocalPath;
+            return true;
+        }
+
+        if (!source.EndsWith(".svg", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        svgPath = source;
+        return true;
+    }
+
+    static Stream OpenEmbeddedDefaultLogoStream()
+    {
+        Assembly assembly = Assembly.GetExecutingAssembly();
+        string? resourceName = assembly
+            .GetManifestResourceNames()
+            .FirstOrDefault(name => name.EndsWith(DefaultLogoResourceSuffix, StringComparison.OrdinalIgnoreCase));
+
+        if (resourceName is null)
+            throw new InvalidOperationException($"Embedded default logo resource matching '*{DefaultLogoResourceSuffix}' was not found.");
+
+        Stream? resourceStream = assembly.GetManifestResourceStream(resourceName);
+        return resourceStream ?? throw new InvalidOperationException($"Embedded default logo resource '{resourceName}' could not be opened.");
+    }
+
+    static bool TryRenderBitmapLogo(string source, SKCanvas canvas, SKRect fitRect, byte alpha)
+    {
+        SKBitmap? bitmap = null;
+        try
+        {
+            string bitmapSource = source;
+            if (Uri.TryCreate(source, UriKind.Absolute, out Uri? uri))
+            {
+                if (!uri.IsFile)
+                    return false;
+
+                bitmapSource = uri.LocalPath;
+            }
+
+            bitmap = SKBitmap.Decode(bitmapSource);
+            if (bitmap is null)
+                return false;
+
+            DrawBestFit(canvas, bitmap, fitRect, alpha);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+        finally
+        {
+            bitmap?.Dispose();
         }
     }
 
@@ -70,31 +177,4 @@ sealed class LogoLayer : ILayer
         canvas.DrawBitmap(bitmap, SKRect.Create(dx, dy, dw, dh), paint);
     }
 
-    static void DrawFallbackLogo(SKCanvas canvas, SKRect rect, byte alpha)
-    {
-        try
-        {
-            using Stream? embedded = Assembly.GetExecutingAssembly()
-                .GetManifestResourceStream("GameshowPro.BgRaster.resources.fallback-logo.svg");
-            if (embedded is not null && SvgRenderer.TryRender(embedded, canvas, rect, alpha))
-                return;
-        }
-        catch { }
-
-        SKColor orange = new(255, 136, 0, alpha);
-        using SKPaint paint = new()
-        {
-            Color = orange,
-            Style = SKPaintStyle.Stroke,
-            StrokeWidth = MathF.Max(2f, rect.Width * 0.04f),
-            IsAntialias = true,
-        };
-        float margin = paint.StrokeWidth;
-        SKRect inner = new(rect.Left + margin, rect.Top + margin,
-            rect.Right - margin, rect.Bottom - margin);
-
-        canvas.DrawRect(inner, paint);
-        canvas.DrawLine(inner.Left, inner.Top, inner.Right, inner.Bottom, paint);
-        canvas.DrawLine(inner.Right, inner.Top, inner.Left, inner.Bottom, paint);
-    }
 }

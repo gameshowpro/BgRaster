@@ -93,15 +93,15 @@ Optional logo (PNG, JPG, or minimal SVG subset).
 | Key | Type | Default | Description |
 |---|---|---|---|
 | `source` | `string[]` | `[""]` | Path to image file. Empty uses the embedded fallback (orange diagonal cross). Substitution applied. |
-| `x` | `string[]` | `["75vw"]` | Logo rect left edge. Dimension. |
-| `y` | `string[]` | `["25vh"]` | Logo rect top edge. Dimension. |
+| `x` | `string[]` | `["75vw"]` | Logo center X. Dimension. |
+| `y` | `string[]` | `["25vh"]` | Logo center Y. Dimension. |
 | `width` | `string[]` | `["15vw"]` | Logo rect width. Dimension. |
 | `height` | `string[]` | `["15vh"]` | Logo rect height. Dimension. |
 | `opacity` | `float[]` | `[1.0]` | Alpha multiplier `0..1`. |
 
 The logo is rendered into the rect using `BestFit` (uniform scale, preserves aspect ratio).
 
-**SVG support** is intentionally minimal and AOT-safe: `<rect>`, `<line>`, and `<path>` (M/m/L/l/H/h/V/v/Z commands only), plus `fill`, `stroke`, `stroke-width`, `opacity`. Curves (C/Q/A/S/T) are not yet supported. SVGs that fail to parse fall back to the embedded fallback logo.
+**SVG support** is intentionally compact and AOT-safe: `<rect>`, `<line>`, and `<path>` with commands `M/m`, `L/l`, `H/h`, `V/v`, `Z/z`, `C/c`, `S/s`, `Q/q`, and `T/t`, plus `fill`, `stroke`, `stroke-width`, `opacity`, `style`, and inherited group paint attributes. For light/dark theming, `fill` and `stroke` support the standard CSS color function `light-dark(lightColor, darkColor)`, and BgRaster selects the branch using background luminance. SVGs that fail to parse fall back to the embedded default logo.
 
 ---
 

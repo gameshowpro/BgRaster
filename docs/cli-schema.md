@@ -51,8 +51,8 @@ This table is generated from the CLI option catalog in code (`src/Configuration/
 | `--crosshair-color <color>` | `string` | `[crosshair].color` | Crosshair color. | if omitted, defers to config.toml [crosshair].color; if missing there, uses ["#ffffff80"]. |
 | `--crosshair-stroke <dim>` | `string` | `[crosshair].stroke` | Crosshair stroke width. | if omitted, defers to config.toml [crosshair].stroke; if missing there, uses ["1px"]. |
 | `--logo-source <path>` | `string` | `[logo].source` | Path to logo file (PNG/JPG/SVG). | if omitted, defers to config.toml [logo].source; if missing there, uses [""] (embedded fallback). |
-| `--logo-x <dim>` | `string` | `[logo].x` | Logo rect left. | if omitted, defers to config.toml [logo].x; if missing there, uses ["75vw"]. |
-| `--logo-y <dim>` | `string` | `[logo].y` | Logo rect top. | if omitted, defers to config.toml [logo].y; if missing there, uses ["25vh"]. |
+| `--logo-x <dim>` | `string` | `[logo].x` | Logo center X. | if omitted, defers to config.toml [logo].x; if missing there, uses ["75vw"]. |
+| `--logo-y <dim>` | `string` | `[logo].y` | Logo center Y. | if omitted, defers to config.toml [logo].y; if missing there, uses ["25vh"]. |
 | `--logo-width <dim>` | `string` | `[logo].width` | Logo rect width. | if omitted, defers to config.toml [logo].width; if missing there, uses ["15vw"]. |
 | `--logo-height <dim>` | `string` | `[logo].height` | Logo rect height. | if omitted, defers to config.toml [logo].height; if missing there, uses ["15vh"]. |
 | `--logo-opacity <f|[f1,f2]>` | `float|float[]` | `[logo].opacity` | Logo alpha multiplier(s) in range [0, 1]; accepts a single float or a TOML float array literal. | if omitted, defers to config.toml [logo].opacity; if missing there, uses [1.0]. |

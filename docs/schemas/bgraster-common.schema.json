@@ -200,13 +200,13 @@
           "type": "array",
           "items": { "type": "string" },
           "default": ["75vw"],
-          "description": "Logo fit rectangle left position"
+          "description": "Logo center X position"
         },
         "y": {
           "type": "array",
           "items": { "type": "string" },
           "default": ["25vh"],
-          "description": "Logo fit rectangle top position"
+          "description": "Logo center Y position"
         },
         "width": {
           "type": "array",
