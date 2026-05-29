@@ -106,14 +106,230 @@ public class OptionsResolverTests
     }
 
     [Fact]
-    public void Resolve_FieldSubstitution_WidthHeight()
+    public void Resolve_FieldSubstitution_OutputWidthHeight()
     {
         GlobalOptions global = new()
         {
-            Text = new TextOptions { Text = ["${Width}x${Height}"] },
+            Text = new TextOptions { Text = ["${OutputWidth}x${OutputHeight}"] },
         };
 
         string line = OptionsResolver.Resolve(global, MakeOutput(0, 1920, 1080), null).TextLines[0];
         line.Should().Be("1920x1080");
+    }
+
+    [Fact]
+    public void Resolve_FieldSubstitution_OutputIndexTokens()
+    {
+        GlobalOptions global = new()
+        {
+            Text = new TextOptions { Text = ["${OutputIndex}|${OutputIndexPlusOne}|${OutputLetter}"] },
+        };
+
+        string line = OptionsResolver.Resolve(global, MakeOutput(27), null).TextLines[0];
+        line.Should().Be("27|28|AB");
+    }
+
+    [Fact]
+    public void ResolveForSlice_FieldSubstitution_SliceTokens()
+    {
+        GlobalOptions global = new()
+        {
+            Text = new TextOptions { Text = ["${SliceIndex}|${SliceIndexPlusOne}|${SliceLetter}|${SliceWidth}x${SliceHeight}"] },
+        };
+        SliceOptions slice = new()
+        {
+            X = "0",
+            Y = "0",
+            Width = "100px",
+            Height = "100px",
+        };
+
+        string line = OptionsResolver.ResolveForSlice(global, MakeOutput(1), null, slice, 100, 100, sliceIndex: 1).TextLines[0];
+        line.Should().Be("1|2|B|100x100");
+    }
+
+    [Fact]
+    public void Resolve_TextPrecedence_IsSliceThenOutputThenCliThenFileThenDefault()
+    {
+        OutputRecord output = MakeOutput(0);
+        OutputOptions outputConfig = new()
+        {
+            Target = OutputTarget.FromIndex(0),
+            Text = new TextOverride { Text = ["output"] },
+        };
+        SliceOptions sliceWithText = new()
+        {
+            X = "0",
+            Y = "0",
+            Width = "100px",
+            Height = "100px",
+            Text = new TextOverride { Text = ["slice"] },
+        };
+        SliceOptions sliceWithoutText = new()
+        {
+            X = "0",
+            Y = "0",
+            Width = "100px",
+            Height = "100px",
+        };
+
+        GlobalOptions fileGlobal = new() { Text = new TextOptions { Text = ["file"] } };
+        GlobalOptions cliGlobal = ConfigLoader.ApplyCliOverlay(fileGlobal, new CliOverlay { Text = "cli" });
+
+        OptionsResolver.ResolveForSlice(cliGlobal, output, outputConfig, sliceWithText, 100, 100)
+            .TextLines[0]
+            .Should().Be("slice");
+        OptionsResolver.Resolve(cliGlobal, output, outputConfig)
+            .TextLines[0]
+            .Should().Be("output");
+
+        OutputOptions noOutputText = outputConfig with { Text = null };
+        OptionsResolver.Resolve(cliGlobal, output, noOutputText)
+            .TextLines[0]
+            .Should().Be("cli");
+        OptionsResolver.ResolveForSlice(cliGlobal, output, noOutputText, sliceWithoutText, 100, 100)
+            .TextLines[0]
+            .Should().Be("cli");
+
+        GlobalOptions fileOnlyGlobal = fileGlobal;
+        OptionsResolver.Resolve(fileOnlyGlobal, output, noOutputText)
+            .TextLines[0]
+            .Should().Be("file");
+
+        GlobalOptions defaultGlobal = new() { Text = new TextOptions() };
+        OptionsResolver.Resolve(defaultGlobal, output, null)
+            .TextLines[0]
+            .Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
+    public void ResolveForSlice_GlobalArrays_CycleBySliceSequenceIndex()
+    {
+        GlobalOptions global = new()
+        {
+            Background = new BackgroundOptions { Color = ["#FF0000", "#00FF00", "#0000FF"] },
+        };
+        OutputRecord output = MakeOutput(0);
+        SliceOptions slice = new()
+        {
+            X = "0",
+            Y = "0",
+            Width = "100px",
+            Height = "100px",
+        };
+
+        SKColor first = OptionsResolver.ResolveForSlice(global, output, null, slice, 100, 100, sequenceIndex: 0).BackgroundColor;
+        SKColor second = OptionsResolver.ResolveForSlice(global, output, null, slice, 100, 100, sequenceIndex: 1).BackgroundColor;
+        SKColor third = OptionsResolver.ResolveForSlice(global, output, null, slice, 100, 100, sequenceIndex: 2).BackgroundColor;
+
+        first.Should().Be(new SKColor(255, 0, 0));
+        second.Should().Be(new SKColor(0, 255, 0));
+        third.Should().Be(new SKColor(0, 0, 255));
+    }
+
+    [Fact]
+    public void ResolveForSlice_DefaultText_UsesSliceScopedTemplate()
+    {
+        GlobalOptions global = new();
+        SliceOptions slice = new()
+        {
+            X = "0",
+            Y = "0",
+            Width = "100px",
+            Height = "50px",
+        };
+
+        ResolvedOptions resolved = OptionsResolver.ResolveForSlice(
+            global,
+            MakeOutput(0),
+            null,
+            slice,
+            100,
+            50,
+            sliceIndex: 1,
+            isImplicitSlice: false);
+
+        resolved.TextLines[0].Should().Contain("output 1");
+        resolved.TextLines[1].Should().Be("slice B");
+        resolved.TextLines[2].Should().Be("100x50");
+    }
+
+    [Fact]
+    public void ResolveForSlice_ImplicitSlice_DefaultsToOutputTemplate()
+    {
+        GlobalOptions global = new();
+        SliceOptions implicitSlice = new()
+        {
+            X = "0",
+            Y = "0",
+            Width = "100vw",
+            Height = "100vh",
+        };
+
+        ResolvedOptions resolved = OptionsResolver.ResolveForSlice(
+            global,
+            MakeOutput(2, 1920, 1080),
+            null,
+            implicitSlice,
+            1920,
+            1080,
+            sliceIndex: 0,
+            isImplicitSlice: true);
+
+        resolved.TextLines[0].Should().Contain("2");
+        resolved.TextLines[1].Should().Be("Display 2");
+        resolved.TextLines[2].Should().Be("1920x1080");
+    }
+
+    [Fact]
+    public void ResolveForSlice_ImplicitSlice_RespectsConfiguredGlobalText()
+    {
+        GlobalOptions global = new()
+        {
+            Text = new TextOptions { Text = ["configured"] },
+        };
+        SliceOptions implicitSlice = new()
+        {
+            X = "0",
+            Y = "0",
+            Width = "100vw",
+            Height = "100vh",
+        };
+
+        ResolvedOptions resolved = OptionsResolver.ResolveForSlice(
+            global,
+            MakeOutput(0),
+            null,
+            implicitSlice,
+            100,
+            100,
+            isImplicitSlice: true);
+
+        resolved.TextLines[0].Should().Be("configured");
+    }
+
+    [Fact]
+    public void ResolveForSlice_GridSize_UsesSliceOverrideValue()
+    {
+        GlobalOptions global = new()
+        {
+            Grid = new GridOptions { Size = ["100px"] },
+        };
+        OutputOptions outputConfig = new()
+        {
+            Target = OutputTarget.FromIndex(0),
+        };
+        SliceOptions slice = new()
+        {
+            X = "0",
+            Y = "0",
+            Width = "200px",
+            Height = "400px",
+            Grid = new GridOverride { Size = "25vh" },
+        };
+
+        ResolvedOptions resolved = OptionsResolver.ResolveForSlice(global, MakeOutput(0), outputConfig, slice, 200, 400);
+
+        resolved.GridSizePx.Should().BeApproximately(100f, 0.01f);
     }
 }

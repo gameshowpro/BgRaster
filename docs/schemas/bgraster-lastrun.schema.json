@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "BgRaster Runtime State Schema",
-  "description": "Schema for BgRaster runtime state files (lastRun.toml, lastRun.dry.toml). Include a $schema comment at the top: # $schema: https://raw.githubusercontent.com/gameshowpro/GameshowPro/<version-tag>/BgRaster/docs/schemas/bgraster-lastrun.schema.json",
+  "description": "Schema for BgRaster runtime state files (lastRun.toml, lastRun.dry.toml). Include a $schema comment at the top: # $schema: https://raw.githubusercontent.com/gameshowpro/BgRaster/refs/heads/main/docs/schemas/bgraster-lastrun.schema.json",
   "type": "object",
   "additionalProperties": false,
   "properties": {

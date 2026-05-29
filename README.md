@@ -58,7 +58,7 @@ Run elevated. Reads `config.toml` next to the executable (if present), generates
 ```toml
 [text]
 title = ["${MachineName}"]
-subtitle = ["Output ${IndexPlusOne} - ${Width}x${Height}"]
+subtitle = ["Output ${OutputIndexPlusOne} - ${Width}x${Height}"]
 size = ["3vh"]
 
 [background]

@@ -20,8 +20,8 @@ static class CliOptionCatalog
 
     internal static ImmutableArray<CliOptionDefinition> Definitions { get; } =
     [
-        new("--config", "<path>", "string", "-", "Path to a TOML config file.", "if omitted, uses config.toml next to the executable."),
-        new("--text", "<s|[\"s1\",\"s2\"]>", "string", "[text].text", "Text line(s); accepts a single string or a TOML string array literal.", "if omitted, defers to config.toml [text].text; if missing there, uses [\"${MachineName} ${Index}\", \"${OutputName}\", \"${Width}x${Height}\"]."),
+        new("--config", "<path>", "string", "-", "Path to a TOML config file. If the path does not exist, BgRaster starts from built-in defaults for that run, then after a successful execution writes a seeded config template at that path.", "if omitted, searches for config.toml in this order: next to the executable, %ProgramData%\\BgInfo, %LocalAppData%\\BgInfo, %AppData%\\BgInfo; if none exist, starts from built-in defaults."),
+        new("--text", "<s|[\"s1\",\"s2\"]>", "string", "[text].text", "Text line(s); accepts a single string or a TOML string array literal.", "if omitted, defers to config.toml [text].text; if missing there, uses [\"${MachineName} output ${OutputIndexPlusOne}\", \"slice ${SliceLetter}\", \"${SliceWidth}x${SliceHeight}\"]."),
         new("--text-size", "<dim|[\"d1\",\"d2\"]>", "string", "[text].size", "Text line height(s); accepts a single dimension or a TOML string array literal.", "if omitted, defers to config.toml [text].size; if missing there, uses [\"3vh\", \"2vh\", \"4vh\"]."),
         new("--text-color", "<color|[\"c1\",\"c2\"]>", "string", "[text].color", "Text color(s); accepts a single color or a TOML string array literal.", "if omitted, defers to config.toml [text].color; if missing there, uses [\"#fff\"]."),
         new("--text-x", "<dim>", "string", "[text].x", "Anchor X.", "if omitted, defers to config.toml [text].x; if missing there, uses [\"75vw\"]."),

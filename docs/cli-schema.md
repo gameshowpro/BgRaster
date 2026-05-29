@@ -13,7 +13,7 @@ There are no sub-commands. There is no positional argument.
 ## Resolution order
 
 1. Built-in defaults (see [TOML schema](toml-schema.md))
-2. Values from `config.toml` (resolved via `--config` or `<exe-dir>\config.toml`)
+2. Values from `config.toml` (resolved via `--config`, or if omitted searched in this order: `<exe-dir>\config.toml`, `%ProgramData%\BgInfo\config.toml`, `%LocalAppData%\BgInfo\config.toml`, `%AppData%\BgInfo\config.toml`)
 3. CLI overrides
 
 CLI overrides accept either scalar values or TOML array literals, depending on the option type. Example: `--background-color "#000"` becomes `color = ["#000"]`, `--text-size "[\"3vh\",\"2vh\",\"4vh\"]"` preserves all elements, and `--logo-opacity "[0.5,1.0]"` sets numeric opacity values.
@@ -25,8 +25,8 @@ This table is generated from the CLI option catalog in code (`src/Configuration/
 <!-- BEGIN:CLI_OPTIONS_TABLE -->
 | Option | Type | TOML equivalent | Description | Default resolution |
 |---|---|---|---|---|
-| `--config <path>` | `string` | `-` | Path to a TOML config file. | if omitted, uses config.toml next to the executable. |
-| `--text <s|["s1","s2"]>` | `string` | `[text].text` | Text line(s); accepts a single string or a TOML string array literal. | if omitted, defers to config.toml [text].text; if missing there, uses ["${MachineName} ${Index}", "${OutputName}", "${Width}x${Height}"]. |
+| `--config <path>` | `string` | `-` | Path to a TOML config file. If the path does not exist, BgRaster starts from built-in defaults for that run, then after a successful execution writes a seeded config template at that path. | if omitted, searches for config.toml in this order: next to the executable, %ProgramData%\BgInfo, %LocalAppData%\BgInfo, %AppData%\BgInfo; if none exist, starts from built-in defaults. |
+| `--text <s|["s1","s2"]>` | `string` | `[text].text` | Text line(s); accepts a single string or a TOML string array literal. | if omitted, defers to config.toml [text].text; if missing there, uses ["${MachineName} output ${OutputIndexPlusOne}", "slice ${SliceLetter}", "${SliceWidth}x${SliceHeight}"]. |
 | `--text-size <dim|["d1","d2"]>` | `string` | `[text].size` | Text line height(s); accepts a single dimension or a TOML string array literal. | if omitted, defers to config.toml [text].size; if missing there, uses ["3vh", "2vh", "4vh"]. |
 | `--text-color <color|["c1","c2"]>` | `string` | `[text].color` | Text color(s); accepts a single color or a TOML string array literal. | if omitted, defers to config.toml [text].color; if missing there, uses ["#fff"]. |
 | `--text-x <dim>` | `string` | `[text].x` | Anchor X. | if omitted, defers to config.toml [text].x; if missing there, uses ["75vw"]. |

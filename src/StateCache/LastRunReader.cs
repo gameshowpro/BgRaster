@@ -41,7 +41,7 @@ static class LastRunReader
         Dictionary<string, string> assignedFiles = [];
         if (t.TryGetValue("assignedFiles", out object? afObj) && afObj is TomlTable afTable)
         {
-            foreach (KeyValuePair<string, object?> kv in afTable)
+            foreach (KeyValuePair<string, object> kv in afTable)
             {
                 if (kv.Value is string v) assignedFiles[kv.Key] = v;
             }

@@ -1,6 +1,6 @@
 # TOML Schema Reference
 
-BgRaster reads its primary configuration from a TOML file (default: `config.toml` next to the executable; override with `--config`). Every key is optional — missing keys fall back to the documented defaults. CLI flags override the corresponding TOML values; per-output overrides take precedence over globals; per-slice overrides take precedence over per-output.
+BgRaster reads its primary configuration from a TOML file. If `--config` is omitted, it searches for `config.toml` in this order: next to the executable, `%ProgramData%\BgInfo`, `%LocalAppData%\BgInfo`, and `%AppData%\BgInfo`. If `--config` is provided and the file does not exist, BgRaster uses built-in defaults for that run; after a successful execution, it writes a seeded `config.toml` template at the requested path using effective global defaults and detected output targets. Every key is optional — missing keys fall back to the documented defaults. CLI flags override the corresponding TOML values; per-output overrides take precedence over globals; per-slice overrides take precedence over per-output.
 
 ## Conventions
 
@@ -18,7 +18,7 @@ Diagnostic text lines rendered on top of every output.
 
 | Key | Type | Default | Description |
 |---|---|---|---|
-| `text` | `string[]` | `["${MachineName} ${Index}", "${OutputName}", "${Width}x${Height}"]` | Text lines. Substitution applied. |
+| `text` | `string[]` | `["${MachineName} output ${OutputIndexPlusOne}", "slice ${SliceLetter}", "${SliceWidth}x${SliceHeight}"]` | Text lines. Substitution applied. |
 | `size` | `string[]` | `["3vh", "2vh", "4vh"]` | Per-line font heights. Dimension. |
 | `color` | `string[]` | `["#fff"]` | Per-line text colors. |
 | `x` | `string[]` | `["75vw"]` | Anchor X (left edge of text block). Dimension. |
@@ -121,18 +121,18 @@ Run-mode scalars.
 
 ## `[[output]]` (array of tables)
 
-Per-output configuration. Optional; outputs without an entry use the global cycled values.
+Per-output configuration. Optional; outputs without an entry use global values resolved by slice sequence.
 
 | Key | Type | Description |
 |---|---|---|
 | `target` | `int` *or* `string` | Required. Integer = output index in desktop order; string = exact `OutputRecord.Id` (the `\\?\DISPLAY#...` device path). |
-| `text` | inline table | Optional override; any of `title`, `subtitle`, `size`, `x`, `y`. |
-| `background` | inline table | Optional override; any of `color`, `image`, `fit`, `alternating`, `border`, `border-color`. |
-| `grid` | inline table | Optional override; any of `size`, `odd-color`, `even-color`, `stroke`, `offset-x`, `offset-y`, `coordinates`. |
-| `circle` | inline table | Optional override; any of `size`, `color`, `stroke`. |
-| `crosshair` | inline table | Optional override; any of `length`, `color`, `stroke`. |
-| `logo` | inline table | Optional override; any of `source`, `x`, `y`, `width`, `height`, `opacity`. |
-| `slice` | array of tables | Optional list of sub-rectangles (see below). When present, the output is rendered as N independent slices instead of a single full-output canvas. |
+| `text` | inline table | Optional override. `text` is an array of lines; `size`, `color`, `x`, and `y` are scalar overrides. |
+| `background` | inline table | Optional scalar override; any of `color`, `image`, `fit`, `alternating`, `border`, `border-color`. |
+| `grid` | inline table | Optional scalar override; any of `size`, `odd-color`, `even-color`, `stroke`, `offset-x`, `offset-y`, `coordinates`. |
+| `circle` | inline table | Optional scalar override; any of `size`, `color`, `stroke`. |
+| `crosshair` | inline table | Optional scalar override; any of `length`, `color`, `stroke`. |
+| `logo` | inline table | Optional scalar override; any of `source`, `x`, `y`, `width`, `height`, `opacity`. |
+| `slice` | array of tables | Optional list of sub-rectangles (see below). When omitted, BgRaster treats the output as one implicit full-output slice (`x=0`, `y=0`, `width=100vw`, `height=100vh`). |
 
 The first matching `[[output]]` wins; subsequent entries with the same target are reported as `duplicate-output-ignored`.
 
@@ -140,7 +140,9 @@ The first matching `[[output]]` wins; subsequent entries with the same target ar
 
 ## `[[output.slice]]` (nested array of tables)
 
-A rectangular sub-region of an output. Each slice gets its own substitution context (its width/height become `${Width}` / `${Height}`).
+A rectangular sub-region of an output. Each slice gets its own substitution context (its width/height become `${SliceWidth}` / `${SliceHeight}`).
+
+Global array-valued defaults (`[text]`, `[background]`, `[grid]`, `[circle]`, `[crosshair]`, `[logo]`) are selected using rendered slice sequence order with wraparound.
 
 | Key | Type | Default | Description |
 |---|---|---|---|
@@ -148,7 +150,7 @@ A rectangular sub-region of an output. Each slice gets its own substitution cont
 | `y` | `string` | `"0"` | Slice top edge within output. Dimension. |
 | `width` | `string` | `"100vw"` | Slice width. Dimension. |
 | `height` | `string` | `"100vh"` | Slice height. Dimension. |
-| `text` / `background` / `grid` / `circle` / `crosshair` / `logo` | inline table | — | Optional overrides, same shape as on `[[output]]`. |
+| `text` / `background` / `grid` / `circle` / `crosshair` / `logo` | inline table | — | Optional overrides, same scalar shape as on `[[output]]`; `text` lines remain arrays. |
 
 Slices that exceed the output bounds are skipped and recorded as `slice-out-of-bounds` in `lastRun.toml`.
 
@@ -166,7 +168,7 @@ Dimension strings accept a numeric value followed by an optional unit suffix (ca
 | `vmin` | 1 % of `min(width, height)`. |
 | `vmax` | 1 % of `max(width, height)`. |
 
-The "viewport" is the output for non-sliced rendering and the slice for sliced rendering.
+The "viewport" is always the current slice viewport (explicit or implicit full-output slice).
 
 ## colors
 
@@ -189,9 +191,14 @@ These tokens are expanded inside text and `logo.source` values:
 | Token | Value |
 |---|---|
 | `${MachineName}` | `Environment.MachineName` |
-| `${Width}` | Output width in pixels (or slice width in slice scope). |
-| `${Height}` | Output height in pixels (or slice height in slice scope). |
-| `${Index}` | Zero-based output index. |
-| `${IndexPlusOne}` | Output index + 1. |
+| `${OutputWidth}` | Output width in pixels. |
+| `${OutputHeight}` | Output height in pixels. |
+| `${OutputIndex}` | Zero-based output index. |
+| `${OutputIndexPlusOne}` | Output index + 1. |
+| `${OutputLetter}` | Output index rendered as letters (`A`, `B`, …, `Z`, `AA`, …). |
 | `${OutputName}` | `OutputRecord.FriendlyName`. |
-| `${ParentIndex}` | Output index (slice scope only). |
+| `${SliceWidth}` | Slice width in pixels (slice scope). |
+| `${SliceHeight}` | Slice height in pixels (slice scope). |
+| `${SliceIndex}` | Zero-based slice index within the output (slice scope). |
+| `${SliceIndexPlusOne}` | Slice index + 1 (slice scope). |
+| `${SliceLetter}` | Slice index rendered as letters (`A`, `B`, …) (slice scope). |
