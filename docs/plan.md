@@ -42,20 +42,18 @@ YAML was considered because it is comment-friendly, but TOML remains the chosen 
 1. the section structure aligns with commandline prefixes
 1. it is less ambiguous for scalar types and arrays
 
-Generated status comments, effective-value comments, and run diagnostics are written to `lastRun.toml` each run. The user config TOML is treated as read-only input and is never modified automatically at runtime.
+Generated status comments, effective-value comments, and run diagnostics are written to `lastRun.toml` each run. Existing user config TOML is treated as read-only input and is never modified automatically at runtime; the one exception is that when `--config` points to a missing file, BgRaster may create that new file only after a successful run by writing a seeded `config.toml` template.
 
 ### Config file location and schema linking
-The application accepts an explicit config path via `--config path/to/file.toml`. If omitted, it searches for a default `config.toml` file next to the executable.
+The application accepts an explicit config path via `--config path/to/file.toml`. If that path does not exist, the app runs from built-in defaults and CLI overrides; after a successful run it seeds the requested config path by writing a `config.toml` template with effective global defaults and detected output targets. If `--config` is omitted, it searches for `config.toml` in this order: next to the executable, `%ProgramData%\BgInfo`, `%LocalAppData%\BgInfo`, then `%AppData%\BgInfo`.
 
-Every `config.toml` file should include a `$schema` comment at the top that points to the JSON Schema version matching the executable build:
+Every `config.toml` file should include a `$schema` comment at the top that points to the current published schema:
 
 ```toml
-# $schema: https://raw.githubusercontent.com/gameshowpro/GameshowPro/<version-tag>/BgRaster/docs/schemas/bgraster-config.schema.json
+# $schema: https://raw.githubusercontent.com/gameshowpro/BgRaster/refs/heads/main/docs/schemas/bgraster-config.schema.json
 ```
 
-The CI build process creates a git tag for the version being built, attaches that tag to the build commit, and substitutes `<version-tag>` in schema URLs. This ensures schema and executable versions always match, supporting reproducible tooling and version-specific validation.
-
-If an existing `config.toml` contains a `$schema` comment that does not match the currently running executable tag, the app may update only that `$schema` comment line to the current tag URL. If it's missing altogether, it may be added. No other config values, ordering, or formatting are modified.
+If an existing `config.toml` contains a `$schema` comment that points somewhere else, the app may update only that `$schema` comment line to the published schema URL. If it's missing altogether, it may be added. No other config values, ordering, or formatting are modified.
 
 ### Naming convention
 TOML section and key names map mechanically to long commandline options.
@@ -90,12 +88,17 @@ CLI options must cover every global property that participates in these diagnost
 Several fields are available for substitutions in string options:
 
 1. MachineName
-1. Width
-1. Height
-1. Index
-1. IndexPlusOne
+1. OutputWidth
+1. OutputHeight
+1. OutputIndex
+1. OutputIndexPlusOne
+1. OutputLetter
 1. OutputName
-1. ParentIndex (slice scope only)
+1. SliceWidth (slice scope only)
+1. SliceHeight (slice scope only)
+1. SliceIndex (slice scope only)
+1. SliceIndexPlusOne (slice scope only)
+1. SliceLetter (slice scope only)
 
 Fields are inserted using `${FieldName}` syntax.
 
@@ -113,7 +116,8 @@ The schema is organized into global tables and per-output objects.
 
 Scope and type rules:
 
-1. Global table values that support per-output behavior are arrays and map by output index with wraparound.
+1. Global table values that support cycling are arrays and map by rendered slice sequence with wraparound.
+1. Outputs without explicit `[[output.slice]]` entries are treated as a single implicit full-output slice (`x=0`, `y=0`, `width=100vw`, `height=100vh`).
 1. The same properties can be set as scalar overrides under each `[[output]]` object.
 1. The same properties can be set as scalar overrides under each `[[output.slice]]` object.
 1. Slice objects are TOML-only.
@@ -234,7 +238,7 @@ Both schema files are hand-crafted and maintained in the repository under `docs/
 
 **VS Code integration (via TOML language server extension configuration):**
 
-BgRaster config files include a `$schema` comment at the top that points to the schema version from the build commit SHA. Users can also place schema associations in `.vscode/settings.json` for broader coverage:
+BgRaster config files include a `$schema` comment at the top that points to the published schema URL. Users can also place schema associations in `.vscode/settings.json` for broader coverage:
 
 ```json
 {
@@ -252,15 +256,13 @@ Each generated or user-facing TOML file should include a `$schema` comment at th
 
 ```toml
 # config.toml
-# $schema: https://raw.githubusercontent.com/gameshowpro/GameshowPro/<version-tag>/BgRaster/docs/schemas/bgraster-config.schema.json
+# $schema: https://raw.githubusercontent.com/gameshowpro/BgRaster/refs/heads/main/docs/schemas/bgraster-config.schema.json
 
 # lastRun.toml and lastRun.dry.toml
-# $schema: https://raw.githubusercontent.com/gameshowpro/GameshowPro/<version-tag>/BgRaster/docs/schemas/bgraster-lastrun.schema.json
+# $schema: https://raw.githubusercontent.com/gameshowpro/BgRaster/refs/heads/main/docs/schemas/bgraster-lastrun.schema.json
 ```
 
-During executable build (via CI), the workflow creates a version tag (for example `v1.2.3`), attaches it to the build commit, and substitutes `<version-tag>` in schema URLs. This ensures that the schema version always matches the executable version, supporting reproducible tooling behavior and version-specific validation.
-
-At runtime, BgRaster may normalize the `$schema` comment in `config.toml` to the current build tag URL when it is present but mismatched. BgRaster must always write current-tag `$schema` comments when generating `lastRun.toml` and `lastRun.dry.toml`.
+At runtime, BgRaster may normalize the `$schema` comment in `config.toml` to the published schema URL when it is present but mismatched. BgRaster must always write the published `$schema` comments when generating `lastRun.toml` and `lastRun.dry.toml`.
 
 **Schema content structure:**
 
@@ -302,7 +304,7 @@ Background rendering rules:
 Text positioning rules:
 
 1. `text.x` and `text.y` define the text anchor point in the current output or slice
-1. title and subtitle are centered on that anchor point as a text block
+1. `text` lines are centered on that anchor point as a text block
 
 Logo rendering rules:
 

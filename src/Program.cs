@@ -25,17 +25,26 @@ static class Program
     {
         Stopwatch executionTimer = Stopwatch.StartNew();
 
-        string resolvedConfigPath = configPath
-            ?? Path.Combine(AppContext.BaseDirectory, "config.toml");
-        bool configExists = File.Exists(resolvedConfigPath);
-
         List<string> configurationWarnings = [];
 
-        GlobalOptions options = configExists
-            ? ConfigLoader.Load(resolvedConfigPath, configurationWarnings)
-            : new GlobalOptions();
+        ImmutableArray<string> defaultConfigSearchPaths = GetDefaultConfigSearchPaths();
+        string resolvedConfigPath = ResolveConfigPath(configPath, defaultConfigSearchPaths);
+        bool configExists = File.Exists(resolvedConfigPath);
 
-        options = ConfigLoader.ApplyCliOverlay(options, cliOverlay, configurationWarnings);
+        GlobalOptions options;
+        try
+        {
+            options = configExists
+                ? ConfigLoader.Load(resolvedConfigPath, configurationWarnings)
+                : new GlobalOptions();
+
+            options = ConfigLoader.ApplyCliOverlay(options, cliOverlay, configurationWarnings);
+        }
+        catch (FormatException ex)
+        {
+            Console.Error.WriteLine(BuildConfigurationErrorMessage(resolvedConfigPath, ex));
+            return 2;
+        }
 
         using ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
         {
@@ -220,6 +229,7 @@ static class Program
 
         logger.LastRunWrite(lastRunPath, assignedFiles.Count, unrecycled.Length);
         WriteLastRun(lastRunPath, settingsHash, hardware, options, assignedFiles, unrecycled, runStatus, logger);
+        SeedExplicitConfigFromDefaults(configPath, configExists, isDryRun, options, hardware, configurationWarnings);
         logger.RunComplete();
         return ReturnWithTiming(0);
     }
@@ -245,6 +255,104 @@ static class Program
         };
         LastRunWriter.Write(path, state, version, runStatus, logger);
     }
+
+    internal static ImmutableArray<string> GetDefaultConfigSearchPaths() =>
+        GetDefaultConfigSearchPaths(
+            AppContext.BaseDirectory,
+            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
+
+    internal static ImmutableArray<string> GetDefaultConfigSearchPaths(
+        string executableDirectory,
+        string commonApplicationDataDirectory,
+        string localApplicationDataDirectory,
+        string applicationDataDirectory)
+    {
+        ImmutableArray<string>.Builder builder = ImmutableArray.CreateBuilder<string>(4);
+        builder.Add(Path.Combine(executableDirectory, "config.toml"));
+        AddSearchPath(builder, commonApplicationDataDirectory);
+        AddSearchPath(builder, localApplicationDataDirectory);
+        AddSearchPath(builder, applicationDataDirectory);
+        return builder.ToImmutable();
+
+        static void AddSearchPath(ImmutableArray<string>.Builder builder, string rootDirectory)
+        {
+            if (string.IsNullOrWhiteSpace(rootDirectory))
+                return;
+
+            builder.Add(Path.Combine(rootDirectory, "BgInfo", "config.toml"));
+        }
+    }
+
+    internal static string ResolveConfigPath(string? explicitConfigPath, ImmutableArray<string> defaultConfigSearchPaths)
+    {
+        if (!string.IsNullOrWhiteSpace(explicitConfigPath))
+            return explicitConfigPath;
+
+        foreach (string candidate in defaultConfigSearchPaths)
+        {
+            if (File.Exists(candidate))
+                return candidate;
+        }
+
+        return defaultConfigSearchPaths[0];
+    }
+
+    internal static void SeedExplicitConfigFromDefaults(
+        string? explicitConfigPath,
+        bool configExistedAtStartup,
+        bool isDryRun,
+        GlobalOptions effectiveOptions,
+        HardwareProfile hardware,
+        List<string>? warnings = null)
+    {
+        if (!ShouldSeedExplicitConfigFromDefaults(explicitConfigPath, configExistedAtStartup, isDryRun))
+            return;
+
+        string destinationConfigPath = explicitConfigPath!;
+
+        string? directory = Path.GetDirectoryName(destinationConfigPath);
+        if (!string.IsNullOrWhiteSpace(directory))
+            Directory.CreateDirectory(directory);
+
+        string seededToml = BuildSeedConfigToml(effectiveOptions, hardware.Outputs);
+        File.WriteAllText(destinationConfigPath, seededToml, Encoding.UTF8);
+        warnings?.Add($"Config file '{destinationConfigPath}' did not exist at startup; wrote a config template seeded from effective defaults and detected outputs after successful execution.");
+    }
+
+    internal static bool ShouldSeedExplicitConfigFromDefaults(string? explicitConfigPath, bool configExistedAtStartup, bool isDryRun) =>
+        !string.IsNullOrWhiteSpace(explicitConfigPath)
+        && !configExistedAtStartup
+        && !isDryRun;
+
+    internal static string BuildSeedConfigToml(GlobalOptions effectiveOptions, ImmutableArray<OutputRecord> detectedOutputs)
+    {
+        GlobalOptions optionsWithoutPerOutput = effectiveOptions with { Outputs = [] };
+
+        StringBuilder sb = new();
+        sb.AppendLine("# $schema: https://raw.githubusercontent.com/gameshowpro/BgRaster/refs/heads/main/docs/schemas/bgraster-config.schema.json");
+        sb.AppendLine();
+        sb.AppendLine(LastRunWriter.BuildEffectiveConfigToml(optionsWithoutPerOutput));
+
+        foreach (OutputRecord output in detectedOutputs.OrderBy(o => o.Index))
+        {
+            sb.AppendLine();
+            sb.AppendLine("[[output]]");
+            sb.AppendLine($"target = \"{EscapeTomlString(output.Id)}\"");
+            sb.AppendLine($"# target = {output.Index}  # Numeric index fallback for this output");
+        }
+
+        return sb.ToString().TrimEnd();
+    }
+
+    static string EscapeTomlString(string value) =>
+        value
+            .Replace("\\", "\\\\", StringComparison.Ordinal)
+            .Replace("\"", "\\\"", StringComparison.Ordinal);
+
+    internal static string BuildConfigurationErrorMessage(string configPath, Exception exception) =>
+        $"bg-raster: configuration error in '{configPath}': {exception.Message}";
 
     static bool HardwareProfileMatches(ImmutableArray<OutputRecord> stored, HardwareProfile current)
     {

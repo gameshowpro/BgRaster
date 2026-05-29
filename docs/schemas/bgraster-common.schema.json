@@ -5,14 +5,14 @@
   "definitions": {
     "textTable": {
       "type": "object",
-      "description": "Global text rendering settings",
+      "description": "Global text rendering settings. Array values are resolved by rendered slice sequence with wraparound.",
       "additionalProperties": false,
       "properties": {
         "text": {
           "type": "array",
           "items": { "type": "string" },
-          "default": ["${MachineName} ${Index}", "${OutputName}", "${Width}x${Height}"],
-          "description": "Text lines, supports ${MachineName}, ${Index}, ${Width}, ${Height}, ${IndexPlusOne}, ${OutputName}"
+          "default": ["${MachineName} output ${OutputIndexPlusOne}", "slice ${SliceLetter}", "${SliceWidth}x${SliceHeight}"],
+          "description": "Text lines, supports ${MachineName}, ${OutputWidth}, ${OutputHeight}, ${OutputIndex}, ${OutputIndexPlusOne}, ${OutputLetter}, ${OutputName}, ${SliceWidth}, ${SliceHeight}, ${SliceIndex}, ${SliceIndexPlusOne}, ${SliceLetter}"
         },
         "size": {
           "type": "array",
@@ -42,14 +42,14 @@
     },
     "backgroundTable": {
       "type": "object",
-      "description": "Background rendering settings",
+      "description": "Background rendering settings. Array values are resolved by rendered slice sequence with wraparound.",
       "additionalProperties": false,
       "properties": {
         "color": {
           "type": "array",
           "items": { "type": "string" },
           "default": ["#FF0000", "#00FF00", "#0000FF"],
-          "description": "Base fill color, cycles by output index with wraparound. Supports #RRGGBB, #RRGGBBAA, rgb(), rgba(), hsl(), hsla()"
+          "description": "Base fill color, cycles by rendered slice sequence with wraparound. Supports #RRGGBB, #RRGGBBAA, rgb(), rgba(), hsl(), hsla()"
         },
         "image": {
           "type": "array",
@@ -88,7 +88,7 @@
     },
     "gridTable": {
       "type": "object",
-      "description": "Grid rendering settings",
+      "description": "Grid rendering settings. Array values are resolved by rendered slice sequence with wraparound.",
       "additionalProperties": false,
       "properties": {
         "size": {
@@ -137,7 +137,7 @@
     },
     "circleTable": {
       "type": "object",
-      "description": "Circle rendering settings",
+      "description": "Circle rendering settings. Array values are resolved by rendered slice sequence with wraparound.",
       "additionalProperties": false,
       "properties": {
         "size": {
@@ -162,7 +162,7 @@
     },
     "crosshairTable": {
       "type": "object",
-      "description": "Crosshair rendering settings",
+      "description": "Crosshair rendering settings. Array values are resolved by rendered slice sequence with wraparound.",
       "additionalProperties": false,
       "properties": {
         "length": {
@@ -187,7 +187,7 @@
     },
     "logoTable": {
       "type": "object",
-      "description": "Logo rendering settings",
+      "description": "Logo rendering settings. Array values are resolved by rendered slice sequence with wraparound.",
       "additionalProperties": false,
       "properties": {
         "source": {
@@ -251,13 +251,112 @@
         }
       }
     },
-    "outputOverride": {
+    "textOverride": {
       "type": "object",
-      "description": "Per-output override (scalar, not array)"
+      "description": "Per-output or per-slice text override. Only text lines are arrays; other fields are scalar.",
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Text lines, supports ${MachineName}, ${OutputWidth}, ${OutputHeight}, ${OutputIndex}, ${OutputIndexPlusOne}, ${OutputLetter}, ${OutputName}, ${SliceWidth}, ${SliceHeight}, ${SliceIndex}, ${SliceIndexPlusOne}, ${SliceLetter}"
+        },
+        "size": {
+          "type": "string",
+          "description": "Text size for the override viewport"
+        },
+        "color": {
+          "type": "string",
+          "description": "Text color for the override viewport"
+        },
+        "x": {
+          "type": "string",
+          "description": "Text anchor x-coordinate for the override viewport"
+        },
+        "y": {
+          "type": "string",
+          "description": "Text anchor y-coordinate for the override viewport"
+        }
+      }
     },
-    "sliceOverride": {
+    "backgroundOverride": {
       "type": "object",
-      "description": "Per-slice override"
+      "description": "Per-output or per-slice background override. Scalar values only.",
+      "additionalProperties": false,
+      "properties": {
+        "color": {
+          "type": "string",
+          "description": "Base fill color"
+        },
+        "image": {
+          "type": "string",
+          "description": "Optional path to background image (SVG or PNG)"
+        },
+        "fit": {
+          "type": "string",
+          "enum": ["CropTL", "CropTR", "CropC", "CropBL", "CropBR", "BestFit", "CropToFill"],
+          "description": "Background image fit mode"
+        },
+        "alternating": {
+          "type": "boolean",
+          "description": "Enable checkerboard alternating pixel pattern"
+        },
+        "border": {
+          "type": "boolean",
+          "description": "Enable 1-pixel border at viewport edge"
+        },
+        "border-color": {
+          "type": "string",
+          "description": "Border color"
+        }
+      }
+    },
+    "gridOverride": {
+      "type": "object",
+      "description": "Per-output or per-slice grid override. Scalar values only.",
+      "additionalProperties": false,
+      "properties": {
+        "size": { "type": "string", "description": "Checker cell size with units" },
+        "odd-color": { "type": "string", "description": "Color for odd-indexed grid squares" },
+        "even-color": { "type": "string", "description": "Color for even-indexed grid squares" },
+        "stroke": { "type": "string", "description": "Grid line width" },
+        "offset-x": { "type": "string", "description": "Horizontal grid phase offset" },
+        "offset-y": { "type": "string", "description": "Vertical grid phase offset" },
+        "coordinates": { "type": "boolean", "description": "Enable pixel coordinate display in each grid square" }
+      }
+    },
+    "circleOverride": {
+      "type": "object",
+      "description": "Per-output or per-slice circle override. Scalar values only.",
+      "additionalProperties": false,
+      "properties": {
+        "size": { "type": "string", "description": "Circle diameter with units" },
+        "color": { "type": "string", "description": "Circle fill/stroke color" },
+        "stroke": { "type": "string", "description": "Circle stroke width" }
+      }
+    },
+    "crosshairOverride": {
+      "type": "object",
+      "description": "Per-output or per-slice crosshair override. Scalar values only.",
+      "additionalProperties": false,
+      "properties": {
+        "length": { "type": "string", "description": "Crosshair arm length" },
+        "color": { "type": "string", "description": "Crosshair color" },
+        "stroke": { "type": "string", "description": "Crosshair line thickness" }
+      }
+    },
+    "logoOverride": {
+      "type": "object",
+      "description": "Per-output or per-slice logo override. Scalar values only.",
+      "additionalProperties": false,
+      "properties": {
+        "source": { "type": "string", "description": "Path to logo image file" },
+        "x": { "type": "string", "description": "Logo center X position" },
+        "y": { "type": "string", "description": "Logo center Y position" },
+        "width": { "type": "string", "description": "Logo fit rectangle width" },
+        "height": { "type": "string", "description": "Logo fit rectangle height" },
+        "opacity": { "type": "number", "minimum": 0, "maximum": 1, "description": "Additional opacity multiplier" }
+      }
     },
     "sliceItem": {
       "type": "object",
@@ -281,22 +380,22 @@
           "description": "Slice height"
         },
         "text": {
-          "$ref": "#/definitions/sliceOverride"
+          "$ref": "#/definitions/textOverride"
         },
         "background": {
-          "$ref": "#/definitions/sliceOverride"
+          "$ref": "#/definitions/backgroundOverride"
         },
         "grid": {
-          "$ref": "#/definitions/sliceOverride"
+          "$ref": "#/definitions/gridOverride"
         },
         "circle": {
-          "$ref": "#/definitions/sliceOverride"
+          "$ref": "#/definitions/circleOverride"
         },
         "crosshair": {
-          "$ref": "#/definitions/sliceOverride"
+          "$ref": "#/definitions/crosshairOverride"
         },
         "logo": {
-          "$ref": "#/definitions/sliceOverride"
+          "$ref": "#/definitions/logoOverride"
         }
       }
     },
@@ -325,22 +424,22 @@
           "description": "Output matcher: zero-based OS index (integer) or stable OS unique ID (string)"
         },
         "text": {
-          "$ref": "#/definitions/outputOverride"
+          "$ref": "#/definitions/textOverride"
         },
         "background": {
-          "$ref": "#/definitions/outputOverride"
+          "$ref": "#/definitions/backgroundOverride"
         },
         "grid": {
-          "$ref": "#/definitions/outputOverride"
+          "$ref": "#/definitions/gridOverride"
         },
         "circle": {
-          "$ref": "#/definitions/outputOverride"
+          "$ref": "#/definitions/circleOverride"
         },
         "crosshair": {
-          "$ref": "#/definitions/outputOverride"
+          "$ref": "#/definitions/crosshairOverride"
         },
         "logo": {
-          "$ref": "#/definitions/outputOverride"
+          "$ref": "#/definitions/logoOverride"
         },
         "slice": {
           "$ref": "#/definitions/sliceList"

@@ -136,4 +136,25 @@ public class ConfigLoaderTests
                 File.Delete(path);
         }
     }
+
+    [Fact]
+    public void Load_InvalidToml_ThrowsFormatExceptionWithConfigPath()
+    {
+        string path = Path.Combine(Path.GetTempPath(), $"bgraster-config-{Guid.NewGuid():N}.toml");
+        try
+        {
+            File.WriteAllText(path, "[text\ntext = [\"oops\"]\n");
+
+            Action act = () => ConfigLoader.Load(path);
+
+            act.Should().Throw<FormatException>()
+                .WithMessage($"*{path}*");
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+    }
+
 }

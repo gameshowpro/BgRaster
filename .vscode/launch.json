@@ -9,7 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "program": "${workspaceFolder}/src/bin/Debug/net10.0/win-x64/GameshowPro.BgRaster.dll",
-            "args": ["--render-force", "--verbosity", "verbose"],
+            "args": ["--render-force", "--verbosity", "verbose", "--config", "${workspaceFolder}/docs/sample-config.toml"],
             "cwd": "${workspaceFolder}/src",
             "preLaunchTask": "build BgRaster (Debug win-x64)",
             "console": "internalConsole",

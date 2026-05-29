@@ -74,7 +74,7 @@ First-match-wins by traversal order. Integer targets match by index; string targ
 ### 6. Option resolution (`src/Resolution/`)
 - **`OptionsResolver.Resolve`** flattens cycled global arrays + per-output overrides into a `ResolvedOptions` struct holding parsed pixel floats and `SKColor` values (no unit strings).
 - **`OptionsResolver.ResolveForSlice`** does the same for a slice, using slice dimensions as the new viewport for unit resolution.
-- **`FieldSubstitutor.Substitute`** expands `${MachineName}`, `${Width}`, `${Height}`, `${Index}`, `${IndexPlusOne}`, `${OutputName}`, and (in slice scope) `${ParentIndex}`.
+- **`FieldSubstitutor.Substitute`** expands `${MachineName}`, `${OutputWidth}`, `${OutputHeight}`, `${OutputIndex}`, `${OutputIndexPlusOne}`, `${OutputLetter}`, `${OutputName}`, and (in slice scope) `${SliceWidth}`, `${SliceHeight}`, `${SliceIndex}`, `${SliceIndexPlusOne}`, `${SliceLetter}`.
 
 ### 7. Rendering (`src/Rendering/`)
 The renderer composes a fixed sequence of `ILayer` instances onto an `SKBitmap` sized to the output (or, for sliced outputs, clipped to each slice rect):

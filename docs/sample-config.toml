@@ -1,0 +1,116 @@
+﻿# $schema: https://raw.githubusercontent.com/gameshowpro/BgRaster/refs/heads/main/docs/schemas/bgraster-config.schema.json
+
+[text]
+text = ["${MachineName} output ${OutputIndexPlusOne}", "slice ${SliceLetter}", "${SliceWidth}x${SliceHeight}"]
+size = ["3vh", "2vh", "4vh"]
+color = ["#fff"]
+x = ["85vw"]
+y = ["85vh"]
+
+[background]
+color = ["#FF0000", "#00FF00", "#0000FF"]
+image = [""]
+fit = ["CropToFill"]
+alternating = [false]
+border = [false]
+border-color = ["#FFFFFF"]
+
+[grid]
+size = ["100px"]
+odd-color = ["#00000080"]
+even-color = ["transparent"]
+stroke = ["0"]
+offset-x = ["0"]
+offset-y = ["0"]
+coordinates = [false]
+
+[circle]
+size = ["100vmin"]
+color = ["#ffffff40"]
+stroke = ["1"]
+
+[crosshair]
+length = ["5vmin"]
+color = ["#ffffff80"]
+stroke = ["1px"]
+
+[logo]
+source = [""]
+x = ["85vw"]
+y = ["15vh"]
+width = ["10vw"]
+height = ["10vh"]
+opacity = [1]
+
+[render]
+no-assignment = false
+outputs-skip-unspecified = false
+output = ""
+force = true
+verbosity = "verbose"
+
+[[output]]
+# target = "\\\\?\\DISPLAY#SAM734D#5&214a496&0&UID135425#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}"
+target = 0  # Numeric index fallback for this output
+
+[output.logo]
+x = "50vw"
+y = "20vh"
+width = "30vw"
+height = "30vh"
+opacity = 1
+
+[output.grid]
+size = "25vh"
+
+[output.text]
+x = "50vw"
+y = "50vh"
+size = ["5vh", "6vh", "7vh"]
+text = ["${MachineName} output ${OutputIndexPlusOne}", "slice ${SliceLetter}", "${SliceWidth}x${SliceHeight}"]
+
+[[output.slice]]
+x = "0"
+y = "0"
+width = "100vw"
+height = "100vh"
+
+[output.slice.text]
+text = ["${MachineName} ${OutputIndexPlusOne}", "${OutputName}", "${SliceWidth}x${SliceHeight}"]
+x = "85vw"
+size = ["3vh", "5vh", "4vh"]
+
+[output.slice.background]
+color = "#808080"
+
+[output.slice.logo]
+y = "50vh"
+
+[output.slice.grid]
+size = "12.5vh"
+
+[[output.slice]]
+x = "0"
+y = "0"
+width = "1024px"
+height = "512px"
+
+[[output.slice]]
+x = "0"
+y = "512px"
+width = "1024px"
+height = "512px"
+
+[[output.slice]]
+x = "0"
+y = "1024px"
+width = "512px"
+height = "512px"
+
+[[output]]
+# target = "\\\\?\\DISPLAY#SAM77E9#5&214a496&0&UID135424#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}"
+target = 1  # Numeric index fallback for this output
+
+[[output]]
+# target = "\\\\?\\DISPLAY#GSM0001#5&214a496&0&UID135427#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}"
+target = 2  # Numeric index fallback for this output

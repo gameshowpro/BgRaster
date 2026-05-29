@@ -5,7 +5,16 @@ static class ConfigLoader
     internal static GlobalOptions Load(string path, List<string>? warnings = null)
     {
         string toml = File.ReadAllText(path);
-        TomlTable table = Toml.ToModel(toml);
+        TomlTable table;
+        try
+        {
+            table = Toml.ToModel(toml);
+        }
+        catch (TomlException ex)
+        {
+            throw new FormatException($"Failed to parse TOML config '{path}': {ex.Message}", ex);
+        }
+
         return ParseGlobalOptions(table, warnings);
     }
 

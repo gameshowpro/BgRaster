@@ -24,7 +24,7 @@ static class LastRunWriter
             Directory.CreateDirectory(directory);
 
             StringBuilder sb = new();
-            sb.AppendLine($"# $schema: https://raw.githubusercontent.com/gameshowpro/GameshowPro/{schemaVersion}/BgRaster/docs/schemas/bgraster-lastrun.schema.json");
+            sb.AppendLine("# $schema: https://raw.githubusercontent.com/gameshowpro/BgRaster/refs/heads/main/docs/schemas/bgraster-lastrun.schema.json");
             sb.AppendLine();
 
             sb.AppendLine("[meta]");

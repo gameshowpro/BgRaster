@@ -2,6 +2,13 @@ namespace GameshowPro.BgRaster.Resolution;
 
 static class OptionsResolver
 {
+    static readonly ImmutableArray<string> ImplicitFullOutputSliceDefaultText =
+    [
+        "${MachineName} ${OutputIndex}",
+        "${OutputName}",
+        "${OutputWidth}x${OutputHeight}",
+    ];
+
     internal static ResolvedOptions Resolve(GlobalOptions global, OutputRecord output, OutputOptions? outputConfig)
     {
         int idx = output.Index;
@@ -10,10 +17,12 @@ static class OptionsResolver
 
         SubstitutionContext ctx = new(
             MachineName: Environment.MachineName,
-            Width: output.WidthPx,
-            Height: output.HeightPx,
-            Index: idx,
-            OutputName: output.FriendlyName);
+            OutputWidth: output.WidthPx,
+            OutputHeight: output.HeightPx,
+            OutputIndex: idx,
+            OutputName: output.FriendlyName,
+            SliceWidth: output.WidthPx,
+            SliceHeight: output.HeightPx);
 
         ImmutableArray<string> textLines = ResolveTextArray(global.Text.Text, outputConfig?.Text?.Text)
             .Select(line => Substitute(line, ctx))
@@ -98,24 +107,28 @@ static class OptionsResolver
 
     internal static ResolvedOptions ResolveForSlice(
         GlobalOptions global, OutputRecord output, OutputOptions? outputConfig,
-        SliceOptions slice, int sliceWidth, int sliceHeight)
+        SliceOptions slice, int sliceWidth, int sliceHeight, int? sequenceIndex = null, int sliceIndex = 0, bool isImplicitSlice = false)
     {
         int idx = output.Index;
+        int cycleIndex = sequenceIndex ?? idx;
         float vw = sliceWidth;
         float vh = sliceHeight;
 
         SubstitutionContext ctx = new(
             MachineName: Environment.MachineName,
-            Width: sliceWidth,
-            Height: sliceHeight,
-            Index: idx,
+            OutputWidth: output.WidthPx,
+            OutputHeight: output.HeightPx,
+            OutputIndex: idx,
             OutputName: output.FriendlyName,
-            ParentIndex: idx);
+            SliceWidth: sliceWidth,
+            SliceHeight: sliceHeight,
+            SliceIndex: sliceIndex);
 
         ImmutableArray<string> textLines = ResolveSliceTextArray(
                 global.Text.Text,
                 outputConfig?.Text?.Text,
-                slice.Text?.Text)
+                slice.Text?.Text,
+                isImplicitSlice)
             .Select(line => Substitute(line, ctx))
             .ToImmutableArray();
         ImmutableArray<float> textSizesPx = ResolveSliceTextSizes(
@@ -130,38 +143,38 @@ static class OptionsResolver
             outputConfig?.Text?.Color,
             slice.Text?.Color,
             textLines.Length);
-        float textXPx = ParseUnit(ResolveSliceString(global.Text.X, idx, outputConfig?.Text?.X, slice.Text?.X), vw, vh);
-        float textYPx = ParseUnit(ResolveSliceString(global.Text.Y, idx, outputConfig?.Text?.Y, slice.Text?.Y), vw, vh);
+        float textXPx = ParseUnit(ResolveSliceString(global.Text.X, cycleIndex, outputConfig?.Text?.X, slice.Text?.X), vw, vh);
+        float textYPx = ParseUnit(ResolveSliceString(global.Text.Y, cycleIndex, outputConfig?.Text?.Y, slice.Text?.Y), vw, vh);
 
-        SKColor bgColor = ParseColor(ResolveSliceString(global.Background.Color, idx, outputConfig?.Background?.Color, slice.Background?.Color));
-        string bgImage = ResolveSliceString(global.Background.Image, idx, outputConfig?.Background?.Image, slice.Background?.Image);
-        FitMode bgFit = ParseFitMode(ResolveSliceString(global.Background.Fit, idx, outputConfig?.Background?.Fit, slice.Background?.Fit));
-        bool alternating = ResolveSliceBool(global.Background.Alternating, idx, outputConfig?.Background?.Alternating, slice.Background?.Alternating);
-        bool border = ResolveSliceBool(global.Background.Border, idx, outputConfig?.Background?.Border, slice.Background?.Border);
-        SKColor borderColor = ParseColor(ResolveSliceString(global.Background.BorderColor, idx, outputConfig?.Background?.BorderColor, slice.Background?.BorderColor));
+        SKColor bgColor = ParseColor(ResolveSliceString(global.Background.Color, cycleIndex, outputConfig?.Background?.Color, slice.Background?.Color));
+        string bgImage = ResolveSliceString(global.Background.Image, cycleIndex, outputConfig?.Background?.Image, slice.Background?.Image);
+        FitMode bgFit = ParseFitMode(ResolveSliceString(global.Background.Fit, cycleIndex, outputConfig?.Background?.Fit, slice.Background?.Fit));
+        bool alternating = ResolveSliceBool(global.Background.Alternating, cycleIndex, outputConfig?.Background?.Alternating, slice.Background?.Alternating);
+        bool border = ResolveSliceBool(global.Background.Border, cycleIndex, outputConfig?.Background?.Border, slice.Background?.Border);
+        SKColor borderColor = ParseColor(ResolveSliceString(global.Background.BorderColor, cycleIndex, outputConfig?.Background?.BorderColor, slice.Background?.BorderColor));
 
-        float gridSizePx = ParseUnit(ResolveSliceString(global.Grid.Size, idx, outputConfig?.Grid?.Size, slice.Grid?.Size), vw, vh);
-        SKColor gridOddColor = ParseColor(ResolveSliceString(global.Grid.OddColor, idx, outputConfig?.Grid?.OddColor, slice.Grid?.OddColor));
-        SKColor gridEvenColor = ParseColor(ResolveSliceString(global.Grid.EvenColor, idx, outputConfig?.Grid?.EvenColor, slice.Grid?.EvenColor));
-        float gridStrokePx = ParseUnit(ResolveSliceString(global.Grid.Stroke, idx, outputConfig?.Grid?.Stroke, slice.Grid?.Stroke), vw, vh);
-        float gridOffsetXPx = ParseUnit(ResolveSliceString(global.Grid.OffsetX, idx, outputConfig?.Grid?.OffsetX, slice.Grid?.OffsetX), vw, vh);
-        float gridOffsetYPx = ParseUnit(ResolveSliceString(global.Grid.OffsetY, idx, outputConfig?.Grid?.OffsetY, slice.Grid?.OffsetY), vw, vh);
-        bool gridCoordinates = ResolveSliceBool(global.Grid.Coordinates, idx, outputConfig?.Grid?.Coordinates, slice.Grid?.Coordinates);
+        float gridSizePx = ParseUnit(ResolveSliceString(global.Grid.Size, cycleIndex, outputConfig?.Grid?.Size, slice.Grid?.Size), vw, vh);
+        SKColor gridOddColor = ParseColor(ResolveSliceString(global.Grid.OddColor, cycleIndex, outputConfig?.Grid?.OddColor, slice.Grid?.OddColor));
+        SKColor gridEvenColor = ParseColor(ResolveSliceString(global.Grid.EvenColor, cycleIndex, outputConfig?.Grid?.EvenColor, slice.Grid?.EvenColor));
+        float gridStrokePx = ParseUnit(ResolveSliceString(global.Grid.Stroke, cycleIndex, outputConfig?.Grid?.Stroke, slice.Grid?.Stroke), vw, vh);
+        float gridOffsetXPx = ParseUnit(ResolveSliceString(global.Grid.OffsetX, cycleIndex, outputConfig?.Grid?.OffsetX, slice.Grid?.OffsetX), vw, vh);
+        float gridOffsetYPx = ParseUnit(ResolveSliceString(global.Grid.OffsetY, cycleIndex, outputConfig?.Grid?.OffsetY, slice.Grid?.OffsetY), vw, vh);
+        bool gridCoordinates = ResolveSliceBool(global.Grid.Coordinates, cycleIndex, outputConfig?.Grid?.Coordinates, slice.Grid?.Coordinates);
 
-        float circleSizePx = ParseUnit(ResolveSliceString(global.Circle.Size, idx, outputConfig?.Circle?.Size, slice.Circle?.Size), vw, vh);
-        SKColor circleColor = ParseColor(ResolveSliceString(global.Circle.Color, idx, outputConfig?.Circle?.Color, slice.Circle?.Color));
-        float circleStrokePx = ParseUnit(ResolveSliceString(global.Circle.Stroke, idx, outputConfig?.Circle?.Stroke, slice.Circle?.Stroke), vw, vh);
+        float circleSizePx = ParseUnit(ResolveSliceString(global.Circle.Size, cycleIndex, outputConfig?.Circle?.Size, slice.Circle?.Size), vw, vh);
+        SKColor circleColor = ParseColor(ResolveSliceString(global.Circle.Color, cycleIndex, outputConfig?.Circle?.Color, slice.Circle?.Color));
+        float circleStrokePx = ParseUnit(ResolveSliceString(global.Circle.Stroke, cycleIndex, outputConfig?.Circle?.Stroke, slice.Circle?.Stroke), vw, vh);
 
-        float crosshairLengthPx = ParseUnit(ResolveSliceString(global.Crosshair.Length, idx, outputConfig?.Crosshair?.Length, slice.Crosshair?.Length), vw, vh);
-        SKColor crosshairColor = ParseColor(ResolveSliceString(global.Crosshair.Color, idx, outputConfig?.Crosshair?.Color, slice.Crosshair?.Color));
-        float crosshairStrokePx = ParseUnit(ResolveSliceString(global.Crosshair.Stroke, idx, outputConfig?.Crosshair?.Stroke, slice.Crosshair?.Stroke), vw, vh);
+        float crosshairLengthPx = ParseUnit(ResolveSliceString(global.Crosshair.Length, cycleIndex, outputConfig?.Crosshair?.Length, slice.Crosshair?.Length), vw, vh);
+        SKColor crosshairColor = ParseColor(ResolveSliceString(global.Crosshair.Color, cycleIndex, outputConfig?.Crosshair?.Color, slice.Crosshair?.Color));
+        float crosshairStrokePx = ParseUnit(ResolveSliceString(global.Crosshair.Stroke, cycleIndex, outputConfig?.Crosshair?.Stroke, slice.Crosshair?.Stroke), vw, vh);
 
-        string logoSource = ResolveSliceString(global.Logo.Source, idx, outputConfig?.Logo?.Source, slice.Logo?.Source);
-        float logoXPx = ParseUnit(ResolveSliceString(global.Logo.X, idx, outputConfig?.Logo?.X, slice.Logo?.X), vw, vh);
-        float logoYPx = ParseUnit(ResolveSliceString(global.Logo.Y, idx, outputConfig?.Logo?.Y, slice.Logo?.Y), vw, vh);
-        float logoWidthPx = ParseUnit(ResolveSliceString(global.Logo.Width, idx, outputConfig?.Logo?.Width, slice.Logo?.Width), vw, vh);
-        float logoHeightPx = ParseUnit(ResolveSliceString(global.Logo.Height, idx, outputConfig?.Logo?.Height, slice.Logo?.Height), vw, vh);
-        float logoOpacity = ResolveSliceFloat(global.Logo.Opacity, idx, outputConfig?.Logo?.Opacity, slice.Logo?.Opacity);
+        string logoSource = ResolveSliceString(global.Logo.Source, cycleIndex, outputConfig?.Logo?.Source, slice.Logo?.Source);
+        float logoXPx = ParseUnit(ResolveSliceString(global.Logo.X, cycleIndex, outputConfig?.Logo?.X, slice.Logo?.X), vw, vh);
+        float logoYPx = ParseUnit(ResolveSliceString(global.Logo.Y, cycleIndex, outputConfig?.Logo?.Y, slice.Logo?.Y), vw, vh);
+        float logoWidthPx = ParseUnit(ResolveSliceString(global.Logo.Width, cycleIndex, outputConfig?.Logo?.Width, slice.Logo?.Width), vw, vh);
+        float logoHeightPx = ParseUnit(ResolveSliceString(global.Logo.Height, cycleIndex, outputConfig?.Logo?.Height, slice.Logo?.Height), vw, vh);
+        float logoOpacity = ResolveSliceFloat(global.Logo.Opacity, cycleIndex, outputConfig?.Logo?.Opacity, slice.Logo?.Opacity);
 
         return new ResolvedOptions
         {
@@ -221,15 +234,22 @@ static class OptionsResolver
     static ImmutableArray<string> ResolveSliceTextArray(
         ImmutableArray<string> global,
         ImmutableArray<string>? outputOverride,
-        ImmutableArray<string>? sliceOverride)
+        ImmutableArray<string>? sliceOverride,
+        bool isImplicitSlice)
     {
         if (sliceOverride is { Length: > 0 })
             return sliceOverride.Value;
         if (outputOverride is { Length: > 0 })
             return outputOverride.Value;
 
+        if (isImplicitSlice && IsDefaultSliceText(global))
+            return ImplicitFullOutputSliceDefaultText;
+
         return global.Length == 0 ? [""] : global;
     }
+
+    static bool IsDefaultSliceText(ImmutableArray<string> textValues) =>
+        textValues.SequenceEqual(new TextOptions().Text);
 
     static ImmutableArray<float> ResolveTextSizes(
         ImmutableArray<string> global,
@@ -250,7 +270,7 @@ static class OptionsResolver
         float vw,
         float vh)
     {
-        ImmutableArray<string> source = ResolveSliceTextArray(global, outputOverride, sliceOverride);
+        ImmutableArray<string> source = ResolveSliceTextArray(global, outputOverride, sliceOverride, isImplicitSlice: false);
         return ResolveSizedLines(source, lineCount, vw, vh);
     }
 
@@ -283,7 +303,7 @@ static class OptionsResolver
         ImmutableArray<string>? sliceOverride,
         int lineCount)
     {
-        ImmutableArray<string> source = ResolveSliceTextArray(global, outputOverride, sliceOverride);
+        ImmutableArray<string> source = ResolveSliceTextArray(global, outputOverride, sliceOverride, isImplicitSlice: false);
         return ResolveColorLines(source, lineCount);
     }
 

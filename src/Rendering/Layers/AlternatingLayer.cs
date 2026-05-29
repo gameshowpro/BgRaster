@@ -12,8 +12,6 @@ sealed class AlternatingLayer : ILayer
         int vh = context.ViewportHeight;
 
         SKColor bgColor = context.Options.BackgroundColor;
-        uint bgArgb = (uint)((bgColor.Alpha << 24) | (bgColor.Red << 16) | (bgColor.Green << 8) | bgColor.Blue);
-        uint blackArgb = 0xFF000000u;
 
         using SKBitmap layer = new(vw, vh, SKColorType.Bgra8888, SKAlphaType.Premul);
         unsafe
