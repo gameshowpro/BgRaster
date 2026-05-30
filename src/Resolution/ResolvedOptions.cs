@@ -26,6 +26,14 @@ record ResolvedOptions
     internal float CrosshairLengthPx { get; init; }
     internal SKColor CrosshairColor { get; init; }
     internal float CrosshairStrokePx { get; init; }
+    internal float LabeledEdgesTextSizePx { get; init; }
+    internal float LabeledEdgesTailLengthPx { get; init; }
+    internal float LabeledEdgesThicknessPx { get; init; }
+    internal float LabeledEdgesHeadScale { get; init; } = 1f;
+    internal LabeledEdgesScope LabeledEdgesScope { get; init; } = LabeledEdgesScope.Output;
+    internal float LabeledEdgesScopeWidthPx { get; init; }
+    internal float LabeledEdgesScopeHeightPx { get; init; }
+    internal ImmutableArray<LabeledEdgeSide> LabeledEdgesSides { get; init; } = [];
     internal string LogoSource { get; init; } = "";
     internal float LogoXPx { get; init; }
     internal float LogoYPx { get; init; }

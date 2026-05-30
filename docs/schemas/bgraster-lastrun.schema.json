@@ -116,6 +116,9 @@
     "crosshair": {
       "$ref": "./bgraster-common.schema.json#/definitions/crosshairTable"
     },
+    "labeled-edges": {
+      "$ref": "./bgraster-common.schema.json#/definitions/labeledEdgesTable"
+    },
     "logo": {
       "$ref": "./bgraster-common.schema.json#/definitions/logoTable"
     },

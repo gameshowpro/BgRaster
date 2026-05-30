@@ -332,4 +332,57 @@ public class OptionsResolverTests
 
         resolved.GridSizePx.Should().BeApproximately(100f, 0.01f);
     }
+
+    [Fact]
+    public void ResolveForSlice_LabeledEdges_UsesSliceOverrideAndParsesSides()
+    {
+        GlobalOptions global = new()
+        {
+            LabeledEdges = new LabeledEdgesOptions
+            {
+                TextSize = ["10px"],
+                TailLength = ["4px"],
+                Thickness = ["2px"],
+                HeadScale = [1f],
+                Scope = [LabeledEdgesScope.Output],
+                Side = [LabeledEdgeSide.TL],
+            },
+        };
+        OutputOptions outputConfig = new()
+        {
+            Target = OutputTarget.FromIndex(0),
+            LabeledEdges = new LabeledEdgesOverride
+            {
+                TextSize = "12px",
+                TailLength = "6px",
+                Thickness = "3px",
+                HeadScale = 1.5f,
+                Scope = "Slice",
+                Side = [LabeledEdgeSide.BR, LabeledEdgeSide.T],
+            },
+        };
+        SliceOptions slice = new()
+        {
+            X = "0",
+            Y = "0",
+            Width = "200px",
+            Height = "100px",
+            LabeledEdges = new LabeledEdgesOverride
+            {
+                TextSize = "5vh",
+                TailLength = "8px",
+                Thickness = "4px",
+                HeadScale = 2f,
+            },
+        };
+
+        ResolvedOptions resolved = OptionsResolver.ResolveForSlice(global, MakeOutput(0), outputConfig, slice, 200, 100);
+
+        resolved.LabeledEdgesTextSizePx.Should().BeApproximately(5f, 0.01f);
+        resolved.LabeledEdgesTailLengthPx.Should().BeApproximately(8f, 0.01f);
+        resolved.LabeledEdgesThicknessPx.Should().BeApproximately(4f, 0.01f);
+        resolved.LabeledEdgesHeadScale.Should().BeApproximately(2f, 0.01f);
+        resolved.LabeledEdgesScope.Should().Be(LabeledEdgesScope.Slice);
+        resolved.LabeledEdgesSides.Should().Equal([LabeledEdgeSide.BR, LabeledEdgeSide.T]);
+    }
 }

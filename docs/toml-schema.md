@@ -86,6 +86,21 @@ Centred plus-sign for alignment.
 
 ---
 
+## `[labeled-edges]`
+
+Arrow-and-label callouts for edges or corners of the current output or slice.
+
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `text-size` | `string[]` | `["10px"]` | Label text height. |
+| `tail-length` | `string[]` | `["10px"]` | Arrow tail length, excluding the arrowhead. |
+| `thickness` | `string[]` | `["3px"]` | Arrow stem thickness. |
+| `head-scale` | `float[]` | `[1.0]` | Multiplier applied to the arrowhead size. |
+| `scope` | `enum[]` | `["Desktop"]` | Scope enum for viewport-unit resolution and displayed numbers: `Desktop`, `Output`, `Slice`. |
+| `side` | `string[]` | `["TL", "T", "TR", "R", "BR", "B", "BL", "L"]` | Any combination of `TL`, `T`, `TR`, `R`, `BR`, `B`, `BL`, `L` with no repeats. |
+
+---
+
 ## `[logo]`
 
 Optional logo (PNG, JPG, or minimal SVG subset).
@@ -93,10 +108,10 @@ Optional logo (PNG, JPG, or minimal SVG subset).
 | Key | Type | Default | Description |
 |---|---|---|---|
 | `source` | `string[]` | `[""]` | Path to image file. Empty uses the embedded fallback (orange diagonal cross). Substitution applied. |
-| `x` | `string[]` | `["75vw"]` | Logo center X. Dimension. |
-| `y` | `string[]` | `["25vh"]` | Logo center Y. Dimension. |
-| `width` | `string[]` | `["15vw"]` | Logo rect width. Dimension. |
-| `height` | `string[]` | `["15vh"]` | Logo rect height. Dimension. |
+| `x` | `string[]` | `["85vw"]` | Logo center X. Dimension. |
+| `y` | `string[]` | `["15vh"]` | Logo center Y. Dimension. |
+| `width` | `string[]` | `["20vw"]` | Logo rect width. Dimension. |
+| `height` | `string[]` | `["20vh"]` | Logo rect height. Dimension. |
 | `opacity` | `float[]` | `[1.0]` | Alpha multiplier `0..1`. |
 
 The logo is rendered into the rect using `BestFit` (uniform scale, preserves aspect ratio).

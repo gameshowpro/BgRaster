@@ -146,6 +146,7 @@ static class LastRunWriter
         WriteGridSection(sb, opts.Grid);
         WriteCircleSection(sb, opts.Circle);
         WriteCrosshairSection(sb, opts.Crosshair);
+        WriteLabeledEdgesSection(sb, opts.LabeledEdges);
         WriteLogoSection(sb, opts.Logo);
         WriteRenderSection(sb, opts.Render);
         WriteOutputsSection(sb, opts.Outputs, runStatus);
@@ -202,6 +203,18 @@ static class LastRunWriter
         WriteTomlStringArray(sb, "length", c.Length);
         WriteTomlStringArray(sb, "color", c.Color);
         WriteTomlStringArray(sb, "stroke", c.Stroke);
+        sb.AppendLine();
+    }
+
+    static void WriteLabeledEdgesSection(StringBuilder sb, LabeledEdgesOptions l)
+    {
+        sb.AppendLine("[labeled-edges]");
+        WriteTomlStringArray(sb, "text-size", l.TextSize);
+        WriteTomlStringArray(sb, "tail-length", l.TailLength);
+        WriteTomlStringArray(sb, "thickness", l.Thickness);
+        WriteTomlFloatArray(sb, "head-scale", l.HeadScale);
+        WriteTomlStringArray(sb, "scope", [.. l.Scope.Select(scope => scope.ToString())]);
+        WriteTomlStringArray(sb, "side", [.. l.Side.Select(side => side.ToString())]);
         sb.AppendLine();
     }
 
@@ -267,11 +280,92 @@ static class LastRunWriter
                 sb.AppendLine($"y = \"{Escape(s.Y)}\"");
                 sb.AppendLine($"width = \"{Escape(s.Width)}\"");
                 sb.AppendLine($"height = \"{Escape(s.Height)}\"");
+                WriteSliceFeatureSection(sb, "text", s.Text);
+                WriteSliceFeatureSection(sb, "background", s.Background);
+                WriteSliceFeatureSection(sb, "grid", s.Grid);
+                WriteSliceFeatureSection(sb, "circle", s.Circle);
+                WriteSliceFeatureSection(sb, "crosshair", s.Crosshair);
+                WriteSliceFeatureSection(sb, "labeled-edges", s.LabeledEdges);
+                WriteSliceFeatureSection(sb, "logo", s.Logo);
                 sb.AppendLine();
                 sliceIdx++;
             }
             idx++;
         }
+    }
+
+    static void WriteSliceFeatureSection(StringBuilder sb, string key, object? value)
+    {
+        switch (value)
+        {
+            case TextOverride textOverride:
+                sb.AppendLine($"[{key}]");
+                if (textOverride.Text is not null) WriteTomlStringArray(sb, "text", textOverride.Text.Value);
+                if (textOverride.Size is not null) WriteTomlStringArray(sb, "size", textOverride.Size.Value);
+                if (textOverride.Color is not null) WriteTomlStringArray(sb, "color", textOverride.Color.Value);
+                if (textOverride.X is not null) sb.AppendLine($"x = \"{Escape(textOverride.X)}\"");
+                if (textOverride.Y is not null) sb.AppendLine($"y = \"{Escape(textOverride.Y)}\"");
+                break;
+            case BackgroundOverride backgroundOverride:
+                sb.AppendLine($"[{key}]");
+                if (backgroundOverride.Color is not null) sb.AppendLine($"color = \"{Escape(backgroundOverride.Color)}\"");
+                if (backgroundOverride.Image is not null) sb.AppendLine($"image = \"{Escape(backgroundOverride.Image)}\"");
+                if (backgroundOverride.Fit is not null) sb.AppendLine($"fit = \"{Escape(backgroundOverride.Fit)}\"");
+                if (backgroundOverride.Alternating is not null) sb.AppendLine($"alternating = {backgroundOverride.Alternating.Value.ToString().ToLowerInvariant()}");
+                if (backgroundOverride.Border is not null) sb.AppendLine($"border = {backgroundOverride.Border.Value.ToString().ToLowerInvariant()}");
+                if (backgroundOverride.BorderColor is not null) sb.AppendLine($"border-color = \"{Escape(backgroundOverride.BorderColor)}\"");
+                break;
+            case GridOverride gridOverride:
+                sb.AppendLine($"[{key}]");
+                if (gridOverride.Size is not null) sb.AppendLine($"size = \"{Escape(gridOverride.Size)}\"");
+                if (gridOverride.OddColor is not null) sb.AppendLine($"odd-color = \"{Escape(gridOverride.OddColor)}\"");
+                if (gridOverride.EvenColor is not null) sb.AppendLine($"even-color = \"{Escape(gridOverride.EvenColor)}\"");
+                if (gridOverride.Stroke is not null) sb.AppendLine($"stroke = \"{Escape(gridOverride.Stroke)}\"");
+                if (gridOverride.OffsetX is not null) sb.AppendLine($"offset-x = \"{Escape(gridOverride.OffsetX)}\"");
+                if (gridOverride.OffsetY is not null) sb.AppendLine($"offset-y = \"{Escape(gridOverride.OffsetY)}\"");
+                if (gridOverride.Coordinates is not null) sb.AppendLine($"coordinates = {gridOverride.Coordinates.Value.ToString().ToLowerInvariant()}");
+                break;
+            case CircleOverride circleOverride:
+                sb.AppendLine($"[{key}]");
+                if (circleOverride.Size is not null) sb.AppendLine($"size = \"{Escape(circleOverride.Size)}\"");
+                if (circleOverride.Color is not null) sb.AppendLine($"color = \"{Escape(circleOverride.Color)}\"");
+                if (circleOverride.Stroke is not null) sb.AppendLine($"stroke = \"{Escape(circleOverride.Stroke)}\"");
+                break;
+            case CrosshairOverride crosshairOverride:
+                sb.AppendLine($"[{key}]");
+                if (crosshairOverride.Length is not null) sb.AppendLine($"length = \"{Escape(crosshairOverride.Length)}\"");
+                if (crosshairOverride.Color is not null) sb.AppendLine($"color = \"{Escape(crosshairOverride.Color)}\"");
+                if (crosshairOverride.Stroke is not null) sb.AppendLine($"stroke = \"{Escape(crosshairOverride.Stroke)}\"");
+                break;
+            case LabeledEdgesOverride labeledEdgesOverride:
+                sb.AppendLine($"[{key}]");
+                if (labeledEdgesOverride.TextSize is not null) sb.AppendLine($"text-size = \"{Escape(labeledEdgesOverride.TextSize)}\"");
+                if (labeledEdgesOverride.TailLength is not null) sb.AppendLine($"tail-length = \"{Escape(labeledEdgesOverride.TailLength)}\"");
+                if (labeledEdgesOverride.Thickness is not null) sb.AppendLine($"thickness = \"{Escape(labeledEdgesOverride.Thickness)}\"");
+                if (labeledEdgesOverride.HeadScale is not null) sb.AppendLine($"head-scale = {labeledEdgesOverride.HeadScale.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}");
+                if (labeledEdgesOverride.Scope is not null) sb.AppendLine($"scope = \"{Escape(labeledEdgesOverride.Scope)}\"");
+                if (labeledEdgesOverride.Side is not null)
+                {
+                    ImmutableArray<string>.Builder sideValues = ImmutableArray.CreateBuilder<string>(labeledEdgesOverride.Side.Value.Length);
+                    foreach (LabeledEdgeSide side in labeledEdgesOverride.Side.Value)
+                        sideValues.Add(side.ToString());
+
+                    WriteTomlStringArray(sb, "side", sideValues.ToImmutable());
+                }
+                break;
+            case LogoOverride logoOverride:
+                sb.AppendLine($"[{key}]");
+                if (logoOverride.Source is not null) sb.AppendLine($"source = \"{Escape(logoOverride.Source)}\"");
+                if (logoOverride.X is not null) sb.AppendLine($"x = \"{Escape(logoOverride.X)}\"");
+                if (logoOverride.Y is not null) sb.AppendLine($"y = \"{Escape(logoOverride.Y)}\"");
+                if (logoOverride.Width is not null) sb.AppendLine($"width = \"{Escape(logoOverride.Width)}\"");
+                if (logoOverride.Height is not null) sb.AppendLine($"height = \"{Escape(logoOverride.Height)}\"");
+                if (logoOverride.Opacity is not null) sb.AppendLine($"opacity = {logoOverride.Opacity.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}");
+                break;
+        }
+
+        if (value is not null)
+            sb.AppendLine();
     }
 
     static void WriteTomlStringArray(StringBuilder sb, string key, ImmutableArray<string> values)

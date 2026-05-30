@@ -85,6 +85,7 @@ static class Program
 
         IDisplayDiscovery discovery = new DisplayDiscovery();
         HardwareProfile hardware = discovery.Discover();
+        (int systemWidthPx, int systemHeightPx) = GetSystemDimensions(hardware);
         logger.HardwareDiscovered(hardware.Outputs.Length);
         foreach (OutputRecord output in hardware.Outputs)
         {
@@ -152,7 +153,7 @@ static class Program
             {
                 case MatchResult.Matched(OutputRecord output, OutputOptions outputConfig):
                     logger.RenderStart(output.Id, DescribeTarget(outputConfig.Target));
-                    RenderOutcome outcome = await renderer.RenderOutputAsync(output, outputConfig, options, outputDir);
+                    RenderOutcome outcome = await renderer.RenderOutputAsync(output, outputConfig, options, outputDir, systemWidthPx, systemHeightPx);
                     assignedFiles[output.Id] = outcome.FilePath;
                     hardwareStatuses[output.Id] = "output-rendered";
                     configuredStatuses.Add(new ConfiguredOutputStatus
@@ -384,6 +385,18 @@ static class Program
         OutputTarget.IdTarget(string id) => $"\"{id}\"",
         _ => "unknown",
     };
+
+    static (int WidthPx, int HeightPx) GetSystemDimensions(HardwareProfile hardware)
+    {
+        if (hardware.Outputs.IsEmpty)
+            return (0, 0);
+
+        int minX = hardware.Outputs.Min(output => output.DesktopX);
+        int minY = hardware.Outputs.Min(output => output.DesktopY);
+        int maxX = hardware.Outputs.Max(output => output.DesktopX + output.WidthPx);
+        int maxY = hardware.Outputs.Max(output => output.DesktopY + output.HeightPx);
+        return (maxX - minX, maxY - minY);
+    }
 
 
 

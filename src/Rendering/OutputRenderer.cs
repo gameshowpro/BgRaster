@@ -13,12 +13,14 @@ sealed class OutputRenderer
     readonly BorderLayer _border = new();
     readonly CircleLayer _circle = new();
     readonly CrosshairLayer _crosshair = new();
+    readonly LabeledEdgesLayer _labeledEdges = new();
     readonly LogoLayer _logo = new();
     readonly TextLayer _text = new();
 
     internal async Task<RenderOutcome> RenderOutputAsync(
         OutputRecord output, OutputOptions? outputConfig,
-        GlobalOptions globalOptions, string outputDirectory)
+        GlobalOptions globalOptions, string outputDirectory,
+        int systemWidthPx, int systemHeightPx)
     {
         string fileName = FileNamer.GenerateFileName(output.Id);
         string filePath = Path.Combine(outputDirectory, fileName);
@@ -45,7 +47,7 @@ sealed class OutputRenderer
             _sliceSequence++;
 
             ResolvedOptions options = OptionsResolver.ResolveForSlice(
-                globalOptions, output, outputConfig, slice, sw, sh, sequenceIndex, sliceIndex, isImplicitSliceSet);
+                globalOptions, output, outputConfig, slice, sw, sh, sequenceIndex, sliceIndex, isImplicitSliceSet, systemWidthPx, systemHeightPx);
             RenderContext ctx = new(output, options, sw, sh, sx, sy);
 
             canvas.Save();
@@ -71,6 +73,7 @@ sealed class OutputRenderer
         _border.Render(ctx, canvas);
         _circle.Render(ctx, canvas);
         _crosshair.Render(ctx, canvas);
+        _labeledEdges.Render(ctx, canvas);
         _logo.Render(ctx, canvas);
         _text.Render(ctx, canvas);
     }

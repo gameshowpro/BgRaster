@@ -185,6 +185,55 @@
         }
       }
     },
+    "labeledEdgesTable": {
+      "type": "object",
+      "description": "Labeled edges rendering settings. Array values are resolved by rendered slice sequence with wraparound.",
+      "additionalProperties": false,
+      "properties": {
+        "text-size": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["10px"],
+          "description": "Label text height with units"
+        },
+        "tail-length": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["10px"],
+          "description": "Length of the arrow tail, excluding the head"
+        },
+        "thickness": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["3px"],
+          "description": "Arrow stem thickness with units"
+        },
+        "head-scale": {
+          "type": "array",
+          "items": { "type": "number", "minimum": 0 },
+          "default": [1.0],
+          "description": "Multiplier applied to the arrowhead dimensions"
+        },
+        "scope": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["Desktop", "Output", "Slice"]
+          },
+          "default": ["Desktop"],
+          "description": "Scope used when resolving viewport-unit measurements and displayed numbers"
+        },
+        "side": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["TL", "T", "TR", "R", "BR", "B", "BL", "L"]
+          },
+          "default": ["TL", "T", "TR", "R", "BR", "B", "BL", "L"],
+          "description": "Sides or corners to label; values may not repeat"
+        }
+      }
+    },
     "logoTable": {
       "type": "object",
       "description": "Logo rendering settings. Array values are resolved by rendered slice sequence with wraparound.",
@@ -199,25 +248,25 @@
         "x": {
           "type": "array",
           "items": { "type": "string" },
-          "default": ["75vw"],
+          "default": ["85vw"],
           "description": "Logo center X position"
         },
         "y": {
           "type": "array",
           "items": { "type": "string" },
-          "default": ["25vh"],
+          "default": ["15vh"],
           "description": "Logo center Y position"
         },
         "width": {
           "type": "array",
           "items": { "type": "string" },
-          "default": ["15vw"],
+          "default": ["20vw"],
           "description": "Logo fit rectangle width"
         },
         "height": {
           "type": "array",
           "items": { "type": "string" },
-          "default": ["15vh"],
+          "default": ["20vh"],
           "description": "Logo fit rectangle height"
         },
         "opacity": {
@@ -345,6 +394,30 @@
         "stroke": { "type": "string", "description": "Crosshair line thickness" }
       }
     },
+    "labeledEdgesOverride": {
+      "type": "object",
+      "description": "Per-output or per-slice labeled edges override.",
+      "additionalProperties": false,
+      "properties": {
+        "text-size": { "type": "string", "description": "Label text height with units" },
+        "tail-length": { "type": "string", "description": "Length of the arrow tail, excluding the head" },
+        "thickness": { "type": "string", "description": "Arrow stem thickness with units" },
+        "head-scale": { "type": "number", "minimum": 0, "description": "Multiplier applied to the arrowhead dimensions" },
+        "scope": {
+          "type": "string",
+          "enum": ["Desktop", "Output", "Slice"],
+          "description": "Scope used when resolving viewport-unit measurements and displayed numbers"
+        },
+        "side": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["TL", "T", "TR", "R", "BR", "B", "BL", "L"]
+          },
+          "description": "Sides or corners to label; values may not repeat"
+        }
+      }
+    },
     "logoOverride": {
       "type": "object",
       "description": "Per-output or per-slice logo override. Scalar values only.",
@@ -394,6 +467,9 @@
         "crosshair": {
           "$ref": "#/definitions/crosshairOverride"
         },
+        "labeled-edges": {
+          "$ref": "#/definitions/labeledEdgesOverride"
+        },
         "logo": {
           "$ref": "#/definitions/logoOverride"
         }
@@ -437,6 +513,9 @@
         },
         "crosshair": {
           "$ref": "#/definitions/crosshairOverride"
+        },
+        "labeled-edges": {
+          "$ref": "#/definitions/labeledEdgesOverride"
         },
         "logo": {
           "$ref": "#/definitions/logoOverride"

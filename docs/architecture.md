@@ -81,7 +81,7 @@ The renderer composes a fixed sequence of `ILayer` instances onto an `SKBitmap` 
 
 ```
 BackgroundLayer → GridLayer → AlternatingLayer → BorderLayer
-  → CircleLayer → CrosshairLayer → LogoLayer → TextLayer
+  → CircleLayer → CrosshairLayer → LabeledEdgesLayer → LogoLayer → TextLayer
 ```
 
 Each layer reads from `RenderContext` (which carries `OutputRecord`, resolved options, viewport size, and canvas offset) and is allowed to short-circuit when its inputs are zero / disabled.

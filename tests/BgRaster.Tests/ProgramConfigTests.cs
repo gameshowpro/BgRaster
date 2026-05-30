@@ -72,6 +72,10 @@ public class ProgramConfigTests
         string toml = Program.BuildSeedConfigToml(options, outputs);
 
         toml.Should().Contain("bgraster-config.schema.json");
+        toml.Should().Contain("[labeled-edges]");
+            toml.Should().Contain("tail-length = [\"10px\"]");
+            toml.Should().Contain("thickness = [\"3px\"]");
+            toml.Should().Contain("scope = [\"Desktop\"]");
         toml.Should().Contain("[[output]]");
         toml.Should().Contain("target = \"\\\\\\\\?\\\\DISPLAY#A#{id}\"");
         toml.Should().Contain("# target = 0  # Numeric index fallback for this output");
@@ -98,6 +102,10 @@ public class ProgramConfigTests
 
             string seeded = File.ReadAllText(configPath);
             seeded.Should().Contain("bgraster-config.schema.json");
+            seeded.Should().Contain("[labeled-edges]");
+                seeded.Should().Contain("tail-length = [\"10px\"]");
+                seeded.Should().Contain("thickness = [\"3px\"]");
+                seeded.Should().Contain("scope = [\"Desktop\"]");
             seeded.Should().Contain("target = \"\\\\\\\\?\\\\DISPLAY#SAM#{id}\"");
             seeded.Should().Contain("# target = 0  # Numeric index fallback for this output");
             warnings.Should().ContainSingle();
