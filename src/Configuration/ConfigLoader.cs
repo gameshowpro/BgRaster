@@ -142,6 +142,10 @@ static class ConfigLoader
             ? ParseCrosshairOptions(crosshairTable)
             : new CrosshairOptions();
 
+        LabeledEdgesOptions labeledEdges = table.TryGetValue("labeled-edges", out object? labeledEdgesObj) && labeledEdgesObj is TomlTable labeledEdgesTable
+            ? ParseLabeledEdgesOptions(labeledEdgesTable)
+            : new LabeledEdgesOptions();
+
         LogoOptions logo = table.TryGetValue("logo", out object? logoObj) && logoObj is TomlTable logoTable
             ? ParseLogoOptions(logoTable)
             : new LogoOptions();
@@ -161,6 +165,7 @@ static class ConfigLoader
             Grid = grid,
             Circle = circle,
             Crosshair = crosshair,
+            LabeledEdges = labeledEdges,
             Logo = logo,
             Render = render,
             Outputs = outputs,
@@ -211,6 +216,16 @@ static class ConfigLoader
         Stroke = GetStringArray(t, "stroke") ?? new CrosshairOptions().Stroke,
     };
 
+    static LabeledEdgesOptions ParseLabeledEdgesOptions(TomlTable t) => new()
+    {
+        TextSize = GetStringArray(t, "text-size") ?? new LabeledEdgesOptions().TextSize,
+        TailLength = GetStringArray(t, "tail-length") ?? new LabeledEdgesOptions().TailLength,
+        Thickness = GetStringArray(t, "thickness") ?? new LabeledEdgesOptions().Thickness,
+        HeadScale = GetFloatArrayRequiredRange(t, "head-scale", "config [labeled-edges].head-scale", minInclusive: 0f, maxInclusive: float.MaxValue) ?? new LabeledEdgesOptions().HeadScale,
+        Scope = GetStringArray(t, "scope") is ImmutableArray<string> scopeValues ? ParseLabeledEdgesScopes(scopeValues, "config [labeled-edges].scope") : new LabeledEdgesOptions().Scope,
+        Side = GetStringArray(t, "side") is ImmutableArray<string> sideValues ? ParseLabeledEdgeSides(sideValues, "config [labeled-edges].side") : new LabeledEdgesOptions().Side,
+    };
+
     static LogoOptions ParseLogoOptions(TomlTable t) => new()
     {
         Source = GetStringArray(t, "source") ?? new LogoOptions().Source,
@@ -258,6 +273,7 @@ static class ConfigLoader
             Grid = ParseGridOverride(t, "grid"),
             Circle = ParseCircleOverride(t, "circle"),
             Crosshair = ParseCrosshairOverride(t, "crosshair"),
+            LabeledEdges = ParseLabeledEdgesOverride(t, "labeled-edges"),
             Logo = ParseLogoOverride(t, "logo"),
             Slices = slices,
         };
@@ -274,6 +290,7 @@ static class ConfigLoader
         Grid = ParseGridOverride(t, "grid"),
         Circle = ParseCircleOverride(t, "circle"),
         Crosshair = ParseCrosshairOverride(t, "crosshair"),
+        LabeledEdges = ParseLabeledEdgesOverride(t, "labeled-edges"),
         Logo = ParseLogoOverride(t, "logo"),
     };
 
@@ -427,6 +444,92 @@ static class ConfigLoader
             Color = GetString(t, "color"),
             Stroke = GetString(t, "stroke"),
         };
+    }
+
+    static LabeledEdgesOverride? ParseLabeledEdgesOverride(TomlTable parent, string key)
+    {
+        if (!parent.TryGetValue(key, out object? obj) || obj is not TomlTable t) return null;
+
+        ImmutableArray<LabeledEdgeSide>? sides = null;
+        if (GetStringArray(t, "side") is ImmutableArray<string> sideValues)
+            sides = ParseLabeledEdgeSides(sideValues, $"config [{key}].side");
+
+        return new LabeledEdgesOverride
+        {
+            TextSize = GetString(t, "text-size"),
+            TailLength = GetString(t, "tail-length"),
+            Thickness = GetString(t, "thickness"),
+            HeadScale = GetFloatRequiredRange(t, "head-scale", $"config [{key}].head-scale", minInclusive: 0f, maxInclusive: float.MaxValue),
+            Scope = GetString(t, "scope"),
+            Side = sides,
+        };
+    }
+
+    static ImmutableArray<LabeledEdgeSide> ParseLabeledEdgeSides(ImmutableArray<string> values, string source)
+    {
+        HashSet<LabeledEdgeSide> seen = [];
+        ImmutableArray<LabeledEdgeSide>.Builder sides = ImmutableArray.CreateBuilder<LabeledEdgeSide>(values.Length);
+
+        for (int index = 0; index < values.Length; index++)
+        {
+            string raw = values[index].Trim();
+            if (!TryParseLabeledEdgeSide(raw, out LabeledEdgeSide side))
+                throw new FormatException($"Invalid labeled-edge side value '{raw}' at index {index} in {source}; expected one of TL, T, TR, R, BR, B, BL, L.");
+
+            if (!seen.Add(side))
+                throw new FormatException($"Duplicate labeled-edge side '{raw}' in {source}; each side may appear at most once.");
+
+            sides.Add(side);
+        }
+
+        return sides.ToImmutable();
+    }
+
+    static ImmutableArray<LabeledEdgesScope> ParseLabeledEdgesScopes(ImmutableArray<string> values, string source)
+    {
+        ImmutableArray<LabeledEdgesScope>.Builder scopes = ImmutableArray.CreateBuilder<LabeledEdgesScope>(values.Length);
+        for (int index = 0; index < values.Length; index++)
+        {
+            string raw = values[index].Trim();
+            if (!TryParseLabeledEdgesScope(raw, out LabeledEdgesScope scope))
+                throw new FormatException($"Invalid labeled-edge scope value '{raw}' at index {index} in {source}; expected one of Desktop, Output, Slice.");
+
+            scopes.Add(scope);
+        }
+
+        return scopes.ToImmutable();
+    }
+
+    static bool TryParseLabeledEdgeSide(string raw, out LabeledEdgeSide side)
+    {
+        side = raw switch
+        {
+            "TL" => LabeledEdgeSide.TL,
+            "T" => LabeledEdgeSide.T,
+            "TR" => LabeledEdgeSide.TR,
+            "R" => LabeledEdgeSide.R,
+            "BR" => LabeledEdgeSide.BR,
+            "B" => LabeledEdgeSide.B,
+            "BL" => LabeledEdgeSide.BL,
+            "L" => LabeledEdgeSide.L,
+            _ => default,
+        };
+
+        return raw is "TL" or "T" or "TR" or "R" or "BR" or "B" or "BL" or "L";
+    }
+
+    static bool TryParseLabeledEdgesScope(string raw, out LabeledEdgesScope scope)
+    {
+        scope = raw switch
+        {
+            "Desktop" => LabeledEdgesScope.Desktop,
+            "System" => LabeledEdgesScope.Desktop,
+            "Output" => LabeledEdgesScope.Output,
+            "Slice" => LabeledEdgesScope.Slice,
+            _ => default,
+        };
+
+        return raw is "Desktop" or "System" or "Output" or "Slice";
     }
 
     static LogoOverride? ParseLogoOverride(TomlTable parent, string key)

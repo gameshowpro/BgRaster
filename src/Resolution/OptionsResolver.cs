@@ -9,7 +9,7 @@ static class OptionsResolver
         "${OutputWidth}x${OutputHeight}",
     ];
 
-    internal static ResolvedOptions Resolve(GlobalOptions global, OutputRecord output, OutputOptions? outputConfig)
+    internal static ResolvedOptions Resolve(GlobalOptions global, OutputRecord output, OutputOptions? outputConfig, int systemWidthPx = 0, int systemHeightPx = 0)
     {
         int idx = output.Index;
         float vw = output.WidthPx;
@@ -63,6 +63,14 @@ static class OptionsResolver
         SKColor crosshairColor = ParseColor(ResolveString(global.Crosshair.Color, idx, outputConfig?.Crosshair?.Color));
         float crosshairStrokePx = ParseUnit(ResolveString(global.Crosshair.Stroke, idx, outputConfig?.Crosshair?.Stroke), vw, vh);
 
+        ImmutableArray<LabeledEdgeSide> labeledEdgesSides = outputConfig?.LabeledEdges?.Side ?? global.LabeledEdges.Side;
+        LabeledEdgesScope labeledEdgesScope = ResolveLabeledEdgesScope(global.LabeledEdges.Scope, idx, outputConfig?.LabeledEdges?.Scope);
+        (float scopeWidthPx, float scopeHeightPx) = ResolveLabeledEdgesScopeDimensions(labeledEdgesScope, output.WidthPx, output.HeightPx, output.WidthPx, output.HeightPx, systemWidthPx, systemHeightPx);
+        float labeledEdgesTextSizePx = ParseUnit(ResolveString(global.LabeledEdges.TextSize, idx, outputConfig?.LabeledEdges?.TextSize), scopeWidthPx, scopeHeightPx);
+        float labeledEdgesTailLengthPx = ParseUnit(ResolveString(global.LabeledEdges.TailLength, idx, outputConfig?.LabeledEdges?.TailLength), scopeWidthPx, scopeHeightPx);
+        float labeledEdgesThicknessPx = ParseUnit(ResolveString(global.LabeledEdges.Thickness, idx, outputConfig?.LabeledEdges?.Thickness), scopeWidthPx, scopeHeightPx);
+        float labeledEdgesHeadScale = ResolveFloat(global.LabeledEdges.HeadScale, idx, outputConfig?.LabeledEdges?.HeadScale);
+
         string logoSource = ResolveString(global.Logo.Source, idx, outputConfig?.Logo?.Source);
         float logoXPx = ParseUnit(ResolveString(global.Logo.X, idx, outputConfig?.Logo?.X), vw, vh);
         float logoYPx = ParseUnit(ResolveString(global.Logo.Y, idx, outputConfig?.Logo?.Y), vw, vh);
@@ -96,6 +104,14 @@ static class OptionsResolver
             CrosshairLengthPx = crosshairLengthPx,
             CrosshairColor = crosshairColor,
             CrosshairStrokePx = crosshairStrokePx,
+            LabeledEdgesTextSizePx = labeledEdgesTextSizePx,
+            LabeledEdgesTailLengthPx = labeledEdgesTailLengthPx,
+            LabeledEdgesThicknessPx = labeledEdgesThicknessPx,
+            LabeledEdgesHeadScale = labeledEdgesHeadScale,
+            LabeledEdgesScope = labeledEdgesScope,
+            LabeledEdgesScopeWidthPx = scopeWidthPx,
+            LabeledEdgesScopeHeightPx = scopeHeightPx,
+            LabeledEdgesSides = labeledEdgesSides,
             LogoSource = logoSource,
             LogoXPx = logoXPx,
             LogoYPx = logoYPx,
@@ -107,7 +123,8 @@ static class OptionsResolver
 
     internal static ResolvedOptions ResolveForSlice(
         GlobalOptions global, OutputRecord output, OutputOptions? outputConfig,
-        SliceOptions slice, int sliceWidth, int sliceHeight, int? sequenceIndex = null, int sliceIndex = 0, bool isImplicitSlice = false)
+        SliceOptions slice, int sliceWidth, int sliceHeight, int? sequenceIndex = null, int sliceIndex = 0, bool isImplicitSlice = false,
+        int systemWidthPx = 0, int systemHeightPx = 0)
     {
         int idx = output.Index;
         int cycleIndex = sequenceIndex ?? idx;
@@ -169,6 +186,14 @@ static class OptionsResolver
         SKColor crosshairColor = ParseColor(ResolveSliceString(global.Crosshair.Color, cycleIndex, outputConfig?.Crosshair?.Color, slice.Crosshair?.Color));
         float crosshairStrokePx = ParseUnit(ResolveSliceString(global.Crosshair.Stroke, cycleIndex, outputConfig?.Crosshair?.Stroke, slice.Crosshair?.Stroke), vw, vh);
 
+        ImmutableArray<LabeledEdgeSide> labeledEdgesSides = slice.LabeledEdges?.Side ?? outputConfig?.LabeledEdges?.Side ?? global.LabeledEdges.Side;
+        LabeledEdgesScope labeledEdgesScope = ResolveLabeledEdgesScope(global.LabeledEdges.Scope, cycleIndex, outputConfig?.LabeledEdges?.Scope, slice.LabeledEdges?.Scope);
+        (float scopeWidthPx, float scopeHeightPx) = ResolveLabeledEdgesScopeDimensions(labeledEdgesScope, output.WidthPx, output.HeightPx, sliceWidth, sliceHeight, systemWidthPx, systemHeightPx);
+        float labeledEdgesTextSizePx = ParseUnit(ResolveSliceString(global.LabeledEdges.TextSize, cycleIndex, outputConfig?.LabeledEdges?.TextSize, slice.LabeledEdges?.TextSize), scopeWidthPx, scopeHeightPx);
+        float labeledEdgesTailLengthPx = ParseUnit(ResolveSliceString(global.LabeledEdges.TailLength, cycleIndex, outputConfig?.LabeledEdges?.TailLength, slice.LabeledEdges?.TailLength), scopeWidthPx, scopeHeightPx);
+        float labeledEdgesThicknessPx = ParseUnit(ResolveSliceString(global.LabeledEdges.Thickness, cycleIndex, outputConfig?.LabeledEdges?.Thickness, slice.LabeledEdges?.Thickness), scopeWidthPx, scopeHeightPx);
+        float labeledEdgesHeadScale = ResolveSliceFloat(global.LabeledEdges.HeadScale, cycleIndex, outputConfig?.LabeledEdges?.HeadScale, slice.LabeledEdges?.HeadScale);
+
         string logoSource = ResolveSliceString(global.Logo.Source, cycleIndex, outputConfig?.Logo?.Source, slice.Logo?.Source);
         float logoXPx = ParseUnit(ResolveSliceString(global.Logo.X, cycleIndex, outputConfig?.Logo?.X, slice.Logo?.X), vw, vh);
         float logoYPx = ParseUnit(ResolveSliceString(global.Logo.Y, cycleIndex, outputConfig?.Logo?.Y, slice.Logo?.Y), vw, vh);
@@ -202,6 +227,14 @@ static class OptionsResolver
             CrosshairLengthPx = crosshairLengthPx,
             CrosshairColor = crosshairColor,
             CrosshairStrokePx = crosshairStrokePx,
+            LabeledEdgesTextSizePx = labeledEdgesTextSizePx,
+            LabeledEdgesTailLengthPx = labeledEdgesTailLengthPx,
+            LabeledEdgesThicknessPx = labeledEdgesThicknessPx,
+            LabeledEdgesHeadScale = labeledEdgesHeadScale,
+            LabeledEdgesScope = labeledEdgesScope,
+            LabeledEdgesScopeWidthPx = scopeWidthPx,
+            LabeledEdgesScopeHeightPx = scopeHeightPx,
+            LabeledEdgesSides = labeledEdgesSides,
             LogoSource = logoSource,
             LogoXPx = logoXPx,
             LogoYPx = logoYPx,
@@ -222,6 +255,57 @@ static class OptionsResolver
 
     static float ResolveSliceFloat(ImmutableArray<float> global, int index, float? outputOverride, float? sliceOverride) =>
         sliceOverride ?? outputOverride ?? global[index % global.Length];
+
+    static LabeledEdgesScope ResolveLabeledEdgesScope(ImmutableArray<LabeledEdgesScope> global, int index, string? outputOverride)
+    {
+        if (outputOverride is not null && TryParseLabeledEdgesScope(outputOverride, out LabeledEdgesScope scope))
+            return scope;
+
+        return global.Length == 0 ? LabeledEdgesScope.Output : global[index % global.Length];
+    }
+
+    static LabeledEdgesScope ResolveLabeledEdgesScope(ImmutableArray<LabeledEdgesScope> global, int index, string? outputOverride, string? sliceOverride)
+    {
+        if (sliceOverride is not null && TryParseLabeledEdgesScope(sliceOverride, out LabeledEdgesScope sliceScope))
+            return sliceScope;
+
+        if (outputOverride is not null && TryParseLabeledEdgesScope(outputOverride, out LabeledEdgesScope outputScope))
+            return outputScope;
+
+        return global.Length == 0 ? LabeledEdgesScope.Output : global[index % global.Length];
+    }
+
+    static (float WidthPx, float HeightPx) ResolveLabeledEdgesScopeDimensions(
+        LabeledEdgesScope scope,
+        int outputWidthPx,
+        int outputHeightPx,
+        int sliceWidthPx,
+        int sliceHeightPx,
+        int systemWidthPx,
+        int systemHeightPx) => scope switch
+    {
+        LabeledEdgesScope.Desktop => (
+            systemWidthPx > 0 ? systemWidthPx : outputWidthPx,
+            systemHeightPx > 0 ? systemHeightPx : outputHeightPx),
+        LabeledEdgesScope.Slice => (
+            sliceWidthPx > 0 ? sliceWidthPx : outputWidthPx,
+            sliceHeightPx > 0 ? sliceHeightPx : outputHeightPx),
+        _ => (outputWidthPx, outputHeightPx),
+    };
+
+    static bool TryParseLabeledEdgesScope(string raw, out LabeledEdgesScope scope)
+    {
+        scope = raw switch
+        {
+            "Desktop" => LabeledEdgesScope.Desktop,
+            "System" => LabeledEdgesScope.Desktop,
+            "Output" => LabeledEdgesScope.Output,
+            "Slice" => LabeledEdgesScope.Slice,
+            _ => default,
+        };
+
+        return raw is "Desktop" or "System" or "Output" or "Slice";
+    }
 
     static ImmutableArray<string> ResolveTextArray(ImmutableArray<string> global, ImmutableArray<string>? outputOverride)
     {

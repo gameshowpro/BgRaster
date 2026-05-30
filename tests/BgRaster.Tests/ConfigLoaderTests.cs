@@ -157,4 +157,44 @@ public class ConfigLoaderTests
         }
     }
 
+    [Fact]
+    public void Load_LabeledEdges_SideRejectsDuplicates()
+    {
+        string path = Path.Combine(Path.GetTempPath(), $"bgraster-config-{Guid.NewGuid():N}.toml");
+        try
+        {
+            File.WriteAllText(path, "[labeled-edges]\nside = [\"TL\", \"TL\"]\n");
+
+            Action act = () => ConfigLoader.Load(path);
+
+            act.Should().Throw<FormatException>()
+                .WithMessage("*Duplicate labeled-edge side*");
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+    }
+
+    [Fact]
+    public void Load_LabeledEdges_ParsesTailLengthAndScope()
+    {
+        string path = Path.Combine(Path.GetTempPath(), $"bgraster-config-{Guid.NewGuid():N}.toml");
+        try
+        {
+            File.WriteAllText(path, "[labeled-edges]\ntail-length = [\"6px\"]\nscope = [\"Slice\"]\n");
+
+            GlobalOptions result = ConfigLoader.Load(path);
+
+            result.LabeledEdges.TailLength.Should().Equal(["6px"]);
+            result.LabeledEdges.Scope.Should().Equal([LabeledEdgesScope.Slice]);
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+    }
+
 }

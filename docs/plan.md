@@ -345,6 +345,7 @@ Crosshair rendering rules:
 1. Background border (1-pixel outer edge, if enabled)
 1. Circle
 1. Crosshair
+1. Labeled edges
 1. Logo
 1. Text
 
