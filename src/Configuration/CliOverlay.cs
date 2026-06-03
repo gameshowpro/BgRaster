@@ -33,6 +33,7 @@ record CliOverlay
     internal string? LogoHeight { get; init; }
     internal string? LogoOpacity { get; init; }
     internal bool? RenderDryRun { get; init; }
+    internal bool? RenderNoDiscovery { get; init; }
     internal bool? RenderOutputsSkipUnspecified { get; init; }
     internal string? RenderOutput { get; init; }
     internal string? RenderVerbosity { get; init; }

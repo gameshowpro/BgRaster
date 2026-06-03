@@ -10,6 +10,7 @@ public class LastRunWriterTests
             Render = new RenderOptions
             {
                 DryRun = true,
+                NoDiscovery = true,
                 Output = "C:/temp/out",
                 ContinueAfterUnchanged = true,
                 MinimumLogLevel = LogLevel.Debug,
@@ -20,6 +21,7 @@ public class LastRunWriterTests
 
         toml.Should().Contain("[render]");
         toml.Should().Contain("no-assignment = true");
+        toml.Should().Contain("no-discovery = true");
         toml.Should().Contain("outputs-skip-unspecified = false");
         toml.Should().Contain("output = \"C:/temp/out\"");
         toml.Should().Contain("force = true");

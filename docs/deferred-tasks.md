@@ -92,3 +92,7 @@ Done:
 
 Not done:
 - No remaining work is tracked for this task.
+
+## 11. Import from Ventuz `.vren` files
+
+Commandline parameter to accept a Ventuz `.vren` file and generate a `config.toml` based on what it finds. At a minimum, this would provide a big head-start to a user before they continue with customization.

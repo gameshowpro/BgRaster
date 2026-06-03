@@ -19,12 +19,9 @@ sealed class OutputRenderer
 
     internal async Task<RenderOutcome> RenderOutputAsync(
         OutputRecord output, OutputOptions? outputConfig,
-        GlobalOptions globalOptions, string outputDirectory,
+        GlobalOptions globalOptions, string outputFilePath,
         int systemWidthPx, int systemHeightPx)
     {
-        string fileName = FileNamer.GenerateFileName(output.Id);
-        string filePath = Path.Combine(outputDirectory, fileName);
-
         using SKBitmap bitmap = new(output.WidthPx, output.HeightPx, SKColorType.Bgra8888, SKAlphaType.Premul);
         using SKCanvas canvas = new(bitmap);
 
@@ -59,10 +56,10 @@ sealed class OutputRenderer
         }
 
         using SKData data = bitmap.Encode(SKEncodedImageFormat.Png, 100);
-        await using FileStream fs = File.OpenWrite(filePath);
+        await using FileStream fs = File.OpenWrite(outputFilePath);
         data.SaveTo(fs);
 
-        return new RenderOutcome(filePath, sliceStatuses.ToImmutable());
+        return new RenderOutcome(outputFilePath, sliceStatuses.ToImmutable());
     }
 
     void RenderLayers(RenderContext ctx, SKCanvas canvas)

@@ -36,6 +36,7 @@ static class CliBinding
         Option<string?> logoHeightOption = CreateStringOption("--logo-height");
         Option<string?> logoOpacityOption = CreateStringOption("--logo-opacity");
         Option<bool?> dryRunOption = CreateNullableBoolOption("--no-assignment");
+        Option<bool?> noDiscoveryOption = CreateNullableBoolOption("--no-discovery");
         Option<bool?> outputsSkipUnspecifiedOption = CreateNullableBoolOption("--outputs-skip-unspecified");
         Option<string?> outputDirOption = CreateStringOption("--render-output");
         Option<bool?> continueAfterUnchangedOption = CreateNullableBoolOption("--render-force");
@@ -51,7 +52,7 @@ static class CliBinding
             circleSizeOption, circleColorOption, circleStrokeOption,
             crosshairLengthOption, crosshairColorOption, crosshairStrokeOption,
             logoSourceOption, logoXOption, logoYOption, logoWidthOption, logoHeightOption, logoOpacityOption,
-            dryRunOption, outputsSkipUnspecifiedOption, outputDirOption, verbosityOption, continueAfterUnchangedOption,
+            dryRunOption, noDiscoveryOption, outputsSkipUnspecifiedOption, outputDirOption, verbosityOption, continueAfterUnchangedOption,
         };
 
         root.SetAction(async (parseResult, ct) =>
@@ -90,6 +91,7 @@ static class CliBinding
                 LogoHeight = parseResult.GetValue(logoHeightOption),
                 LogoOpacity = parseResult.GetValue(logoOpacityOption),
                 RenderDryRun = parseResult.GetValue(dryRunOption),
+                RenderNoDiscovery = parseResult.GetValue(noDiscoveryOption),
                 RenderOutputsSkipUnspecified = parseResult.GetValue(outputsSkipUnspecifiedOption),
                 RenderOutput = parseResult.GetValue(outputDirOption),
                 RenderVerbosity = parseResult.GetValue(verbosityOption),

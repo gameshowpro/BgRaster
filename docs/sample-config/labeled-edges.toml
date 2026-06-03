@@ -1,0 +1,52 @@
+# $schema: https://raw.githubusercontent.com/gameshowpro/BgRaster/refs/heads/main/docs/schemas/bgraster-config.schema.json
+
+[background]
+color = ["#000000"]
+alternating = [false]
+border = [false]
+
+[grid]
+size = ["0"]
+coordinates = [false]
+
+[labeled-edges]
+text-size = ["14px"]
+tail-length = ["20px"]
+thickness = ["4px"]
+head-scale = [1.2]
+scope = ["Output"]
+side = ["TL", "T", "TR", "R", "BR", "B", "BL", "L"]
+
+[circle]
+stroke = ["0"]
+color = ["#00000000"]
+
+[crosshair]
+stroke = ["0"]
+color = ["#00000000"]
+
+[text]
+text = [""]
+
+[logo]
+source = [""]
+
+[render]
+no-assignment = true
+no-discovery = true
+output = ""
+
+[[output]]
+target = 0
+
+[output.hardware_output]
+index = 0
+desktopX = 0
+desktopY = 0
+widthPx = 640
+heightPx = 480
+dpiX = 96
+dpiY = 96
+rotation = 0
+adapterName = "FIXED"
+friendlyName = "Labeled Edges"

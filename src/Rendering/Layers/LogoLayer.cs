@@ -18,18 +18,21 @@ sealed class LogoLayer : ILayer
 
         string source = context.Options.LogoSource;
 
+        // Empty string suppresses logo rendering entirely
         if (string.IsNullOrWhiteSpace(source))
         {
-            RenderDefaultSvgLogo(canvas, fitRect, alpha, useDarkTheme);
             return;
         }
 
+        // Try to render SVG first (includes pack URIs and file paths)
         if (TryRenderSvgLogo(source, canvas, fitRect, alpha, useDarkTheme))
             return;
 
-        if (!string.IsNullOrWhiteSpace(source) && TryRenderBitmapLogo(source, canvas, fitRect, alpha))
+        // Try bitmap second
+        if (TryRenderBitmapLogo(source, canvas, fitRect, alpha))
             return;
 
+        // Fallback to embedded logo on failure
         Console.WriteLine($"LogoLayer: status=logo-fallback-used source=\"{source}\"");
         RenderDefaultSvgLogo(canvas, fitRect, alpha, useDarkTheme);
     }
@@ -86,17 +89,50 @@ sealed class LogoLayer : ILayer
     {
         svgStream = null;
 
-        if (string.IsNullOrWhiteSpace(source))
+        // Handle pack URIs: extract the resource path and load via assembly
+        if (source.StartsWith("pack://application:,,,/", StringComparison.OrdinalIgnoreCase))
         {
-            svgStream = OpenEmbeddedDefaultLogoStream();
-            return svgStream is not null;
+            string resourcePath = ExtractPackUriResourcePath(source);
+            if (!string.IsNullOrEmpty(resourcePath))
+            {
+                try
+                {
+                    return TryOpenEmbeddedResource(resourcePath, out svgStream);
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+            return false;
         }
 
+        // Handle file paths
         if (!TryResolveSvgPath(source, out string? svgPath) || svgPath is null)
             return false;
 
         svgStream = File.OpenRead(svgPath);
         return true;
+    }
+
+    static string ExtractPackUriResourcePath(string packUri)
+    {
+        // Format: pack://application:,,,/AssemblyName;component/path/to/resource
+        int componentIndex = packUri.IndexOf(";component/", StringComparison.OrdinalIgnoreCase);
+        if (componentIndex < 0)
+            return string.Empty;
+
+        string resourcePath = packUri[(componentIndex + ";component/".Length)..];
+        // Convert path separators to dots for manifest resource name
+        return $"GameshowPro.BgRaster.{resourcePath.Replace('/', '.')}";
+    }
+
+    static bool TryOpenEmbeddedResource(string resourceName, out Stream? resourceStream)
+    {
+        resourceStream = null;
+        Assembly assembly = Assembly.GetExecutingAssembly();
+        resourceStream = assembly.GetManifestResourceStream(resourceName);
+        return resourceStream is not null;
     }
 
     static bool TryResolveSvgPath(string source, out string? svgPath)

@@ -5,6 +5,7 @@ static class ConfigLoader
     internal static GlobalOptions Load(string path, List<string>? warnings = null)
     {
         string toml = File.ReadAllText(path);
+        string configDirectory = Path.GetDirectoryName(Path.GetFullPath(path)) ?? Directory.GetCurrentDirectory();
         TomlTable table;
         try
         {
@@ -15,7 +16,7 @@ static class ConfigLoader
             throw new FormatException($"Failed to parse TOML config '{path}': {ex.Message}", ex);
         }
 
-        return ParseGlobalOptions(table, warnings);
+        return ParseGlobalOptions(table, warnings, configDirectory);
     }
 
     internal static GlobalOptions ApplyCliOverlay(GlobalOptions options, CliOverlay overlay, List<string>? warnings = null)
@@ -92,6 +93,7 @@ static class ConfigLoader
             logo = logo with { Opacity = ParseCliFloatOrArray(overlay.LogoOpacity, "cli --logo-opacity") };
 
         if (overlay.RenderDryRun is not null) render = render with { DryRun = overlay.RenderDryRun.Value };
+        if (overlay.RenderNoDiscovery is not null) render = render with { NoDiscovery = overlay.RenderNoDiscovery.Value };
         if (overlay.RenderOutputsSkipUnspecified is not null)
             render = render with { OutputsSkipUnspecified = overlay.RenderOutputsSkipUnspecified.Value };
         if (overlay.RenderOutput is not null) render = render with { Output = overlay.RenderOutput };
@@ -120,14 +122,14 @@ static class ConfigLoader
         };
     }
 
-    static GlobalOptions ParseGlobalOptions(TomlTable table, List<string>? warnings)
+    static GlobalOptions ParseGlobalOptions(TomlTable table, List<string>? warnings, string configDirectory)
     {
         TextOptions text = table.TryGetValue("text", out object? textObj) && textObj is TomlTable textTable
             ? ParseTextOptions(textTable)
             : new TextOptions();
 
         BackgroundOptions background = table.TryGetValue("background", out object? bgObj) && bgObj is TomlTable bgTable
-            ? ParseBackgroundOptions(bgTable)
+            ? ParseBackgroundOptions(bgTable, configDirectory)
             : new BackgroundOptions();
 
         GridOptions grid = table.TryGetValue("grid", out object? gridObj) && gridObj is TomlTable gridTable
@@ -147,15 +149,15 @@ static class ConfigLoader
             : new LabeledEdgesOptions();
 
         LogoOptions logo = table.TryGetValue("logo", out object? logoObj) && logoObj is TomlTable logoTable
-            ? ParseLogoOptions(logoTable)
+            ? ParseLogoOptions(logoTable, configDirectory)
             : new LogoOptions();
 
         RenderOptions render = table.TryGetValue("render", out object? renderObj) && renderObj is TomlTable renderTable
-            ? ParseRenderOptions(renderTable, warnings)
+            ? ParseRenderOptions(renderTable, warnings, configDirectory)
             : new RenderOptions();
 
         ImmutableArray<OutputOptions> outputs = table.TryGetValue("output", out object? outputObj) && outputObj is TomlTableArray outputArray
-            ? [.. outputArray.Select(ParseOutputOptions)]
+            ? [.. outputArray.Select(outputTable => ParseOutputOptions(outputTable, configDirectory))]
             : [];
 
         return new GlobalOptions
@@ -181,10 +183,10 @@ static class ConfigLoader
         Y = GetStringArray(t, "y") ?? new TextOptions().Y,
     };
 
-    static BackgroundOptions ParseBackgroundOptions(TomlTable t) => new()
+    static BackgroundOptions ParseBackgroundOptions(TomlTable t, string configDirectory) => new()
     {
         Color = GetStringArray(t, "color") ?? new BackgroundOptions().Color,
-        Image = GetStringArray(t, "image") ?? new BackgroundOptions().Image,
+        Image = ResolveConfigRelativePathArray(GetStringArray(t, "image"), configDirectory) ?? new BackgroundOptions().Image,
         Fit = GetStringArray(t, "fit") ?? new BackgroundOptions().Fit,
         Alternating = GetBoolArray(t, "alternating") ?? new BackgroundOptions().Alternating,
         Border = GetBoolArray(t, "border") ?? new BackgroundOptions().Border,
@@ -226,9 +228,9 @@ static class ConfigLoader
         Side = GetStringArray(t, "side") is ImmutableArray<string> sideValues ? ParseLabeledEdgeSides(sideValues, "config [labeled-edges].side") : new LabeledEdgesOptions().Side,
     };
 
-    static LogoOptions ParseLogoOptions(TomlTable t) => new()
+    static LogoOptions ParseLogoOptions(TomlTable t, string configDirectory) => new()
     {
-        Source = GetStringArray(t, "source") ?? new LogoOptions().Source,
+        Source = ResolveConfigRelativePathArray(GetStringArray(t, "source"), configDirectory) ?? new LogoOptions().Source,
         X = GetStringArray(t, "x") ?? new LogoOptions().X,
         Y = GetStringArray(t, "y") ?? new LogoOptions().Y,
         Width = GetStringArray(t, "width") ?? new LogoOptions().Width,
@@ -236,21 +238,22 @@ static class ConfigLoader
         Opacity = GetFloatArrayRequiredRange(t, "opacity", "config [logo].opacity", minInclusive: 0f, maxInclusive: 1f) ?? new LogoOptions().Opacity,
     };
 
-    static RenderOptions ParseRenderOptions(TomlTable t, List<string>? warnings)
+    static RenderOptions ParseRenderOptions(TomlTable t, List<string>? warnings, string configDirectory)
     {
         string? verbosityText = GetString(t, "verbosity");
 
         return new RenderOptions
         {
             DryRun = GetBool(t, "no-assignment") ?? false,
+            NoDiscovery = GetBool(t, "no-discovery") ?? false,
             OutputsSkipUnspecified = GetBool(t, "outputs-skip-unspecified") ?? false,
-            Output = GetString(t, "output") ?? "",
+            Output = ResolveConfigRelativePath(GetString(t, "output") ?? string.Empty, configDirectory),
             MinimumLogLevel = ParseLogLevel(verbosityText, "config [render].verbosity", warnings),
             ContinueAfterUnchanged = GetBool(t, "force") ?? GetBool(t, "render-force") ?? false,
         };
     }
 
-    static OutputOptions ParseOutputOptions(TomlTable t)
+    static OutputOptions ParseOutputOptions(TomlTable t, string configDirectory)
     {
         OutputTarget target = t.TryGetValue("target", out object? targetObj)
             ? targetObj switch
@@ -262,36 +265,85 @@ static class ConfigLoader
             : OutputTarget.FromIndex(0);
 
         ImmutableArray<SliceOptions> slices = t.TryGetValue("slice", out object? sliceObj) && sliceObj is TomlTableArray sliceArray
-            ? [.. sliceArray.Select(ParseSliceOptions)]
+            ? [.. sliceArray.Select(sliceTable => ParseSliceOptions(sliceTable, configDirectory))]
             : [];
 
         return new OutputOptions
         {
             Target = target,
+            HardwareOutput = ParseHardwareOutputReference(t),
             Text = ParseTextOverride(t, "text"),
-            Background = ParseBackgroundOverride(t, "background"),
+            Background = ParseBackgroundOverride(t, "background", configDirectory),
             Grid = ParseGridOverride(t, "grid"),
             Circle = ParseCircleOverride(t, "circle"),
             Crosshair = ParseCrosshairOverride(t, "crosshair"),
             LabeledEdges = ParseLabeledEdgesOverride(t, "labeled-edges"),
-            Logo = ParseLogoOverride(t, "logo"),
+            Logo = ParseLogoOverride(t, "logo", configDirectory),
             Slices = slices,
         };
     }
 
-    static SliceOptions ParseSliceOptions(TomlTable t) => new()
+    static OutputRecord? ParseHardwareOutputReference(TomlTable parent)
+    {
+        if (!parent.TryGetValue("hardware_output", out object? hardwareObject) || hardwareObject is not TomlTable hardwareTable)
+            return null;
+
+        string id = GetString(hardwareTable, "id") ?? string.Empty;
+        int index = hardwareTable.TryGetValue("index", out object? indexObject) && indexObject is long indexValue
+            ? (int)indexValue
+            : 0;
+
+        int desktopX = hardwareTable.TryGetValue("desktopX", out object? desktopXObject) && desktopXObject is long desktopXValue
+            ? (int)desktopXValue
+            : 0;
+        int desktopY = hardwareTable.TryGetValue("desktopY", out object? desktopYObject) && desktopYObject is long desktopYValue
+            ? (int)desktopYValue
+            : 0;
+        int widthPx = hardwareTable.TryGetValue("widthPx", out object? widthObject) && widthObject is long widthValue
+            ? (int)widthValue
+            : 0;
+        int heightPx = hardwareTable.TryGetValue("heightPx", out object? heightObject) && heightObject is long heightValue
+            ? (int)heightValue
+            : 0;
+        int dpiX = hardwareTable.TryGetValue("dpiX", out object? dpiXObject) && dpiXObject is long dpiXValue
+            ? (int)dpiXValue
+            : 0;
+        int dpiY = hardwareTable.TryGetValue("dpiY", out object? dpiYObject) && dpiYObject is long dpiYValue
+            ? (int)dpiYValue
+            : 0;
+        int rotation = hardwareTable.TryGetValue("rotation", out object? rotationObject) && rotationObject is long rotationValue
+            ? (int)rotationValue
+            : 0;
+
+        return new OutputRecord
+        {
+            Id = id,
+            Index = index,
+            DesktopX = desktopX,
+            DesktopY = desktopY,
+            WidthPx = widthPx,
+            HeightPx = heightPx,
+            DpiX = dpiX,
+            DpiY = dpiY,
+            Rotation = rotation,
+            AdapterName = GetString(hardwareTable, "adapterName") ?? string.Empty,
+            FriendlyName = GetString(hardwareTable, "friendlyName") ?? string.Empty,
+        };
+    }
+
+    static SliceOptions ParseSliceOptions(TomlTable t, string configDirectory) => new()
     {
         X = GetString(t, "x") ?? "0",
         Y = GetString(t, "y") ?? "0",
         Width = GetString(t, "width") ?? "100vw",
         Height = GetString(t, "height") ?? "100vh",
         Text = ParseTextOverride(t, "text"),
-        Background = ParseBackgroundOverride(t, "background"),
+        Background = ParseBackgroundOverride(t, "background", configDirectory),
         Grid = ParseGridOverride(t, "grid"),
         Circle = ParseCircleOverride(t, "circle"),
         Crosshair = ParseCrosshairOverride(t, "crosshair"),
         LabeledEdges = ParseLabeledEdgesOverride(t, "labeled-edges"),
-        Logo = ParseLogoOverride(t, "logo"),
+        Logo = ParseLogoOverride(t, "logo", configDirectory),
     };
 
     static TextOverride? ParseTextOverride(TomlTable parent, string key)
@@ -395,13 +447,13 @@ static class ConfigLoader
         }
     }
 
-    static BackgroundOverride? ParseBackgroundOverride(TomlTable parent, string key)
+    static BackgroundOverride? ParseBackgroundOverride(TomlTable parent, string key, string configDirectory)
     {
         if (!parent.TryGetValue(key, out object? obj) || obj is not TomlTable t) return null;
         return new BackgroundOverride
         {
             Color = GetString(t, "color"),
-            Image = GetString(t, "image"),
+            Image = ResolveConfigRelativePath(GetString(t, "image"), configDirectory),
             Fit = GetString(t, "fit"),
             Alternating = GetBool(t, "alternating"),
             Border = GetBool(t, "border"),
@@ -531,18 +583,28 @@ static class ConfigLoader
         return raw is "Desktop" or "Output" or "Slice";
     }
 
-    static LogoOverride? ParseLogoOverride(TomlTable parent, string key)
+    static LogoOverride? ParseLogoOverride(TomlTable parent, string key, string configDirectory)
     {
         if (!parent.TryGetValue(key, out object? obj) || obj is not TomlTable t) return null;
         return new LogoOverride
         {
-            Source = GetString(t, "source"),
+            Source = ResolveConfigRelativePath(GetString(t, "source"), configDirectory),
             X = GetString(t, "x"),
             Y = GetString(t, "y"),
             Width = GetString(t, "width"),
             Height = GetString(t, "height"),
             Opacity = GetFloatRequiredRange(t, "opacity", $"config [{key}].opacity", minInclusive: 0f, maxInclusive: 1f),
         };
+    }
+
+    static ImmutableArray<string>? ResolveConfigRelativePathArray(ImmutableArray<string>? values, string configDirectory)
+    {
+        return ConfiguredPathResolver.ResolveArray(values, configDirectory);
+    }
+
+    static string ResolveConfigRelativePath(string? value, string configDirectory)
+    {
+        return ConfiguredPathResolver.Resolve(value, configDirectory);
     }
 
     static ImmutableArray<string>? GetStringArray(TomlTable t, string key)

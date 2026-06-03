@@ -39,6 +39,12 @@ static class Program
                 : new GlobalOptions();
 
             options = ConfigLoader.ApplyCliOverlay(options, cliOverlay, configurationWarnings);
+
+            if (options.Render.NoDiscovery && !options.Render.DryRun)
+            {
+                configurationWarnings.Add("[render].no-discovery implies [render].no-assignment=true; wallpaper assignment will be skipped.");
+                options = options with { Render = options.Render with { DryRun = true } };
+            }
         }
         catch (FormatException ex)
         {
@@ -83,8 +89,27 @@ static class Program
         string settingsHash = SettingsHasher.Compute(options);
         logger.SettingsHashComputed(settingsHash);
 
-        IDisplayDiscovery discovery = new DisplayDiscovery();
-        HardwareProfile hardware = discovery.Discover();
+        bool noDiscovery = options.Render.NoDiscovery;
+        ImmutableArray<(OutputRecord Output, OutputOptions Config)> noDiscoveryMappings = [];
+
+        HardwareProfile hardware;
+        if (noDiscovery)
+        {
+            noDiscoveryMappings = BuildNoDiscoveryMappings(options.Outputs, configurationWarnings);
+            hardware = new HardwareProfile([.. noDiscoveryMappings.Select(mapping => mapping.Output)]);
+        }
+        else
+        {
+            IDisplayDiscovery discovery = new DisplayDiscovery();
+            hardware = discovery.Discover();
+        }
+
+        foreach (OutputOptions output in options.Outputs)
+        {
+            if (!noDiscovery && output.HardwareOutput is not null)
+                logger.ConfigurationWarning("[output.hardware_output] is ignored unless [render].no-discovery=true.");
+        }
+
         (int systemWidthPx, int systemHeightPx) = GetSystemDimensions(hardware);
         logger.HardwareDiscovered(hardware.Outputs.Length);
         foreach (OutputRecord output in hardware.Outputs)
@@ -103,10 +128,18 @@ static class Program
 
         bool isDryRun = options.Render.DryRun;
         bool continueAfterUnchanged = options.Render.ContinueAfterUnchanged;
-        string outputDir = FileNamer.GetOutputDirectory(options.Render.Output);
+        string outputTemplate = FileNamer.GetOutputTemplate(options.Render.Output);
+        string outputDir = FileNamer.GetOutputDirectory(outputTemplate);
         string lastRunFileName = isDryRun ? "lastRun.dry.toml" : "lastRun.toml";
         string lastRunPath = Path.Combine(outputDir, lastRunFileName);
         logger.IoPaths(outputDir, lastRunPath);
+
+        if (hardware.Outputs.Length > 1
+            && !FileNamer.ContainsToken(outputTemplate, "index")
+            && !FileNamer.ContainsToken(outputTemplate, "friendlyName"))
+        {
+            logger.ConfigurationWarning("render-output does not include {index} or {friendlyName}; multiple outputs can overwrite each other.");
+        }
 
         LastRunState? lastRun = LastRunReader.Read(lastRunPath);
         logger.LastRunLoad(lastRun is not null, lastRunPath);
@@ -133,10 +166,12 @@ static class Program
         }
 
         logger.MatchingStart(options.Outputs.Length);
-        ImmutableArray<MatchResult> matches = TargetMatcher.Match(
-            hardware,
-            options.Outputs,
-            skipUnspecifiedOutputs: options.Render.OutputsSkipUnspecified);
+        ImmutableArray<MatchResult> matches = noDiscovery
+            ? []
+            : TargetMatcher.Match(
+                hardware,
+                options.Outputs,
+                skipUnspecifiedOutputs: options.Render.OutputsSkipUnspecified);
 
         Directory.CreateDirectory(outputDir);
 
@@ -146,43 +181,72 @@ static class Program
         ImmutableArray<ConfiguredOutputStatus>.Builder configuredStatuses =
             ImmutableArray.CreateBuilder<ConfiguredOutputStatus>();
 
-
-        foreach (MatchResult match in matches)
+        if (noDiscovery)
         {
-            switch (match)
+            foreach ((OutputRecord Output, OutputOptions Config) mapping in noDiscoveryMappings)
             {
-                case MatchResult.Matched(OutputRecord output, OutputOptions outputConfig):
-                    logger.RenderStart(output.Id, DescribeTarget(outputConfig.Target));
-                    RenderOutcome outcome = await renderer.RenderOutputAsync(output, outputConfig, options, outputDir, systemWidthPx, systemHeightPx);
-                    assignedFiles[output.Id] = outcome.FilePath;
-                    hardwareStatuses[output.Id] = "output-rendered";
-                    configuredStatuses.Add(new ConfiguredOutputStatus
-                    {
-                        TargetDescription = DescribeTarget(outputConfig.Target),
-                        Status = "output-matched",
-                        Reason = $"id=\"{output.Id}\" index={output.Index} position={output.DesktopX},{output.DesktopY} resolution={output.WidthPx}x{output.HeightPx}",
-                        Slices = outcome.SliceStatuses,
-                    });
-                    logger.OutputRendered(output.Id, outcome.FilePath);
-                    break;
-                case MatchResult.NotFound notFound:
-                    string notFoundTarget = DescribeTarget(notFound.Config.Target);
-                    configuredStatuses.Add(new ConfiguredOutputStatus
-                    {
-                        TargetDescription = notFoundTarget,
-                        Status = "output-not-found",
-                    });
-                    logger.OutputNotFound(notFoundTarget);
-                    break;
-                case MatchResult.Duplicate duplicate:
-                    string dupTarget = DescribeTarget(duplicate.Config.Target);
-                    configuredStatuses.Add(new ConfiguredOutputStatus
-                    {
-                        TargetDescription = dupTarget,
-                        Status = "duplicate-output-ignored",
-                    });
-                    logger.DuplicateOutputIgnored(dupTarget);
-                    break;
+                string targetDescription = DescribeTarget(mapping.Config.Target);
+                logger.RenderStart(mapping.Output.Id, targetDescription);
+                FileNamer.RenderOutputPathResult outputPath = FileNamer.ResolveRenderOutputPath(outputTemplate, mapping.Output);
+                foreach (string warning in outputPath.Warnings)
+                    logger.ConfigurationWarning(warning);
+
+                RenderOutcome outcome = await renderer.RenderOutputAsync(mapping.Output, mapping.Config, options, outputPath.FilePath, systemWidthPx, systemHeightPx);
+                assignedFiles[mapping.Output.Id] = outcome.FilePath;
+                hardwareStatuses[mapping.Output.Id] = "output-rendered";
+                configuredStatuses.Add(new ConfiguredOutputStatus
+                {
+                    TargetDescription = targetDescription,
+                    Status = "output-matched",
+                    Reason = $"id=\"{mapping.Output.Id}\" index={mapping.Output.Index} position={mapping.Output.DesktopX},{mapping.Output.DesktopY} resolution={mapping.Output.WidthPx}x{mapping.Output.HeightPx}",
+                    Slices = outcome.SliceStatuses,
+                });
+                logger.OutputRendered(mapping.Output.Id, outcome.FilePath);
+            }
+        }
+        else
+        {
+            foreach (MatchResult match in matches)
+            {
+                switch (match)
+                {
+                    case MatchResult.Matched(OutputRecord output, OutputOptions outputConfig):
+                        logger.RenderStart(output.Id, DescribeTarget(outputConfig.Target));
+                        FileNamer.RenderOutputPathResult outputPath = FileNamer.ResolveRenderOutputPath(outputTemplate, output);
+                        foreach (string warning in outputPath.Warnings)
+                            logger.ConfigurationWarning(warning);
+
+                        RenderOutcome outcome = await renderer.RenderOutputAsync(output, outputConfig, options, outputPath.FilePath, systemWidthPx, systemHeightPx);
+                        assignedFiles[output.Id] = outcome.FilePath;
+                        hardwareStatuses[output.Id] = "output-rendered";
+                        configuredStatuses.Add(new ConfiguredOutputStatus
+                        {
+                            TargetDescription = DescribeTarget(outputConfig.Target),
+                            Status = "output-matched",
+                            Reason = $"id=\"{output.Id}\" index={output.Index} position={output.DesktopX},{output.DesktopY} resolution={output.WidthPx}x{output.HeightPx}",
+                            Slices = outcome.SliceStatuses,
+                        });
+                        logger.OutputRendered(output.Id, outcome.FilePath);
+                        break;
+                    case MatchResult.NotFound notFound:
+                        string notFoundTarget = DescribeTarget(notFound.Config.Target);
+                        configuredStatuses.Add(new ConfiguredOutputStatus
+                        {
+                            TargetDescription = notFoundTarget,
+                            Status = "output-not-found",
+                        });
+                        logger.OutputNotFound(notFoundTarget);
+                        break;
+                    case MatchResult.Duplicate duplicate:
+                        string dupTarget = DescribeTarget(duplicate.Config.Target);
+                        configuredStatuses.Add(new ConfiguredOutputStatus
+                        {
+                            TargetDescription = dupTarget,
+                            Status = "duplicate-output-ignored",
+                        });
+                        logger.DuplicateOutputIgnored(dupTarget);
+                        break;
+                }
             }
         }
 
@@ -192,7 +256,7 @@ static class Program
 
         foreach (OutputRecord hw in hardware.Outputs)
         {
-            if (!hardwareStatuses.ContainsKey(hw.Id))
+            if (!noDiscovery && !hardwareStatuses.ContainsKey(hw.Id))
                 hardwareStatuses[hw.Id] = "output-discovered";
         }
 
@@ -406,4 +470,63 @@ static class Program
         while (reader.ReadLine() is string line)
             yield return line;
     }
+
+    static ImmutableArray<(OutputRecord Output, OutputOptions Config)> BuildNoDiscoveryMappings(
+        ImmutableArray<OutputOptions> configuredOutputs,
+        List<string> warnings)
+    {
+        ImmutableArray<(OutputRecord Output, OutputOptions Config)>.Builder builder =
+            ImmutableArray.CreateBuilder<(OutputRecord Output, OutputOptions Config)>(configuredOutputs.Length);
+
+        for (int i = 0; i < configuredOutputs.Length; i++)
+        {
+            OutputOptions output = configuredOutputs[i];
+            OutputRecord hardware = ResolveHardwareOutput(output, i, warnings);
+            builder.Add((hardware, output));
+        }
+
+        return builder.ToImmutable();
+    }
+
+    static OutputRecord ResolveHardwareOutput(OutputOptions output, int fallbackIndex, List<string> warnings)
+    {
+        if (output.HardwareOutput is null)
+        {
+            warnings.Add($"[[output]] index {fallbackIndex}: missing [output.hardware_output] while [render].no-discovery=true; using default fixed 640x480 hardware output.");
+            return BuildDefaultHardwareOutput(fallbackIndex);
+        }
+
+        OutputRecord reference = output.HardwareOutput;
+        int resolvedIndex = reference.Index >= 0 ? reference.Index : fallbackIndex;
+
+        return new OutputRecord
+        {
+            Id = string.IsNullOrWhiteSpace(reference.Id) ? $"FIXED-{resolvedIndex.ToString(System.Globalization.CultureInfo.InvariantCulture)}" : reference.Id,
+            Index = resolvedIndex,
+            DesktopX = reference.DesktopX,
+            DesktopY = reference.DesktopY,
+            WidthPx = reference.WidthPx > 0 ? reference.WidthPx : 640,
+            HeightPx = reference.HeightPx > 0 ? reference.HeightPx : 480,
+            DpiX = reference.DpiX > 0 ? reference.DpiX : 96,
+            DpiY = reference.DpiY > 0 ? reference.DpiY : 96,
+            Rotation = reference.Rotation,
+            AdapterName = string.IsNullOrWhiteSpace(reference.AdapterName) ? "FIXED" : reference.AdapterName,
+            FriendlyName = string.IsNullOrWhiteSpace(reference.FriendlyName) ? "Unspecified" : reference.FriendlyName,
+        };
+    }
+
+    static OutputRecord BuildDefaultHardwareOutput(int index) => new()
+    {
+        Id = $"FIXED-{index.ToString(System.Globalization.CultureInfo.InvariantCulture)}",
+        Index = index,
+        DesktopX = 0,
+        DesktopY = 0,
+        WidthPx = 640,
+        HeightPx = 480,
+        DpiX = 96,
+        DpiY = 96,
+        Rotation = 0,
+        AdapterName = "FIXED",
+        FriendlyName = "Unspecified",
+    };
 }

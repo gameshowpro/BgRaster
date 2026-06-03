@@ -1,15 +1,17 @@
 # BgRaster
 
-A .NET 10 Native AOT console application that generates per-output diagnostic backgrounds for Windows display configurations and assigns them as desktop wallpaper. Designed for AV technicians, video engineers, and broadcast control rooms that need to quickly identify outputs, verify resolution, check color, validate scaling, and detect signal-path issues.
+## Inspiration
+BgRaster is inspired by the classic Sysinternals utility [BgInfo](https://learn.microsoft.com/en-us/sysinternals/downloads/bginfo). It was executed perfectly in 2000, but its structure and features feel dated today. In particular, it's focussed on the needs of an IT administrator from that era. It's missing many features that would be valuable to a creative professional in the 2020s.
+
+## Summary
+BgRaster is a fast console application that uses modern frameworks and APIs to generate and assign wallpapers for any displays it finds. It has many [features](/docs/features.md) targetted at creative professionals like AV technicians, video engineers, and real time graphics specialists. It has a rich set of command-line options, but its full power lies in its [TOML](https://en.wikipedia.org/wiki/TOML) configuration files.
 
 ## Highlights
 
-- **One PNG per video output** — each Windows monitor receives a wallpaper sized to its native resolution, anchored to its desktop position. No stretched panoramas.
-- **Composable diagnostic layers** — solid background, alternating-pixel pattern, regular grid (with optional WCAG-aware coordinate labels), border, centred circle, crosshair, logo, and substitution-aware text.
-- **Per-output and per-slice overrides** — global defaults cascade to outputs, then to optional rectangular slices within an output (useful for video walls and processed feeds).
-- **Native AOT** — single-file `.exe`, no .NET runtime dependency, fast startup.
+- **One PNG per video output** — each Windows monitor receives a wallpaper sized to its native resolution, anchored to its desktop position.
+- **Slices** — outputs have one slice by default, but can be split into any number, each with different settings.
 - **Idempotent** — early-exits when configuration, version, and hardware fingerprint all match the previous run.
-- **Diagnostic `lastRun.toml`** — every run writes the effective configuration plus per-output / per-slice status comments, then verifies the file round-trips before atomically replacing the previous one.
+- **Portable** — single-file `.exe` without runtime dependencies, built for speed. 
 
 ## Supported environments
 

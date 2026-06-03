@@ -3,6 +3,7 @@ namespace GameshowPro.BgRaster.Models;
 record RenderOptions
 {
     internal bool DryRun { get; init; }
+    internal bool NoDiscovery { get; init; }
     internal bool OutputsSkipUnspecified { get; init; }
     internal string Output { get; init; } = "";
     internal LogLevel MinimumLogLevel { get; init; } = LogLevel.Information;
