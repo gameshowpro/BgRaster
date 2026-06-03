@@ -10,6 +10,18 @@ Generated PNGs are expected in `docs/sample-output` and should be regenerated wi
 - Sample config: [background.toml](sample-config/background.toml)
 - Output image: ![Background sample](sample-output/background.png)
 
+## Background Image
+
+- What it demonstrates: background bitmap rendering and fit behavior.
+- Sample config: [background-image.toml](sample-config/background-image.toml)
+- Output image: ![Background image sample](sample-output/background-image.png)
+
+## Background Alternating
+
+- What it demonstrates: alternating-pixel checker pattern used for signal verification.
+- Sample config: [background-alternating.toml](sample-config/background-alternating.toml)
+- Output image: ![Background alternating sample](sample-output/background-alternating.png)
+
 ## Grid
 
 - What it demonstrates: checker/grid layer with coordinate labels.
@@ -32,10 +44,10 @@ Generated PNGs are expected in `docs/sample-output` and should be regenerated wi
 
 - What it demonstrates: edge labels, tail-length, and scope behavior.
 - Sample config: [labeled-edges.toml](sample-config/labeled-edges.toml)
-- Output image: ![Labeled edges sample](sample-output/labeled_edges.png)
+- Output image: ![Labeled edges sample](sample-output/labeled-edges.png)
 
 ## Text + Logo
 
 - What it demonstrates: text composition and logo rendering in one sample.
 - Sample config: [text-logo.toml](sample-config/text-logo.toml)
-- Output image: ![Text and logo sample](sample-output/text_logo.png)
+- Output image: ![Text and logo sample](sample-output/text-logo.png)
