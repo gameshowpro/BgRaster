@@ -68,7 +68,6 @@ sealed class DisplayDiscovery : IDisplayDiscovery
                     DpiX = dpiX,
                     DpiY = dpiY,
                     Rotation = rotationDeg,
-                    RefreshRateHz = refresh,
                     AdapterName = adapterDeviceName,
                     FriendlyName = friendlyName,
                 });

@@ -51,7 +51,6 @@ static class LastRunWriter
                 sb.AppendLine($"dpiX = {hw.DpiX}");
                 sb.AppendLine($"dpiY = {hw.DpiY}");
                 sb.AppendLine($"rotation = {hw.Rotation}");
-                sb.AppendLine($"refreshRateHz = {hw.RefreshRateHz}");
                 sb.AppendLine($"adapterName = \"{Escape(hw.AdapterName)}\"");
                 sb.AppendLine($"friendlyName = \"{Escape(hw.FriendlyName)}\"");
                 sb.AppendLine();

@@ -11,7 +11,6 @@ record OutputRecord
     internal int DpiX { get; init; }
     internal int DpiY { get; init; }
     internal int Rotation { get; init; }
-    internal int RefreshRateHz { get; init; }
     internal string AdapterName { get; init; } = "";
     internal string FriendlyName { get; init; } = "";
 }
