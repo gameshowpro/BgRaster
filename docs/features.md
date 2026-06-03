@@ -18,7 +18,7 @@ Generated PNGs are expected in `docs/sample-output` and should be regenerated wi
 
 ## Background Alternating
 
-- What it demonstrates: alternating-pixel checker pattern used for signal verification.
+- What it demonstrates: alternating-pixel checker pattern used for signal verification. You probably need to zoom in to appreciate this.
 - Sample config: [background-alternating.toml](sample-config/background-alternating.toml)
 - Output image: ![Background alternating sample](sample-output/background-alternating.png)
 
@@ -48,6 +48,6 @@ Generated PNGs are expected in `docs/sample-output` and should be regenerated wi
 
 ## Text + Logo
 
-- What it demonstrates: text composition and logo rendering in one sample.
+- What it demonstrates: text composition and inclusion of arbitrary logo bitmap.
 - Sample config: [text-logo.toml](sample-config/text-logo.toml)
 - Output image: ![Text and logo sample](sample-output/text-logo.png)
