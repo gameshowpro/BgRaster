@@ -298,13 +298,12 @@ static class OptionsResolver
         scope = raw switch
         {
             "Desktop" => LabeledEdgesScope.Desktop,
-            "System" => LabeledEdgesScope.Desktop,
             "Output" => LabeledEdgesScope.Output,
             "Slice" => LabeledEdgesScope.Slice,
             _ => default,
         };
 
-        return raw is "Desktop" or "System" or "Output" or "Slice";
+        return raw is "Desktop" or "Output" or "Slice";
     }
 
     static ImmutableArray<string> ResolveTextArray(ImmutableArray<string> global, ImmutableArray<string>? outputOverride)

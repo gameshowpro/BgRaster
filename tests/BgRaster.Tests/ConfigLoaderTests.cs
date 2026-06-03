@@ -197,4 +197,24 @@ public class ConfigLoaderTests
         }
     }
 
+    [Fact]
+    public void Load_LabeledEdges_ScopeRejectsLegacySystemValue()
+    {
+        string path = Path.Combine(Path.GetTempPath(), $"bgraster-config-{Guid.NewGuid():N}.toml");
+        try
+        {
+            File.WriteAllText(path, "[labeled-edges]\nscope = [\"System\"]\n");
+
+            Action act = () => ConfigLoader.Load(path);
+
+            act.Should().Throw<FormatException>()
+                .WithMessage("*expected one of Desktop, Output, Slice*");
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+    }
+
 }
