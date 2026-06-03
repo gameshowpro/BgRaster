@@ -94,12 +94,22 @@ x = "50vw"; y = "50vh"; width = "50vw"; height = "50vh"
 
 ## Documentation
 
+- [Features](docs/features.md) - A summary of visual features with images and config examples.
 - [TOML schema reference](docs/toml-schema.md) — every section, key, type, default, and unit.
 - [CLI schema reference](docs/cli-schema.md) — every command-line option mapped to its TOML equivalent.
 - [Architecture overview](docs/architecture.md) — runtime pipeline, modules, and AOT decisions.
 - [Troubleshooting guide](docs/troubleshooting.md) — DPI, output matching, lastRun diagnostics, recycle behaviour, early-exit.
-- [Deferred tasks](docs/deferred-tasks.md) — known limitations and future work.
+- [Deferred tasks](docs/deferred-tasks.md) — known limitations and future work plans.
+
+## AI Disclosure
+As a project started in 2026, yes, substantial parts of this application were built using AI tools. I could never have acheived the the application scope, automation, test framework, and quality of documentation in my spare time without it. Be assured that the design, concept, functional testing, and documentation proof-reading burned many human neuron hours.
+
+## Authors
+
+<img src="resources/gsp.svg" height="60px"/>
+
+Hi, I'm Hamish Barjonas. I provide custom solutions for the broadcast producion, live entertainment, and sports industries. Yes, including game shows. See more details [here](https://www.barjonas.com). As a keen FOSS advocate, I try to keep as much non-customer-specific code open for the wider community as possible, under the Game Show Pro umbrella. If you're in a related industry, I'd love to colloborate! You can contact me [here](https://barjonas.com/contact).
 
 ## License
 
-See repository root.
+[MIT](./LICENCE).
