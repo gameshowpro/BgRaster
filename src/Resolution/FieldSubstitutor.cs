@@ -17,9 +17,11 @@ static class FieldSubstitutor
         string outputIndex = ctx.OutputIndex.ToString(System.Globalization.CultureInfo.InvariantCulture);
         string outputIndexPlusOne = (ctx.OutputIndex + 1).ToString(System.Globalization.CultureInfo.InvariantCulture);
         string outputLetter = ToLetterToken(ctx.OutputIndex);
+        string outputLetterMinusOne = ToLetterToken(ctx.OutputIndex, includeHashAtZero: true);
         string sliceIndex = ctx.SliceIndex.ToString(System.Globalization.CultureInfo.InvariantCulture);
         string sliceIndexPlusOne = (ctx.SliceIndex + 1).ToString(System.Globalization.CultureInfo.InvariantCulture);
         string sliceLetter = ToLetterToken(ctx.SliceIndex);
+        string sliceLetterMinusOne = ToLetterToken(ctx.SliceIndex, includeHashAtZero: true);
 
         string result = template
             .Replace("${MachineName}", ctx.MachineName)
@@ -28,20 +30,30 @@ static class FieldSubstitutor
             .Replace("${OutputIndexPlusOne}", outputIndexPlusOne)
             .Replace("${OutputIndex}", outputIndex)
             .Replace("${OutputLetter}", outputLetter)
+            .Replace("${OutputLetterMinusOne}", outputLetterMinusOne)
             .Replace("${SliceWidth}", ctx.SliceWidth.ToString(System.Globalization.CultureInfo.InvariantCulture))
             .Replace("${SliceHeight}", ctx.SliceHeight.ToString(System.Globalization.CultureInfo.InvariantCulture))
             .Replace("${SliceIndexPlusOne}", sliceIndexPlusOne)
             .Replace("${SliceIndex}", sliceIndex)
             .Replace("${SliceLetter}", sliceLetter)
+            .Replace("${SliceLetterMinusOne}", sliceLetterMinusOne)
             .Replace("${OutputName}", ctx.OutputName);
 
         return result;
     }
 
-    static string ToLetterToken(int zeroBasedIndex)
+    static string ToLetterToken(int zeroBasedIndex, bool includeHashAtZero = false)
     {
         if (zeroBasedIndex < 0)
             return "?";
+
+        if (includeHashAtZero)
+        {
+            if (zeroBasedIndex == 0)
+                return "#";
+
+            zeroBasedIndex -= 1;
+        }
 
         int value = zeroBasedIndex;
         StringBuilder builder = new();

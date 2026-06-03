@@ -239,17 +239,12 @@ Parsing is invariant-culture; channel values are clamped.
 
 These tokens are expanded inside text, `background.image`, `logo.source`, and `render.output` values:
 
-| Token | Value |
-|---|---|
-| `${MachineName}` | `Environment.MachineName` |
-| `${OutputWidth}` | Output width in pixels. |
-| `${OutputHeight}` | Output height in pixels. |
-| `${OutputIndex}` | Zero-based output index. |
-| `${OutputIndexPlusOne}` | Output index + 1. |
-| `${OutputLetter}` | Output index rendered as letters (`A`, `B`, …, `Z`, `AA`, …). |
-| `${OutputName}` | `OutputRecord.FriendlyName`. |
-| `${SliceWidth}` | Slice width in pixels (slice scope). |
-| `${SliceHeight}` | Slice height in pixels (slice scope). |
-| `${SliceIndex}` | Zero-based slice index within the output (slice scope). |
-| `${SliceIndexPlusOne}` | Slice index + 1 (slice scope). |
-| `${SliceLetter}` | Slice index rendered as letters (`A`, `B`, …) (slice scope). |
+| Token (machine scoped) | Token (output scoped) | Token (slice scoped) | Description |
+|---|---|---|---|
+| `${MachineName}` | `${OutputName}` | | `Environment.MachineName` or `OutputRecord.FriendlyName`, which often originates from inside the device's EDID packet. |
+| | `${OutputWidth}` | `${SliceWidth}` | Output/slice width in pixels. |
+| | `${OutputHeight}` | `${SliceHeight}` | Output/slice height in pixels. |
+| | `${OutputIndex}` | `${SliceIndex}` | Zero-based output/slice index. |
+| | `${OutputIndexPlusOne}` | `${SliceIndexPlusOne}` | One-based output/slice index. |
+| | `${OutputLetter}` | `${SliceLetter}` | Output/slice index rendered as letters, starting with "A" |
+| | `${OutputLetterMinusOne}` | `${SliceLetterMinusOne}` | Output/slice index rendered as letters, starting with "#" then continuing from A". Useful when the first slice is used to identify the whole output but the other slices must start from "A" |

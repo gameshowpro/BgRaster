@@ -75,7 +75,7 @@ size = "25vh"
 x = "50vw"
 y = "50vh"
 size = ["5vh", "6vh", "7vh"]
-text = ["${MachineName} output ${OutputIndexPlusOne}", "slice ${SliceLetter}", "${SliceWidth}x${SliceHeight}"]
+text = ["${MachineName} output ${OutputIndexPlusOne}", "slice ${SliceLetterMinusOne}", "${SliceWidth}x${SliceHeight}"]
 
 [[output.slice]]
 x = "0"

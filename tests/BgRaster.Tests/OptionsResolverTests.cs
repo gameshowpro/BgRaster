@@ -130,6 +130,23 @@ public class OptionsResolverTests
     }
 
     [Fact]
+    public void Resolve_FieldSubstitution_OutputLetterMinusOneToken()
+    {
+        GlobalOptions global = new()
+        {
+            Text = new TextOptions { Text = ["${OutputLetterMinusOne}"] },
+        };
+
+        string zero = OptionsResolver.Resolve(global, MakeOutput(0), null).TextLines[0];
+        string one = OptionsResolver.Resolve(global, MakeOutput(1), null).TextLines[0];
+        string twentySeven = OptionsResolver.Resolve(global, MakeOutput(27), null).TextLines[0];
+
+        zero.Should().Be("#");
+        one.Should().Be("A");
+        twentySeven.Should().Be("AA");
+    }
+
+    [Fact]
     public void ResolveForSlice_FieldSubstitution_SliceTokens()
     {
         GlobalOptions global = new()
@@ -146,6 +163,30 @@ public class OptionsResolverTests
 
         string line = OptionsResolver.ResolveForSlice(global, MakeOutput(1), null, slice, 100, 100, sliceIndex: 1).TextLines[0];
         line.Should().Be("1|2|B|100x100");
+    }
+
+    [Fact]
+    public void ResolveForSlice_FieldSubstitution_SliceLetterMinusOneToken()
+    {
+        GlobalOptions global = new()
+        {
+            Text = new TextOptions { Text = ["${SliceLetterMinusOne}"] },
+        };
+        SliceOptions slice = new()
+        {
+            X = "0",
+            Y = "0",
+            Width = "100px",
+            Height = "100px",
+        };
+
+        string zero = OptionsResolver.ResolveForSlice(global, MakeOutput(1), null, slice, 100, 100, sliceIndex: 0).TextLines[0];
+        string one = OptionsResolver.ResolveForSlice(global, MakeOutput(1), null, slice, 100, 100, sliceIndex: 1).TextLines[0];
+        string twentySeven = OptionsResolver.ResolveForSlice(global, MakeOutput(1), null, slice, 100, 100, sliceIndex: 27).TextLines[0];
+
+        zero.Should().Be("#");
+        one.Should().Be("A");
+        twentySeven.Should().Be("AA");
     }
 
     [Fact]
