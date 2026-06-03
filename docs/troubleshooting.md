@@ -29,7 +29,7 @@ The PNG is sized to the output's **physical** pixel dimensions, queried via `Enu
 
 1. Check the `[[hardware_output]]` block in `lastRun.toml` — `widthPx`, `heightPx`, `dpiX`, `dpiY` are recorded as observed.
 2. Confirm the BgRaster.exe manifest is `PerMonitorV2`-aware. If you've replaced the manifest or are running an unsigned rebuild, mixed-DPI desktops can report logical (DIP) instead of physical pixels.
-3. Run elevated. Some Win32 graphics queries silently degrade for a non-elevated process attached to a SYSTEM session.
+3. Verify you are running in a normal interactive session. Some remote, service, or locked-down sessions can restrict graphics/wallpaper APIs.
 
 ---
 
@@ -37,7 +37,6 @@ The PNG is sized to the output's **physical** pixel dimensions, queried via `Enu
 
 The most common causes:
 
-- **Not running elevated.** `IDesktopWallpaper::SetWallpaper` requires it for the SYSTEM session and for some kiosk-mode user profiles. Check the UAC level on the .exe (manifest declares `requireAdministrator`).
 - **Per-monitor wallpaper unsupported.** Older Windows builds (pre-1809) lack the necessary COM contract. Verify Windows version.
 - **Wallpaper slideshow active.** Windows Personalization "slideshow" mode periodically overwrites per-monitor assignments. Disable it.
 - **Group Policy lockdown.** "Prevent changing desktop background" blocks the assignment. Look for `wallpaper-assignment-failed` in stdout — the run will exit 1.

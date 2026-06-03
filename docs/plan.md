@@ -2,7 +2,7 @@
 
 BgRaster is a .net console app that is designed to run until its work complete then exit.
 
-The headline function of the application is to assign custom backgrounds to every video output of the Windows machine it's running on. BgRaster renders one tightly-cropped PNG per physical output rather than a single desktop-span image. These PNGs are written into a BgRaster subdirectory under the OS temporary folder using filename-safe ISO 8601 UTC timestamps so every generated file is unique. After render, BgRaster assigns each PNG directly to its physical output using the COM `IDesktopWallpaper` interface. Older BgRaster-generated PNGs are then sent to the recycle bin; if any remain because Windows or another process still has them locked, they are left in place and retried on the next successful apply. The application probably needs admin access for this, so it should probably trigger a UAC prompt if it does not have access on startup.
+The headline function of the application is to assign custom backgrounds to every video output of the Windows machine it's running on. BgRaster renders one tightly-cropped PNG per physical output rather than a single desktop-span image. These PNGs are written into a BgRaster subdirectory under the OS temporary folder using filename-safe ISO 8601 UTC timestamps so every generated file is unique. After render, BgRaster assigns each PNG directly to its physical output using the COM `IDesktopWallpaper` interface. Older BgRaster-generated PNGs are then sent to the recycle bin; if any remain because Windows or another process still has them locked, they are left in place and retried on the next successful apply.
 
 ## Licensing
 The appliction is published under the MIT license, (C) 2026 Hamish Barjonas

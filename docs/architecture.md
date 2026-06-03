@@ -124,7 +124,7 @@ The project publishes with `PublishAot=true`, `TrimMode=full`, `InvariantGlobali
 `src/app.manifest` sets `dpiAwareness` to `PerMonitorV2`. Combined with `GetDpiForMonitor`, the rendered PNG dimensions match the physical pixel grid of each output, regardless of mixed-DPI desktops.
 
 ### Privileges
-The manifest declares `requestedExecutionLevel level="requireAdministrator"`. `IDesktopWallpaper::SetWallpaper` against the SYSTEM session (which is what kiosk / digital-signage scenarios target) requires this; for a regular interactive session it is not strictly required but is kept consistent.
+The manifest declares `requestedExecutionLevel level="asInvoker"`. BgRaster does not implement an elevation-relaunch path; it runs in the caller's token and reports wallpaper-assignment failures through normal HRESULT/status diagnostics.
 
 ### Embedded resources
 Two resources are embedded into the AOT binary: `resources/gidole/Gidolinya-Regular.otf` (font) and `resources/fallback-logo.svg`. Access is via `Assembly.GetManifestResourceStream` — AOT-safe (the resources are linked into the assembly's manifest, not loaded by dynamic type).
