@@ -83,7 +83,7 @@ public class LogoLayerTests
     }
 
     [Fact]
-    public void Render_EmptyLogoSource_DrawsFallbackLogo()
+    public void Render_EmptyLogoSource_SuppressesLogo()
     {
         SKImageInfo info = new(240, 120);
         using SKSurface surface = SKSurface.Create(info);
@@ -133,7 +133,64 @@ public class LogoLayerTests
             }
         }
 
-        hasNonTransparentPixel.Should().BeTrue("empty logo source should render the embedded or geometric fallback logo");
+        hasNonTransparentPixel.Should().BeFalse("empty logo source should suppress logo rendering entirely");
+    }
+
+    [Fact]
+    public void Render_PackUriLogo_RendersEmbeddedResource()
+    {
+        // Arrange: Use the pack URI that points to the embedded gsp.svg resource
+        string packUri = "pack://application:,,,/GameshowPro.BgRaster;component/resources/gsp.svg";
+        
+        SKImageInfo info = new(240, 120);
+        using SKSurface surface = SKSurface.Create(info);
+        surface.Should().NotBeNull();
+
+        SKCanvas canvas = surface.Canvas;
+        canvas.Clear(SKColors.Transparent);
+
+        RenderContext context = new(
+            OutputRecord: new OutputRecord
+            {
+                Id = "test-output",
+                Index = 0,
+                WidthPx = info.Width,
+                HeightPx = info.Height,
+            },
+            Options: new ResolvedOptions
+            {
+                LogoSource = packUri,
+                LogoXPx = 40f,
+                LogoYPx = 20f,
+                LogoWidthPx = 120f,
+                LogoHeightPx = 80f,
+                LogoOpacity = 1f,
+            },
+            ViewportWidth: info.Width,
+            ViewportHeight: info.Height,
+            CanvasOffsetX: 0,
+            CanvasOffsetY: 0);
+
+        LogoLayer layer = new();
+        layer.Render(context, canvas);
+
+        using SKImage image = surface.Snapshot();
+        using SKBitmap bitmap = SKBitmap.FromImage(image);
+
+        bool hasNonTransparentPixel = false;
+        for (int y = 0; y < bitmap.Height && !hasNonTransparentPixel; y++)
+        {
+            for (int x = 0; x < bitmap.Width; x++)
+            {
+                if (bitmap.GetPixel(x, y).Alpha > 0)
+                {
+                    hasNonTransparentPixel = true;
+                    break;
+                }
+            }
+        }
+
+        hasNonTransparentPixel.Should().BeTrue("pack URI should resolve and render the embedded logo");
     }
 
     static SKColor RenderSinglePixel(string logoSource, SKColor backgroundColor)

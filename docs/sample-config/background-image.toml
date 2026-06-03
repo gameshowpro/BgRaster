@@ -1,0 +1,48 @@
+# $schema: https://raw.githubusercontent.com/gameshowpro/BgRaster/refs/heads/main/docs/schemas/bgraster-config.schema.json
+
+[background]
+color = ["#1A365D"]
+image = ["images/background.png"]
+fit = ["BestFit"]
+
+[grid]
+size = ["0"]
+coordinates = [false]
+
+[circle]
+stroke = ["0"]
+color = ["#00000000"]
+
+[crosshair]
+stroke = ["0"]
+color = ["#00000000"]
+
+[labeled-edges]
+thickness = ["0"]
+side = []
+
+[text]
+text = ["Background bitmap", "best fit."]
+
+[logo]
+source = [""]
+
+[render]
+no-assignment = true
+no-discovery = true
+output = ""
+
+[[output]]
+target = 0
+
+[output.hardware_output]
+index = 0
+desktopX = 0
+desktopY = 0
+widthPx = 640
+heightPx = 480
+dpiX = 96
+dpiY = 96
+rotation = 0
+adapterName = "FIXED"
+friendlyName = "Background"

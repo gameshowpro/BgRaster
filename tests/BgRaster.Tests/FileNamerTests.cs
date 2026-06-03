@@ -3,36 +3,82 @@ namespace GameshowPro.BgRaster.Tests;
 public class FileNamerTests
 {
     [Fact]
-    public void GenerateFileName_MatchesExpectedPattern()
+    public void GetOutputTemplate_Empty_UsesDefaultTemplate()
     {
-        string name = FileNamer.GenerateFileName("STUB\\DISPLAY#0");
-        name.Should().MatchRegex(@"^\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}\.\d+Z_.+\.png$");
+        string template = FileNamer.GetOutputTemplate(null);
+
+        template.Should().Contain("BgRaster");
+        template.Should().Contain("{now}_{index}");
     }
 
     [Fact]
-    public void GenerateFileName_SanitizesSpecialCharsInId()
+    public void ResolveRenderOutputPath_ReplacesKnownTokens()
     {
-        string name = FileNamer.GenerateFileName(@"\\?\DISPLAY#SAM0C7F");
-        name.Should().NotContain("\\");
-        name.Should().NotContain("?");
-        name.Should().NotContain("#");
+        OutputRecord output = new()
+        {
+            Index = 2,
+            FriendlyName = "Main-Display",
+        };
+
+        FileNamer.RenderOutputPathResult result = FileNamer.ResolveRenderOutputPath("C:\\out\\prefix_{index}_{friendlyName}", output);
+
+        result.FilePath.Should().EndWith("prefix_2_Main-Display.png");
+        result.Warnings.Should().BeEmpty();
     }
 
     [Fact]
-    public void GenerateFileName_TruncatesLongIds()
+    public void ResolveRenderOutputPath_AppliesSubstitutionTokens()
     {
-        string longId = new('A', 200);
-        string name = FileNamer.GenerateFileName(longId);
-        // The portion after timestamp_ should be at most 48 chars + ".png"
-        int underscoreIdx = name.IndexOf('_');
-        string idPart = name[(underscoreIdx + 1)..^4]; // strip timestamp_ and .png
-        idPart.Length.Should().BeLessOrEqualTo(48);
+        OutputRecord output = new()
+        {
+            Index = 1,
+            WidthPx = 1280,
+            HeightPx = 720,
+            FriendlyName = "Main Display",
+        };
+
+        FileNamer.RenderOutputPathResult result = FileNamer.ResolveRenderOutputPath(
+            "C:\\out\\${MachineName}_${OutputName}_${OutputWidth}x${OutputHeight}_{index}",
+            output);
+
+        result.FilePath.Should().Contain(Environment.MachineName);
+        result.FilePath.Should().Contain("Main Display");
+        result.FilePath.Should().Contain("1280x720_1");
+        result.Warnings.Should().BeEmpty();
     }
 
     [Fact]
-    public void IsBgRasterFile_GeneratedName_ReturnsTrue()
+    public void ResolveRenderOutputPath_CliRelativeTemplate_UsesCurrentWorkingDirectory_WhenNoConfigIsLoaded()
     {
-        string name = FileNamer.GenerateFileName("output0");
+        string currentDirectory = Directory.GetCurrentDirectory();
+
+        GlobalOptions options = ConfigLoader.ApplyCliOverlay(
+            new GlobalOptions(),
+            new CliOverlay { RenderOutput = "out/wall_{index}" });
+
+        string template = FileNamer.GetOutputTemplate(options.Render.Output);
+        OutputRecord output = new() { Index = 4, FriendlyName = "Display" };
+
+        FileNamer.RenderOutputPathResult result = FileNamer.ResolveRenderOutputPath(template, output);
+
+        result.FilePath.Should().Be(Path.Combine(currentDirectory, "out", "wall_4.png"));
+    }
+
+    [Fact]
+    public void ResolveRenderOutputPath_UnknownToken_WarnsAndRemovesToken()
+    {
+        OutputRecord output = new();
+
+        FileNamer.RenderOutputPathResult result = FileNamer.ResolveRenderOutputPath("C:\\out\\name_{unknown}", output);
+
+        result.FilePath.Should().EndWith("name_.png");
+        result.Warnings.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void IsBgRasterFile_DefaultPatternName_ReturnsTrue()
+    {
+        string name = "2026-06-03T12-45-01.25_display_0.png";
         FileNamer.IsBgRasterFile(name).Should().BeTrue();
     }
 
@@ -43,16 +89,16 @@ public class FileNamerTests
     }
 
     [Fact]
-    public void GetOutputDirectory_Empty_ContainsBgRaster()
+    public void GetOutputDirectory_DefaultTemplate_ContainsBgRaster()
     {
-        string dir = FileNamer.GetOutputDirectory(null);
+        string dir = FileNamer.GetOutputDirectory(FileNamer.GetOutputTemplate(null));
         dir.Should().Contain("BgRaster");
     }
 
     [Fact]
-    public void GetOutputDirectory_Override_ReturnsOverride()
+    public void GetOutputDirectory_TemplateWithFileStem_ReturnsParentDirectory()
     {
-        string dir = FileNamer.GetOutputDirectory("C:\\custom\\path");
+        string dir = FileNamer.GetOutputDirectory("C:\\custom\\path\\stem_{index}");
         dir.Should().Be("C:\\custom\\path");
     }
 }

@@ -149,6 +149,42 @@ public class OptionsResolverTests
     }
 
     [Fact]
+    public void Resolve_FieldSubstitution_AppliesToBackgroundImageAndLogoSource()
+    {
+        GlobalOptions global = new()
+        {
+            Background = new BackgroundOptions { Image = ["assets/${MachineName}/${OutputName}.png"] },
+            Logo = new LogoOptions { Source = ["assets/${OutputIndexPlusOne}/${SliceWidth}x${SliceHeight}.svg"] },
+        };
+
+        ResolvedOptions resolved = OptionsResolver.Resolve(global, MakeOutput(2, 1920, 1080), null);
+
+        resolved.BackgroundImage.Should().Contain(Environment.MachineName);
+        resolved.BackgroundImage.Should().Contain("Display 2");
+        resolved.LogoSource.Should().Contain("3");
+        resolved.LogoSource.Should().Contain("1920x1080");
+    }
+
+    [Fact]
+    public void Resolve_CliRelativePaths_UseCurrentWorkingDirectory_WhenNoConfigIsLoaded()
+    {
+        string currentDirectory = Directory.GetCurrentDirectory();
+
+        GlobalOptions options = ConfigLoader.ApplyCliOverlay(
+            new GlobalOptions(),
+            new CliOverlay
+            {
+                BackgroundImage = "assets/bg.png",
+                LogoSource = "assets/logo.svg",
+            });
+
+        ResolvedOptions resolved = OptionsResolver.Resolve(options, MakeOutput(0), null);
+
+        resolved.BackgroundImage.Should().Be(Path.GetFullPath(Path.Combine(currentDirectory, "assets", "bg.png")));
+        resolved.LogoSource.Should().Be(Path.GetFullPath(Path.Combine(currentDirectory, "assets", "logo.svg")));
+    }
+
+    [Fact]
     public void Resolve_TextPrecedence_IsSliceThenOutputThenCliThenFileThenDefault()
     {
         OutputRecord output = MakeOutput(0);

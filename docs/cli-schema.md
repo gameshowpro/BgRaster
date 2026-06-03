@@ -32,7 +32,7 @@ This table is generated from the CLI option catalog in code (`src/Configuration/
 | `--text-x <dim>` | `string` | `[text].x` | Anchor X. | if omitted, defers to config.toml [text].x; if missing there, uses ["75vw"]. |
 | `--text-y <dim>` | `string` | `[text].y` | Anchor Y. | if omitted, defers to config.toml [text].y; if missing there, uses ["75vh"]. |
 | `--background-color <color>` | `string` | `[background].color` | Background fill color. | if omitted, defers to config.toml [background].color; if missing there, uses ["#FF0000", "#00FF00", "#0000FF"]. |
-| `--background-image <path>` | `string` | `[background].image` | Path to background bitmap. | if omitted, defers to config.toml [background].image; if missing there, uses [""] (disabled). |
+| `--background-image <path>` | `string` | `[background].image` | Path to background bitmap. Relative CLI paths resolve against the current working directory. | if omitted, defers to config.toml [background].image; if missing there, uses [""] (disabled). |
 | `--background-fit <mode>` | `string` | `[background].fit` | Background fit mode. | if omitted, defers to config.toml [background].fit; if missing there, uses ["CropToFill"]. |
 | `--background-alternating <bool>` | `bool` | `[background].alternating` | Enable alternating-pixel pattern. | if omitted, defers to config.toml [background].alternating; if missing there, uses [false]. |
 | `--background-border <bool>` | `bool` | `[background].border` | Enable viewport border. | if omitted, defers to config.toml [background].border; if missing there, uses [false]. |
@@ -50,15 +50,16 @@ This table is generated from the CLI option catalog in code (`src/Configuration/
 | `--crosshair-length <dim>` | `string` | `[crosshair].length` | Crosshair half-arm length. | if omitted, defers to config.toml [crosshair].length; if missing there, uses ["5vmin"]. |
 | `--crosshair-color <color>` | `string` | `[crosshair].color` | Crosshair color. | if omitted, defers to config.toml [crosshair].color; if missing there, uses ["#ffffff80"]. |
 | `--crosshair-stroke <dim>` | `string` | `[crosshair].stroke` | Crosshair stroke width. | if omitted, defers to config.toml [crosshair].stroke; if missing there, uses ["1px"]. |
-| `--logo-source <path>` | `string` | `[logo].source` | Path to logo file (PNG/JPG/SVG). | if omitted, defers to config.toml [logo].source; if missing there, uses [""] (embedded fallback). |
+| `--logo-source <path>` | `string` | `[logo].source` | Path to logo file (PNG/JPG/SVG) or pack URI. Empty string suppresses logo. Relative CLI file paths resolve against the current working directory. | if omitted, defers to config.toml [logo].source; if missing there, uses the embedded logo via pack URI. |
 | `--logo-x <dim>` | `string` | `[logo].x` | Logo center X. | if omitted, defers to config.toml [logo].x; if missing there, uses ["85vw"]. |
 | `--logo-y <dim>` | `string` | `[logo].y` | Logo center Y. | if omitted, defers to config.toml [logo].y; if missing there, uses ["15vh"]. |
 | `--logo-width <dim>` | `string` | `[logo].width` | Logo rect width. | if omitted, defers to config.toml [logo].width; if missing there, uses ["20vw"]. |
 | `--logo-height <dim>` | `string` | `[logo].height` | Logo rect height. | if omitted, defers to config.toml [logo].height; if missing there, uses ["20vh"]. |
 | `--logo-opacity <f|[f1,f2]>` | `float|float[]` | `[logo].opacity` | Logo alpha multiplier(s) in range [0, 1]; accepts a single float or a TOML float array literal. | if omitted, defers to config.toml [logo].opacity; if missing there, uses [1.0]. |
 | `--no-assignment <bool>` | `bool` | `[render].no-assignment` | Generate PNGs without assigning wallpaper. | if omitted, defers to config.toml [render].no-assignment; if missing there, uses false. |
+| `--no-discovery <bool>` | `bool` | `[render].no-discovery` | Skip display discovery and render only configured [[output]] entries using each [output.hardware_output]. Implies --no-assignment. | if omitted, defers to config.toml [render].no-discovery; if missing there, uses false. |
 | `--outputs-skip-unspecified <bool>` | `bool` | `[render].outputs-skip-unspecified` | Skip discovered displays that have no explicit [[output]] target. | if omitted, defers to config.toml [render].outputs-skip-unspecified; if missing there, uses false. |
-| `--render-output <path>` | `string` | `[render].output` | Output directory for generated PNGs. | if omitted, defers to config.toml [render].output; if missing there, defaults to %TEMP%/BgRaster. |
+| `--render-output <path>` | `string` | `[render].output` | Output path template (directory + filename stem) for generated PNGs. Supports {now}, {index}, {friendlyName} tokens. Relative CLI paths resolve against the current working directory. | if omitted, defers to config.toml [render].output; if missing there, defaults to %TEMP%/BgRaster/{now}_{index}. |
 | `--render-force <bool>` | `bool` | `[render].force` | Continue rendering even after emitting run-skipped-unchanged. | if omitted, defers to config.toml [render].force; if missing there, uses false. |
 | `--verbosity <level>` | `string` | `[render].verbosity` | Logging verbosity: quiet, normal, verbose. | if omitted, defers to config.toml [render].verbosity; if missing there, uses "normal". |
 <!-- END:CLI_OPTIONS_TABLE -->

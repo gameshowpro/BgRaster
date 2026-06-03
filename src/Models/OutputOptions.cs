@@ -3,6 +3,7 @@ namespace GameshowPro.BgRaster.Models;
 record OutputOptions
 {
     internal OutputTarget Target { get; init; } = OutputTarget.FromIndex(0);
+    internal OutputRecord? HardwareOutput { get; init; }
     internal TextOverride? Text { get; init; }
     internal BackgroundOverride? Background { get; init; }
     internal GridOverride? Grid { get; init; }

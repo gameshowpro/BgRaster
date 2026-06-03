@@ -23,6 +23,7 @@ static class OptionsResolver
             OutputName: output.FriendlyName,
             SliceWidth: output.WidthPx,
             SliceHeight: output.HeightPx);
+        string currentDirectory = Directory.GetCurrentDirectory();
 
         ImmutableArray<string> textLines = ResolveTextArray(global.Text.Text, outputConfig?.Text?.Text)
             .Select(line => Substitute(line, ctx))
@@ -41,7 +42,10 @@ static class OptionsResolver
         float textYPx = ParseUnit(ResolveString(global.Text.Y, idx, outputConfig?.Text?.Y), vw, vh);
 
         SKColor bgColor = ParseColor(ResolveString(global.Background.Color, idx, outputConfig?.Background?.Color));
-        string bgImage = ResolveString(global.Background.Image, idx, outputConfig?.Background?.Image);
+        string bgImage = ConfiguredPathResolver.Resolve(
+            ResolveString(global.Background.Image, idx, outputConfig?.Background?.Image),
+            currentDirectory,
+            ctx);
         FitMode bgFit = ParseFitMode(ResolveString(global.Background.Fit, idx, outputConfig?.Background?.Fit));
         bool alternating = ResolveBool(global.Background.Alternating, idx, outputConfig?.Background?.Alternating);
         bool border = ResolveBool(global.Background.Border, idx, outputConfig?.Background?.Border);
@@ -71,7 +75,10 @@ static class OptionsResolver
         float labeledEdgesThicknessPx = ParseUnit(ResolveString(global.LabeledEdges.Thickness, idx, outputConfig?.LabeledEdges?.Thickness), scopeWidthPx, scopeHeightPx);
         float labeledEdgesHeadScale = ResolveFloat(global.LabeledEdges.HeadScale, idx, outputConfig?.LabeledEdges?.HeadScale);
 
-        string logoSource = ResolveString(global.Logo.Source, idx, outputConfig?.Logo?.Source);
+        string logoSource = ConfiguredPathResolver.Resolve(
+            ResolveString(global.Logo.Source, idx, outputConfig?.Logo?.Source),
+            currentDirectory,
+            ctx);
         float logoXPx = ParseUnit(ResolveString(global.Logo.X, idx, outputConfig?.Logo?.X), vw, vh);
         float logoYPx = ParseUnit(ResolveString(global.Logo.Y, idx, outputConfig?.Logo?.Y), vw, vh);
         float logoWidthPx = ParseUnit(ResolveString(global.Logo.Width, idx, outputConfig?.Logo?.Width), vw, vh);
@@ -140,6 +147,7 @@ static class OptionsResolver
             SliceWidth: sliceWidth,
             SliceHeight: sliceHeight,
             SliceIndex: sliceIndex);
+        string currentDirectory = Directory.GetCurrentDirectory();
 
         ImmutableArray<string> textLines = ResolveSliceTextArray(
                 global.Text.Text,
@@ -164,7 +172,10 @@ static class OptionsResolver
         float textYPx = ParseUnit(ResolveSliceString(global.Text.Y, cycleIndex, outputConfig?.Text?.Y, slice.Text?.Y), vw, vh);
 
         SKColor bgColor = ParseColor(ResolveSliceString(global.Background.Color, cycleIndex, outputConfig?.Background?.Color, slice.Background?.Color));
-        string bgImage = ResolveSliceString(global.Background.Image, cycleIndex, outputConfig?.Background?.Image, slice.Background?.Image);
+        string bgImage = ConfiguredPathResolver.Resolve(
+            ResolveSliceString(global.Background.Image, cycleIndex, outputConfig?.Background?.Image, slice.Background?.Image),
+            currentDirectory,
+            ctx);
         FitMode bgFit = ParseFitMode(ResolveSliceString(global.Background.Fit, cycleIndex, outputConfig?.Background?.Fit, slice.Background?.Fit));
         bool alternating = ResolveSliceBool(global.Background.Alternating, cycleIndex, outputConfig?.Background?.Alternating, slice.Background?.Alternating);
         bool border = ResolveSliceBool(global.Background.Border, cycleIndex, outputConfig?.Background?.Border, slice.Background?.Border);
@@ -194,7 +205,10 @@ static class OptionsResolver
         float labeledEdgesThicknessPx = ParseUnit(ResolveSliceString(global.LabeledEdges.Thickness, cycleIndex, outputConfig?.LabeledEdges?.Thickness, slice.LabeledEdges?.Thickness), scopeWidthPx, scopeHeightPx);
         float labeledEdgesHeadScale = ResolveSliceFloat(global.LabeledEdges.HeadScale, cycleIndex, outputConfig?.LabeledEdges?.HeadScale, slice.LabeledEdges?.HeadScale);
 
-        string logoSource = ResolveSliceString(global.Logo.Source, cycleIndex, outputConfig?.Logo?.Source, slice.Logo?.Source);
+        string logoSource = ConfiguredPathResolver.Resolve(
+            ResolveSliceString(global.Logo.Source, cycleIndex, outputConfig?.Logo?.Source, slice.Logo?.Source),
+            currentDirectory,
+            ctx);
         float logoXPx = ParseUnit(ResolveSliceString(global.Logo.X, cycleIndex, outputConfig?.Logo?.X, slice.Logo?.X), vw, vh);
         float logoYPx = ParseUnit(ResolveSliceString(global.Logo.Y, cycleIndex, outputConfig?.Logo?.Y, slice.Logo?.Y), vw, vh);
         float logoWidthPx = ParseUnit(ResolveSliceString(global.Logo.Width, cycleIndex, outputConfig?.Logo?.Width, slice.Logo?.Width), vw, vh);

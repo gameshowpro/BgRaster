@@ -55,7 +55,7 @@
           "type": "array",
           "items": { "type": "string" },
           "default": [""],
-          "description": "Optional path to background image (SVG or PNG), rendered over color layer. Empty = no image."
+          "description": "Optional path to background image (SVG or PNG), rendered over color layer. Relative paths resolve against the config file directory. Field substitution is applied. Empty = no image."
         },
         "fit": {
           "type": "array",
@@ -242,8 +242,8 @@
         "source": {
           "type": "array",
           "items": { "type": "string" },
-          "default": [""],
-          "description": "Path to logo image file (SVG or PNG). Empty = no logo. Invalid paths use embedded fallback."
+          "default": ["pack://application:,,,/GameshowPro.BgRaster;component/resources/gsp.svg"],
+          "description": "Path to logo image file (SVG or PNG), pack URI to embedded resource, or empty string to suppress. Relative file paths resolve against the config file directory. Field substitution is applied. Pack URIs use format: pack://application:,,,/GameshowPro.BgRaster;component/path/to/resource. If path is invalid/missing, falls back to embedded logo."
         },
         "x": {
           "type": "array",
@@ -287,10 +287,25 @@
           "default": false,
           "description": "Generate PNGs without assigning wallpaper"
         },
+        "no-discovery": {
+          "type": "boolean",
+          "default": false,
+          "description": "Skip display discovery and render only configured [[output]] entries using [output.hardware_output]. Implies no-assignment."
+        },
+        "outputs-skip-unspecified": {
+          "type": "boolean",
+          "default": false,
+          "description": "When false, discovered outputs without matching [[output]] entries are still rendered with global settings"
+        },
         "output": {
           "type": "string",
           "default": "",
-          "description": "Output directory override for generated PNGs. Empty = default BgRaster temp directory."
+          "description": "Output path template for generated PNGs (directory + filename stem). Relative paths resolve against the config file directory. Field substitution is applied. Supports {now}, {index}, and {friendlyName}. Empty = %TEMP%/BgRaster/{now}_{index}."
+        },
+        "force": {
+          "type": "boolean",
+          "default": false,
+          "description": "Continue rendering even when run-skipped-unchanged would normally short-circuit"
         },
         "verbosity": {
           "type": "string",
@@ -339,7 +354,7 @@
         },
         "image": {
           "type": "string",
-          "description": "Optional path to background image (SVG or PNG)"
+          "description": "Optional path to background image (SVG or PNG). Relative paths resolve against the config file directory. Field substitution is applied."
         },
         "fit": {
           "type": "string",
@@ -423,7 +438,7 @@
       "description": "Per-output or per-slice logo override. Scalar values only.",
       "additionalProperties": false,
       "properties": {
-        "source": { "type": "string", "description": "Path to logo image file" },
+        "source": { "type": "string", "description": "Path to logo image file. Relative file paths resolve against the config file directory. Field substitution is applied." },
         "x": { "type": "string", "description": "Logo center X position" },
         "y": { "type": "string", "description": "Logo center Y position" },
         "width": { "type": "string", "description": "Logo fit rectangle width" },
@@ -482,6 +497,63 @@
         "$ref": "#/definitions/sliceItem"
       }
     },
+    "hardwareOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["index", "desktopX", "desktopY", "widthPx", "heightPx", "dpiX", "dpiY", "rotation", "adapterName", "friendlyName"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Stable monitor identifier. Optional for fixed no-discovery samples."
+        },
+        "index": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Zero-based output index"
+        },
+        "desktopX": {
+          "type": "integer",
+          "description": "Virtual desktop position X in pixels"
+        },
+        "desktopY": {
+          "type": "integer",
+          "description": "Virtual desktop position Y in pixels"
+        },
+        "widthPx": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Output width in physical pixels"
+        },
+        "heightPx": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Output height in physical pixels"
+        },
+        "dpiX": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Logical DPI X"
+        },
+        "dpiY": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Logical DPI Y"
+        },
+        "rotation": {
+          "type": "integer",
+          "enum": [0, 90, 180, 270],
+          "description": "Display rotation in degrees"
+        },
+        "adapterName": {
+          "type": "string",
+          "description": "Adapter device name"
+        },
+        "friendlyName": {
+          "type": "string",
+          "description": "Friendly output name"
+        }
+      }
+    },
     "outputItem": {
       "type": "object",
       "additionalProperties": false,
@@ -522,6 +594,9 @@
         },
         "slice": {
           "$ref": "#/definitions/sliceList"
+        },
+        "hardware_output": {
+          "$ref": "#/definitions/hardwareOutput"
         }
       }
     },

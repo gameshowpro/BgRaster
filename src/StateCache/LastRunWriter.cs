@@ -233,6 +233,7 @@ static class LastRunWriter
     {
         sb.AppendLine("[render]");
         sb.AppendLine($"no-assignment = {r.DryRun.ToString().ToLowerInvariant()}");
+        sb.AppendLine($"no-discovery = {r.NoDiscovery.ToString().ToLowerInvariant()}");
         sb.AppendLine($"outputs-skip-unspecified = {r.OutputsSkipUnspecified.ToString().ToLowerInvariant()}");
         sb.AppendLine($"output = \"{Escape(r.Output)}\"");
         sb.AppendLine($"force = {r.ContinueAfterUnchanged.ToString().ToLowerInvariant()}");
@@ -263,6 +264,21 @@ static class LastRunWriter
 
             sb.AppendLine("[[output]]");
             sb.AppendLine($"target = {target}");
+            if (o.HardwareOutput is OutputRecord hardwareOutput)
+            {
+                sb.AppendLine("[output.hardware_output]");
+                sb.AppendLine($"id = \"{Escape(hardwareOutput.Id)}\"");
+                sb.AppendLine($"index = {hardwareOutput.Index}");
+                sb.AppendLine($"desktopX = {hardwareOutput.DesktopX}");
+                sb.AppendLine($"desktopY = {hardwareOutput.DesktopY}");
+                sb.AppendLine($"widthPx = {hardwareOutput.WidthPx}");
+                sb.AppendLine($"heightPx = {hardwareOutput.HeightPx}");
+                sb.AppendLine($"dpiX = {hardwareOutput.DpiX}");
+                sb.AppendLine($"dpiY = {hardwareOutput.DpiY}");
+                sb.AppendLine($"rotation = {hardwareOutput.Rotation}");
+                sb.AppendLine($"adapterName = \"{Escape(hardwareOutput.AdapterName)}\"");
+                sb.AppendLine($"friendlyName = \"{Escape(hardwareOutput.FriendlyName)}\"");
+            }
             sb.AppendLine();
 
             int sliceIdx = 0;

@@ -44,61 +44,7 @@
       "type": "array",
       "description": "Detected physical outputs and their properties (hardware profile)",
       "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["id", "index", "desktopX", "desktopY", "widthPx", "heightPx", "dpiX", "dpiY", "rotation", "adapterName", "friendlyName"],
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Stable PnP device instance path (monitorDevicePath) from DisplayConfigGetDeviceInfo, e.g. \\\\?\\DISPLAY#SAM0C7F#5&1a2b3c4d&0&UID256#{e6f07b5f-...}"
-          },
-          "index": {
-            "type": "integer",
-            "minimum": 0,
-            "description": "Zero-based output index assigned by sort order (desktopY asc, desktopX asc, id asc)"
-          },
-          "desktopX": {
-            "type": "integer",
-            "description": "Virtual desktop position X in pixels (top-left corner)"
-          },
-          "desktopY": {
-            "type": "integer",
-            "description": "Virtual desktop position Y in pixels (top-left corner)"
-          },
-          "widthPx": {
-            "type": "integer",
-            "minimum": 1,
-            "description": "True hardware width in pixels (PerMonitorV2 DPI-aware, not scaled by OS DPI factor)"
-          },
-          "heightPx": {
-            "type": "integer",
-            "minimum": 1,
-            "description": "True hardware height in pixels (PerMonitorV2 DPI-aware, not scaled by OS DPI factor)"
-          },
-          "dpiX": {
-            "type": "integer",
-            "minimum": 0,
-            "description": "Logical DPI X from GetDpiForMonitor(MDT_EFFECTIVE_DPI)"
-          },
-          "dpiY": {
-            "type": "integer",
-            "minimum": 0,
-            "description": "Logical DPI Y from GetDpiForMonitor(MDT_EFFECTIVE_DPI)"
-          },
-          "rotation": {
-            "type": "integer",
-            "enum": [0, 90, 180, 270],
-            "description": "Display rotation in degrees"
-          },
-          "adapterName": {
-            "type": "string",
-            "description": "Adapter device name (e.g. \\\\.\\DISPLAY1) for logging purposes"
-          },
-          "friendlyName": {
-            "type": "string",
-            "description": "Friendly monitor name from DisplayConfigGetDeviceInfo, used in diagnostics and ${OutputName} substitution"
-          }
-        }
+        "$ref": "./bgraster-common.schema.json#/definitions/hardwareOutput"
       }
     },
     "text": {
