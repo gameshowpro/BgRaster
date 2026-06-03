@@ -72,7 +72,6 @@ static class LastRunReader
         DpiX = GetInt(t, "dpiX"),
         DpiY = GetInt(t, "dpiY"),
         Rotation = GetInt(t, "rotation"),
-        RefreshRateHz = GetInt(t, "refreshRateHz"),
         AdapterName = GetString(t, "adapterName") ?? "",
         FriendlyName = GetString(t, "friendlyName") ?? "",
     };

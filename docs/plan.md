@@ -199,9 +199,6 @@ dpiY = 96
 # Rotation in degrees: 0, 90, 180, or 270.
 rotation = 0
 
-# Refresh rate in Hz.
-refreshRateHz = 60
-
 # Adapter device name (e.g. \\.\DISPLAY1); used for logging.
 adapterName = "\\\\.\\DISPLAY1"
 
@@ -675,7 +672,6 @@ All behavioral edge cases are locked as follows. Implementing code must follow t
    | `dpiX` | int | `GetDpiForMonitor(MDT_EFFECTIVE_DPI)` X component |
    | `dpiY` | int | `GetDpiForMonitor(MDT_EFFECTIVE_DPI)` Y component |
    | `rotation` | int | `EnumDisplaySettingsEx` → `DEVMODE.dmDisplayOrientation` (degrees: 0/90/180/270) |
-   | `refreshRateHz` | int | `EnumDisplaySettingsEx` → `DEVMODE.dmDisplayFrequency` |
    | `adapterName` | string | `EnumDisplayDevices` → `DISPLAY_DEVICE.DeviceName` (e.g. `\\.\DISPLAY1`); used in logging only |
    | `friendlyName` | string | `DisplayConfigGetDeviceInfo` → `monitorFriendlyDeviceName`; used in status comments and `${OutputName}` substitution |
 
