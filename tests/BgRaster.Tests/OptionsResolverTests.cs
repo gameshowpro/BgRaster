@@ -106,6 +106,19 @@ public class OptionsResolverTests
     }
 
     [Fact]
+    public void Resolve_FieldSubstitution_MachineName_UsesConfiguredOverride()
+    {
+        GlobalOptions global = new()
+        {
+            MachineName = "ConfiguredMachine",
+            Text = new TextOptions { Text = ["Hello ${MachineName}"] },
+        };
+
+        string line = OptionsResolver.Resolve(global, MakeOutput(0), null).TextLines[0];
+        line.Should().Be("Hello ConfiguredMachine");
+    }
+
+    [Fact]
     public void Resolve_FieldSubstitution_OutputWidthHeight()
     {
         GlobalOptions global = new()
@@ -302,6 +315,38 @@ public class OptionsResolverTests
         first.Should().Be(new SKColor(255, 0, 0));
         second.Should().Be(new SKColor(0, 255, 0));
         third.Should().Be(new SKColor(0, 0, 255));
+    }
+
+    [Fact]
+    public void Resolve_CircleAndCrosshairPosition_DefaultsToViewportCenter()
+    {
+        GlobalOptions global = new();
+
+        ResolvedOptions resolved = OptionsResolver.Resolve(global, MakeOutput(0, 1920, 1080), null);
+
+        resolved.CircleXPx.Should().Be(960f);
+        resolved.CircleYPx.Should().Be(540f);
+        resolved.CrosshairXPx.Should().Be(960f);
+        resolved.CrosshairYPx.Should().Be(540f);
+    }
+
+    [Fact]
+    public void Resolve_CircleAndCrosshairPosition_UsesOutputOverrides()
+    {
+        GlobalOptions global = new();
+        OutputOptions outputConfig = new()
+        {
+            Target = OutputTarget.FromIndex(0),
+            Circle = new CircleOverride { X = "25vw", Y = "75vh" },
+            Crosshair = new CrosshairOverride { X = "10vw", Y = "20vh" },
+        };
+
+        ResolvedOptions resolved = OptionsResolver.Resolve(global, MakeOutput(0, 1000, 500), outputConfig);
+
+        resolved.CircleXPx.Should().Be(250f);
+        resolved.CircleYPx.Should().Be(375f);
+        resolved.CrosshairXPx.Should().Be(100f);
+        resolved.CrosshairYPx.Should().Be(100f);
     }
 
     [Fact]

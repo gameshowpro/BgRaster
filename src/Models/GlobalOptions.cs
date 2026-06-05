@@ -2,6 +2,7 @@ namespace GameshowPro.BgRaster.Models;
 
 record GlobalOptions
 {
+    internal string MachineName { get; init; } = string.Empty;
     internal TextOptions Text { get; init; } = new();
     internal BackgroundOptions Background { get; init; } = new();
     internal GridOptions Grid { get; init; } = new();

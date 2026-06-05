@@ -28,6 +28,26 @@ public class ColorParserTests
     }
 
     [Fact]
+    public void Parse_HexRgbShorthand_ReturnsOpaqueColor()
+    {
+        SKColor c = ColorParser.Parse("#0f8");
+        c.Red.Should().Be(0x00);
+        c.Green.Should().Be(0xff);
+        c.Blue.Should().Be(0x88);
+        c.Alpha.Should().Be(255);
+    }
+
+    [Fact]
+    public void Parse_HexRgbaShorthand_AppliesAlpha()
+    {
+        SKColor c = ColorParser.Parse("#0f8c");
+        c.Red.Should().Be(0x00);
+        c.Green.Should().Be(0xff);
+        c.Blue.Should().Be(0x88);
+        c.Alpha.Should().Be(0xcc);
+    }
+
+    [Fact]
     public void Parse_Transparent_ReturnsTransparent()
     {
         SKColor c = ColorParser.Parse("transparent");

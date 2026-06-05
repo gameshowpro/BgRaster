@@ -47,6 +47,11 @@
         "$ref": "./bgraster-common.schema.json#/definitions/hardwareOutput"
       }
     },
+    "machine-name": {
+      "type": "string",
+      "default": "",
+      "description": "Effective machine-name override used for ${MachineName} substitution. Empty means Environment.MachineName."
+    },
     "text": {
       "$ref": "./bgraster-common.schema.json#/definitions/textTable"
     },

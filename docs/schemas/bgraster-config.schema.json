@@ -5,6 +5,11 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
+    "machine-name": {
+      "type": "string",
+      "default": "",
+      "description": "Override the framework-supplied host name used by ${MachineName} substitutions. Empty uses Environment.MachineName."
+    },
     "text": {
       "$ref": "./bgraster-common.schema.json#/definitions/textTable"
     },

@@ -26,6 +26,7 @@ This table is generated from the CLI option catalog in code (`src/Configuration/
 | Option | Type | TOML equivalent | Description | Default resolution |
 |---|---|---|---|---|
 | `--config <path>` | `string` | `-` | Path to a TOML config file. If the path does not exist, BgRaster starts from built-in defaults for that run, then after a successful execution writes a seeded config template at that path. | if omitted, searches for config.toml in this order: next to the executable, %ProgramData%\BgInfo, %LocalAppData%\BgInfo, %AppData%\BgInfo; if none exist, starts from built-in defaults. |
+| `--machine-name <name>` | `string` | `machine-name` | Override the framework-supplied host name used by ${MachineName} substitutions. | if omitted, uses Environment.MachineName. |
 | `--text <s|["s1","s2"]>` | `string` | `[text].text` | Text line(s); accepts a single string or a TOML string array literal. | if omitted, defers to config.toml [text].text; if missing there, uses ["${MachineName} output ${OutputIndexPlusOne}", "slice ${SliceLetter}", "${SliceWidth}x${SliceHeight}"]. |
 | `--text-size <dim|["d1","d2"]>` | `string` | `[text].size` | Text line height(s); accepts a single dimension or a TOML string array literal. | if omitted, defers to config.toml [text].size; if missing there, uses ["3vh", "2vh", "4vh"]. |
 | `--text-color <color|["c1","c2"]>` | `string` | `[text].color` | Text color(s); accepts a single color or a TOML string array literal. | if omitted, defers to config.toml [text].color; if missing there, uses ["#fff"]. |
@@ -45,9 +46,13 @@ This table is generated from the CLI option catalog in code (`src/Configuration/
 | `--grid-offset-y <dim>` | `string` | `[grid].offset-y` | Grid origin Y. | if omitted, defers to config.toml [grid].offset-y; if missing there, uses ["0"]. |
 | `--grid-coordinates <bool>` | `bool` | `[grid].coordinates` | Enable per-cell coordinate labels. | if omitted, defers to config.toml [grid].coordinates; if missing there, uses [false]. |
 | `--circle-size <dim>` | `string` | `[circle].size` | Circle diameter. | if omitted, defers to config.toml [circle].size; if missing there, uses ["100vmin"]. |
+| `--circle-x <dim>` | `string` | `[circle].x` | Circle center X. | if omitted, defers to config.toml [circle].x; if missing there, uses ["50vw"]. |
+| `--circle-y <dim>` | `string` | `[circle].y` | Circle center Y. | if omitted, defers to config.toml [circle].y; if missing there, uses ["50vh"]. |
 | `--circle-color <color>` | `string` | `[circle].color` | Circle color. | if omitted, defers to config.toml [circle].color; if missing there, uses ["#ffffff40"]. |
 | `--circle-stroke <dim>` | `string` | `[circle].stroke` | Circle stroke width. | if omitted, defers to config.toml [circle].stroke; if missing there, uses ["0"]. |
 | `--crosshair-length <dim>` | `string` | `[crosshair].length` | Crosshair half-arm length. | if omitted, defers to config.toml [crosshair].length; if missing there, uses ["5vmin"]. |
+| `--crosshair-x <dim>` | `string` | `[crosshair].x` | Crosshair center X. | if omitted, defers to config.toml [crosshair].x; if missing there, uses ["50vw"]. |
+| `--crosshair-y <dim>` | `string` | `[crosshair].y` | Crosshair center Y. | if omitted, defers to config.toml [crosshair].y; if missing there, uses ["50vh"]. |
 | `--crosshair-color <color>` | `string` | `[crosshair].color` | Crosshair color. | if omitted, defers to config.toml [crosshair].color; if missing there, uses ["#ffffff80"]. |
 | `--crosshair-stroke <dim>` | `string` | `[crosshair].stroke` | Crosshair stroke width. | if omitted, defers to config.toml [crosshair].stroke; if missing there, uses ["1px"]. |
 | `--logo-source <path>` | `string` | `[logo].source` | Path to logo file (PNG/JPG/SVG) or pack URI. Empty string suppresses logo. Relative CLI file paths resolve against the current working directory. | if omitted, defers to config.toml [logo].source; if missing there, uses the embedded logo via pack URI. |

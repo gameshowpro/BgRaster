@@ -35,15 +35,3 @@ output = ""
 
 [[output]]
 target = 0
-
-[output.hardware_output]
-index = 0
-desktopX = 0
-desktopY = 0
-widthPx = 640
-heightPx = 480
-dpiX = 96
-dpiY = 96
-rotation = 0
-adapterName = "FIXED"
-friendlyName = "Crosshair"

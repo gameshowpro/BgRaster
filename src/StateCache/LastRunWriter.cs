@@ -63,7 +63,9 @@ static class LastRunWriter
 
             if (!VerifyRoundTrip(tempPath, state, logger))
             {
-            logger?.RoundTripFailed(path);
+                logger?.RoundTripFailed(path);
+                File.Delete(tempPath);
+                return;
             }
 
             File.Move(tempPath, path, overwrite: true);
@@ -140,6 +142,9 @@ static class LastRunWriter
 
     static void WriteEffectiveConfig(StringBuilder sb, GlobalOptions opts, RunStatus runStatus)
     {
+        sb.AppendLine($"machine-name = \"{Escape(opts.MachineName)}\"");
+        sb.AppendLine();
+
         WriteTextSection(sb, opts.Text);
         WriteBackgroundSection(sb, opts.Background);
         WriteGridSection(sb, opts.Grid);
@@ -190,6 +195,8 @@ static class LastRunWriter
     static void WriteCircleSection(StringBuilder sb, CircleOptions c)
     {
         sb.AppendLine("[circle]");
+        WriteTomlStringArray(sb, "x", c.X);
+        WriteTomlStringArray(sb, "y", c.Y);
         WriteTomlStringArray(sb, "size", c.Size);
         WriteTomlStringArray(sb, "color", c.Color);
         WriteTomlStringArray(sb, "stroke", c.Stroke);
@@ -199,6 +206,8 @@ static class LastRunWriter
     static void WriteCrosshairSection(StringBuilder sb, CrosshairOptions c)
     {
         sb.AppendLine("[crosshair]");
+        WriteTomlStringArray(sb, "x", c.X);
+        WriteTomlStringArray(sb, "y", c.Y);
         WriteTomlStringArray(sb, "length", c.Length);
         WriteTomlStringArray(sb, "color", c.Color);
         WriteTomlStringArray(sb, "stroke", c.Stroke);
@@ -295,13 +304,13 @@ static class LastRunWriter
                 sb.AppendLine($"y = \"{Escape(s.Y)}\"");
                 sb.AppendLine($"width = \"{Escape(s.Width)}\"");
                 sb.AppendLine($"height = \"{Escape(s.Height)}\"");
-                WriteSliceFeatureSection(sb, "text", s.Text);
-                WriteSliceFeatureSection(sb, "background", s.Background);
-                WriteSliceFeatureSection(sb, "grid", s.Grid);
-                WriteSliceFeatureSection(sb, "circle", s.Circle);
-                WriteSliceFeatureSection(sb, "crosshair", s.Crosshair);
-                WriteSliceFeatureSection(sb, "labeled-edges", s.LabeledEdges);
-                WriteSliceFeatureSection(sb, "logo", s.Logo);
+                WriteSliceFeatureSection(sb, "output.slice.text", s.Text);
+                WriteSliceFeatureSection(sb, "output.slice.background", s.Background);
+                WriteSliceFeatureSection(sb, "output.slice.grid", s.Grid);
+                WriteSliceFeatureSection(sb, "output.slice.circle", s.Circle);
+                WriteSliceFeatureSection(sb, "output.slice.crosshair", s.Crosshair);
+                WriteSliceFeatureSection(sb, "output.slice.labeled-edges", s.LabeledEdges);
+                WriteSliceFeatureSection(sb, "output.slice.logo", s.Logo);
                 sb.AppendLine();
                 sliceIdx++;
             }
@@ -342,12 +351,16 @@ static class LastRunWriter
                 break;
             case CircleOverride circleOverride:
                 sb.AppendLine($"[{key}]");
+                if (circleOverride.X is not null) sb.AppendLine($"x = \"{Escape(circleOverride.X)}\"");
+                if (circleOverride.Y is not null) sb.AppendLine($"y = \"{Escape(circleOverride.Y)}\"");
                 if (circleOverride.Size is not null) sb.AppendLine($"size = \"{Escape(circleOverride.Size)}\"");
                 if (circleOverride.Color is not null) sb.AppendLine($"color = \"{Escape(circleOverride.Color)}\"");
                 if (circleOverride.Stroke is not null) sb.AppendLine($"stroke = \"{Escape(circleOverride.Stroke)}\"");
                 break;
             case CrosshairOverride crosshairOverride:
                 sb.AppendLine($"[{key}]");
+                if (crosshairOverride.X is not null) sb.AppendLine($"x = \"{Escape(crosshairOverride.X)}\"");
+                if (crosshairOverride.Y is not null) sb.AppendLine($"y = \"{Escape(crosshairOverride.Y)}\"");
                 if (crosshairOverride.Length is not null) sb.AppendLine($"length = \"{Escape(crosshairOverride.Length)}\"");
                 if (crosshairOverride.Color is not null) sb.AppendLine($"color = \"{Escape(crosshairOverride.Color)}\"");
                 if (crosshairOverride.Stroke is not null) sb.AppendLine($"stroke = \"{Escape(crosshairOverride.Stroke)}\"");

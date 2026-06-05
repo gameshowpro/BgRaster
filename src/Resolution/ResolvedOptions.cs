@@ -20,9 +20,13 @@ record ResolvedOptions
     internal float GridOffsetXPx { get; init; }
     internal float GridOffsetYPx { get; init; }
     internal bool GridCoordinates { get; init; }
+    internal float CircleXPx { get; init; }
+    internal float CircleYPx { get; init; }
     internal float CircleSizePx { get; init; }
     internal SKColor CircleColor { get; init; }
     internal float CircleStrokePx { get; init; }
+    internal float CrosshairXPx { get; init; }
+    internal float CrosshairYPx { get; init; }
     internal float CrosshairLengthPx { get; init; }
     internal SKColor CrosshairColor { get; init; }
     internal float CrosshairStrokePx { get; init; }

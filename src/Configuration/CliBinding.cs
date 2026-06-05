@@ -5,6 +5,7 @@ static class CliBinding
     internal static RootCommand BuildRootCommand(Func<string?, CliOverlay, Task<int>> handler)
     {
         Option<string?> configOption = CreateStringOption("--config");
+        Option<string?> machineNameOption = CreateStringOption("--machine-name");
         Option<string?> textOption = CreateStringOption("--text");
         Option<string?> textSizeOption = CreateStringOption("--text-size");
         Option<string?> textColorOption = CreateStringOption("--text-color");
@@ -24,9 +25,13 @@ static class CliBinding
         Option<string?> gridOffsetYOption = CreateStringOption("--grid-offset-y");
         Option<bool?> gridCoordinatesOption = CreateNullableBoolOption("--grid-coordinates");
         Option<string?> circleSizeOption = CreateStringOption("--circle-size");
+        Option<string?> circleXOption = CreateStringOption("--circle-x");
+        Option<string?> circleYOption = CreateStringOption("--circle-y");
         Option<string?> circleColorOption = CreateStringOption("--circle-color");
         Option<string?> circleStrokeOption = CreateStringOption("--circle-stroke");
         Option<string?> crosshairLengthOption = CreateStringOption("--crosshair-length");
+        Option<string?> crosshairXOption = CreateStringOption("--crosshair-x");
+        Option<string?> crosshairYOption = CreateStringOption("--crosshair-y");
         Option<string?> crosshairColorOption = CreateStringOption("--crosshair-color");
         Option<string?> crosshairStrokeOption = CreateStringOption("--crosshair-stroke");
         Option<string?> logoSourceOption = CreateStringOption("--logo-source");
@@ -45,12 +50,13 @@ static class CliBinding
         RootCommand root = new("BgRaster — per-output wallpaper renderer")
         {
             configOption,
+            machineNameOption,
             textOption, textSizeOption, textColorOption, textXOption, textYOption,
             bgColorOption, bgImageOption, bgFitOption, bgAlternatingOption, bgBorderOption, bgBorderColorOption,
             gridSizeOption, gridOddColorOption, gridEvenColorOption, gridStrokeOption,
             gridOffsetXOption, gridOffsetYOption, gridCoordinatesOption,
-            circleSizeOption, circleColorOption, circleStrokeOption,
-            crosshairLengthOption, crosshairColorOption, crosshairStrokeOption,
+            circleSizeOption, circleXOption, circleYOption, circleColorOption, circleStrokeOption,
+            crosshairLengthOption, crosshairXOption, crosshairYOption, crosshairColorOption, crosshairStrokeOption,
             logoSourceOption, logoXOption, logoYOption, logoWidthOption, logoHeightOption, logoOpacityOption,
             dryRunOption, noDiscoveryOption, outputsSkipUnspecifiedOption, outputDirOption, verbosityOption, continueAfterUnchangedOption,
         };
@@ -60,6 +66,7 @@ static class CliBinding
             string? config = parseResult.GetValue(configOption);
             CliOverlay overlay = new()
             {
+                MachineName = parseResult.GetValue(machineNameOption),
                 Text = parseResult.GetValue(textOption),
                 TextSize = parseResult.GetValue(textSizeOption),
                 TextColor = parseResult.GetValue(textColorOption),
@@ -79,9 +86,13 @@ static class CliBinding
                 GridOffsetY = parseResult.GetValue(gridOffsetYOption),
                 GridCoordinates = parseResult.GetValue(gridCoordinatesOption),
                 CircleSize = parseResult.GetValue(circleSizeOption),
+                CircleX = parseResult.GetValue(circleXOption),
+                CircleY = parseResult.GetValue(circleYOption),
                 CircleColor = parseResult.GetValue(circleColorOption),
                 CircleStroke = parseResult.GetValue(circleStrokeOption),
                 CrosshairLength = parseResult.GetValue(crosshairLengthOption),
+                CrosshairX = parseResult.GetValue(crosshairXOption),
+                CrosshairY = parseResult.GetValue(crosshairYOption),
                 CrosshairColor = parseResult.GetValue(crosshairColorOption),
                 CrosshairStroke = parseResult.GetValue(crosshairStrokeOption),
                 LogoSource = parseResult.GetValue(logoSourceOption),

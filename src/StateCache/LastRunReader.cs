@@ -14,8 +14,21 @@ static class LastRunReader
         }
         catch (Exception ex)
         {
+            TryDeleteUnreadableFile(path);
             Console.WriteLine($"LastRunReader: could not read '{path}': {ex.Message} — will regenerate.");
             return null;
+        }
+    }
+
+    static void TryDeleteUnreadableFile(string path)
+    {
+        try
+        {
+            File.Delete(path);
+        }
+        catch
+        {
+            // Best effort only: keep read failures non-fatal.
         }
     }
 

@@ -140,6 +140,18 @@
       "description": "Circle rendering settings. Array values are resolved by rendered slice sequence with wraparound.",
       "additionalProperties": false,
       "properties": {
+        "x": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["50vw"],
+          "description": "Circle center X coordinate with units"
+        },
+        "y": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["50vh"],
+          "description": "Circle center Y coordinate with units"
+        },
         "size": {
           "type": "array",
           "items": { "type": "string" },
@@ -165,6 +177,18 @@
       "description": "Crosshair rendering settings. Array values are resolved by rendered slice sequence with wraparound.",
       "additionalProperties": false,
       "properties": {
+        "x": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["50vw"],
+          "description": "Crosshair center X coordinate with units"
+        },
+        "y": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["50vh"],
+          "description": "Crosshair center Y coordinate with units"
+        },
         "length": {
           "type": "array",
           "items": { "type": "string" },
