@@ -48,6 +48,26 @@ public class FileNamerTests
     }
 
     [Fact]
+    public void ResolveRenderOutputPath_UsesConfiguredMachineNameOverride()
+    {
+        OutputRecord output = new()
+        {
+            Index = 1,
+            WidthPx = 1280,
+            HeightPx = 720,
+            FriendlyName = "Main Display",
+        };
+
+        FileNamer.RenderOutputPathResult result = FileNamer.ResolveRenderOutputPath(
+            "C:\\out\\${MachineName}_${OutputName}_{index}",
+            output,
+            configuredMachineName: "ConfiguredMachine");
+
+        result.FilePath.Should().Contain("ConfiguredMachine");
+        result.Warnings.Should().BeEmpty();
+    }
+
+    [Fact]
     public void ResolveRenderOutputPath_CliRelativeTemplate_UsesCurrentWorkingDirectory_WhenNoConfigIsLoaded()
     {
         string currentDirectory = Directory.GetCurrentDirectory();

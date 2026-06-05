@@ -42,6 +42,39 @@ public class SvgRendererTests
         darkPixel.Blue.Should().Be(0);
     }
 
+        [Fact]
+        public void TryRender_ClassStyleMediaOverride_UsesLightAndDarkThemeBranches()
+        {
+                const string svg = """
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+                            <defs>
+                                <style>
+                                    .color { fill: #000; }
+                                    @media (prefers-color-scheme: dark) {
+                                        .color { fill: #fff; }
+                                    }
+                                </style>
+                            </defs>
+                            <g class="color">
+                                <path d="M0 0 L10 0 L10 10 L0 10 Z" />
+                            </g>
+                        </svg>
+                        """;
+
+                SKColor lightPixel = RenderAndSampleCenter(svg, useDarkTheme: false);
+                SKColor darkPixel = RenderAndSampleCenter(svg, useDarkTheme: true);
+
+                lightPixel.Red.Should().Be(0);
+                lightPixel.Green.Should().Be(0);
+                lightPixel.Blue.Should().Be(0);
+                lightPixel.Alpha.Should().BeGreaterThan((byte)0);
+
+                darkPixel.Red.Should().Be(255);
+                darkPixel.Green.Should().Be(255);
+                darkPixel.Blue.Should().Be(255);
+                darkPixel.Alpha.Should().BeGreaterThan((byte)0);
+        }
+
     static SKColor RenderAndSampleCenter(string svg, bool useDarkTheme)
     {
         using MemoryStream stream = new(Encoding.UTF8.GetBytes(svg));

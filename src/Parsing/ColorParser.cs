@@ -40,7 +40,28 @@ static class ColorParser
 
     static bool TryParseHex(ReadOnlySpan<char> hex, out SKColor color)
     {
-        if (hex.Length == 6)
+        if (hex.Length == 3)
+        {
+            if (TryParseShorthandHexByte(hex[0], out byte r) &&
+                TryParseShorthandHexByte(hex[1], out byte g) &&
+                TryParseShorthandHexByte(hex[2], out byte b))
+            {
+                color = new SKColor(r, g, b);
+                return true;
+            }
+        }
+        else if (hex.Length == 4)
+        {
+            if (TryParseShorthandHexByte(hex[0], out byte r) &&
+                TryParseShorthandHexByte(hex[1], out byte g) &&
+                TryParseShorthandHexByte(hex[2], out byte b) &&
+                TryParseShorthandHexByte(hex[3], out byte a))
+            {
+                color = new SKColor(r, g, b, a);
+                return true;
+            }
+        }
+        else if (hex.Length == 6)
         {
             if (TryParseHexByte(hex[0..2], out byte r) &&
                 TryParseHexByte(hex[2..4], out byte g) &&
@@ -63,6 +84,14 @@ static class ColorParser
         }
         color = default;
         return false;
+    }
+
+    static bool TryParseShorthandHexByte(char hex, out byte value)
+    {
+        Span<char> expanded = stackalloc char[2];
+        expanded[0] = hex;
+        expanded[1] = hex;
+        return TryParseHexByte(expanded, out value);
     }
 
     static bool TryParseHexByte(ReadOnlySpan<char> hex, out byte value)

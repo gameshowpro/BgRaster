@@ -10,6 +10,14 @@ BgRaster reads its primary configuration from a TOML file. If `--config` is omit
 - **Field substitution** is applied to text and path-bearing values — see [Path resolution](#path-resolution) and [Substitution tokens](#substitution-tokens).
 - **TOML keys use kebab-case** (e.g. `border-color`, `grid-coordinates`); the C# model uses PascalCase (`BorderColor`, `GridCoordinates`).
 
+## Root scalars
+
+Top-level scalar values (outside section tables):
+
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `machine-name` | `string` | `""` (uses framework host name) | Override the framework-supplied host name used for `${MachineName}` substitutions across text and path-bearing properties. |
+
 ## Path resolution
 
 The following properties share the same path resolution behavior:
@@ -98,6 +106,8 @@ Centred circle (useful for verifying aspect ratio and projector keystone).
 
 | Key | Type | Default | Description |
 |---|---|---|---|
+| `x` | `string[]` | `["50vw"]` | Circle center X. Dimension. |
+| `y` | `string[]` | `["50vh"]` | Circle center Y. Dimension. |
 | `size` | `string[]` | `["100vmin"]` | Diameter. `0` disables. |
 | `color` | `string[]` | `["#ffffff40"]` | Fill or stroke color. |
 | `stroke` | `string[]` | `["0"]` | `0` = filled circle; `>0` = stroked outline. |
@@ -110,6 +120,8 @@ Centred plus-sign for alignment.
 
 | Key | Type | Default | Description |
 |---|---|---|---|
+| `x` | `string[]` | `["50vw"]` | Crosshair center X. Dimension. |
+| `y` | `string[]` | `["50vh"]` | Crosshair center Y. Dimension. |
 | `length` | `string[]` | `["5vmin"]` | Half-length of each arm. `0` disables. |
 | `color` | `string[]` | `["#ffffff80"]` | Stroke color. |
 | `stroke` | `string[]` | `["1px"]` | Arm thickness. `0` disables. |
@@ -175,8 +187,8 @@ Per-output configuration. Optional; outputs without an entry use global values r
 | `text` | inline table | Optional override. `text` is an array of lines; `size`, `color`, `x`, and `y` are scalar overrides. |
 | `background` | inline table | Optional scalar override; any of `color`, `image`, `fit`, `alternating`, `border`, `border-color`. The `image` value follows [Path resolution](#path-resolution). |
 | `grid` | inline table | Optional scalar override; any of `size`, `odd-color`, `even-color`, `stroke`, `offset-x`, `offset-y`, `coordinates`. |
-| `circle` | inline table | Optional scalar override; any of `size`, `color`, `stroke`. |
-| `crosshair` | inline table | Optional scalar override; any of `length`, `color`, `stroke`. |
+| `circle` | inline table | Optional scalar override; any of `x`, `y`, `size`, `color`, `stroke`. |
+| `crosshair` | inline table | Optional scalar override; any of `x`, `y`, `length`, `color`, `stroke`. |
 | `logo` | inline table | Optional scalar override; any of `source`, `x`, `y`, `width`, `height`, `opacity`. The `source` value follows [Path resolution](#path-resolution). |
 | `hardware_output` | inline table | Optional fixed hardware dimensions for no-discovery mode. Ignored unless `[render].no-discovery=true`. |
 | `slice` | array of tables | Optional list of sub-rectangles (see below). When omitted, BgRaster treats the output as one implicit full-output slice (`x=0`, `y=0`, `width=100vw`, `height=100vh`). |
@@ -241,7 +253,7 @@ These tokens are expanded inside text, `background.image`, `logo.source`, and `r
 
 | Token (machine scoped) | Token (output scoped) | Token (slice scoped) | Description |
 |---|---|---|---|
-| `${MachineName}` | `${OutputName}` | | `Environment.MachineName` or `OutputRecord.FriendlyName`, which often originates from inside the device's EDID packet. |
+| `${MachineName}` | `${OutputName}` | | `machine-name` / `--machine-name` when configured; otherwise `Environment.MachineName`. `${OutputName}` commonly originates from device EDID metadata. |
 | | `${OutputWidth}` | `${SliceWidth}` | Output/slice width in pixels. |
 | | `${OutputHeight}` | `${SliceHeight}` | Output/slice height in pixels. |
 | | `${OutputIndex}` | `${SliceIndex}` | Zero-based output/slice index. |

@@ -38,10 +38,12 @@ static class FileNamer
     internal static bool ContainsToken(string outputTemplate, string token) =>
         outputTemplate.IndexOf($"{{{token}}}", StringComparison.OrdinalIgnoreCase) >= 0;
 
-    internal static RenderOutputPathResult ResolveRenderOutputPath(string outputTemplate, OutputRecord output)
+    internal static RenderOutputPathResult ResolveRenderOutputPath(string outputTemplate, OutputRecord output, string? configuredMachineName = null)
     {
+        string machineName = string.IsNullOrWhiteSpace(configuredMachineName) ? Environment.MachineName : configuredMachineName;
+
         SubstitutionContext substitutionContext = new(
-            MachineName: Environment.MachineName,
+            MachineName: machineName,
             OutputWidth: output.WidthPx,
             OutputHeight: output.HeightPx,
             OutputIndex: output.Index,

@@ -2,6 +2,7 @@ namespace GameshowPro.BgRaster.Configuration;
 
 record CliOverlay
 {
+    internal string? MachineName { get; init; }
     internal string? Text { get; init; }
     internal string? TextSize { get; init; }
     internal string? TextColor { get; init; }
@@ -21,9 +22,13 @@ record CliOverlay
     internal string? GridOffsetY { get; init; }
     internal bool? GridCoordinates { get; init; }
     internal string? CircleSize { get; init; }
+    internal string? CircleX { get; init; }
+    internal string? CircleY { get; init; }
     internal string? CircleColor { get; init; }
     internal string? CircleStroke { get; init; }
     internal string? CrosshairLength { get; init; }
+    internal string? CrosshairX { get; init; }
+    internal string? CrosshairY { get; init; }
     internal string? CrosshairColor { get; init; }
     internal string? CrosshairStroke { get; init; }
     internal string? LogoSource { get; init; }

@@ -187,7 +187,7 @@ static class Program
             {
                 string targetDescription = DescribeTarget(mapping.Config.Target);
                 logger.RenderStart(mapping.Output.Id, targetDescription);
-                FileNamer.RenderOutputPathResult outputPath = FileNamer.ResolveRenderOutputPath(outputTemplate, mapping.Output);
+                FileNamer.RenderOutputPathResult outputPath = FileNamer.ResolveRenderOutputPath(outputTemplate, mapping.Output, options.MachineName);
                 foreach (string warning in outputPath.Warnings)
                     logger.ConfigurationWarning(warning);
 
@@ -212,7 +212,7 @@ static class Program
                 {
                     case MatchResult.Matched(OutputRecord output, OutputOptions outputConfig):
                         logger.RenderStart(output.Id, DescribeTarget(outputConfig.Target));
-                        FileNamer.RenderOutputPathResult outputPath = FileNamer.ResolveRenderOutputPath(outputTemplate, output);
+                        FileNamer.RenderOutputPathResult outputPath = FileNamer.ResolveRenderOutputPath(outputTemplate, output, options.MachineName);
                         foreach (string warning in outputPath.Warnings)
                             logger.ConfigurationWarning(warning);
 

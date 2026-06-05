@@ -14,9 +14,10 @@ static class OptionsResolver
         int idx = output.Index;
         float vw = output.WidthPx;
         float vh = output.HeightPx;
+        string machineName = ResolveMachineName(global.MachineName);
 
         SubstitutionContext ctx = new(
-            MachineName: Environment.MachineName,
+            MachineName: machineName,
             OutputWidth: output.WidthPx,
             OutputHeight: output.HeightPx,
             OutputIndex: idx,
@@ -59,10 +60,14 @@ static class OptionsResolver
         float gridOffsetYPx = ParseUnit(ResolveString(global.Grid.OffsetY, idx, outputConfig?.Grid?.OffsetY), vw, vh);
         bool gridCoordinates = ResolveBool(global.Grid.Coordinates, idx, outputConfig?.Grid?.Coordinates);
 
+        float circleXPx = ParseUnit(ResolveString(global.Circle.X, idx, outputConfig?.Circle?.X), vw, vh);
+        float circleYPx = ParseUnit(ResolveString(global.Circle.Y, idx, outputConfig?.Circle?.Y), vw, vh);
         float circleSizePx = ParseUnit(ResolveString(global.Circle.Size, idx, outputConfig?.Circle?.Size), vw, vh);
         SKColor circleColor = ParseColor(ResolveString(global.Circle.Color, idx, outputConfig?.Circle?.Color));
         float circleStrokePx = ParseUnit(ResolveString(global.Circle.Stroke, idx, outputConfig?.Circle?.Stroke), vw, vh);
 
+        float crosshairXPx = ParseUnit(ResolveString(global.Crosshair.X, idx, outputConfig?.Crosshair?.X), vw, vh);
+        float crosshairYPx = ParseUnit(ResolveString(global.Crosshair.Y, idx, outputConfig?.Crosshair?.Y), vw, vh);
         float crosshairLengthPx = ParseUnit(ResolveString(global.Crosshair.Length, idx, outputConfig?.Crosshair?.Length), vw, vh);
         SKColor crosshairColor = ParseColor(ResolveString(global.Crosshair.Color, idx, outputConfig?.Crosshair?.Color));
         float crosshairStrokePx = ParseUnit(ResolveString(global.Crosshair.Stroke, idx, outputConfig?.Crosshair?.Stroke), vw, vh);
@@ -105,9 +110,13 @@ static class OptionsResolver
             GridOffsetXPx = gridOffsetXPx,
             GridOffsetYPx = gridOffsetYPx,
             GridCoordinates = gridCoordinates,
+            CircleXPx = circleXPx,
+            CircleYPx = circleYPx,
             CircleSizePx = circleSizePx,
             CircleColor = circleColor,
             CircleStrokePx = circleStrokePx,
+            CrosshairXPx = crosshairXPx,
+            CrosshairYPx = crosshairYPx,
             CrosshairLengthPx = crosshairLengthPx,
             CrosshairColor = crosshairColor,
             CrosshairStrokePx = crosshairStrokePx,
@@ -137,9 +146,10 @@ static class OptionsResolver
         int cycleIndex = sequenceIndex ?? idx;
         float vw = sliceWidth;
         float vh = sliceHeight;
+        string machineName = ResolveMachineName(global.MachineName);
 
         SubstitutionContext ctx = new(
-            MachineName: Environment.MachineName,
+            MachineName: machineName,
             OutputWidth: output.WidthPx,
             OutputHeight: output.HeightPx,
             OutputIndex: idx,
@@ -189,10 +199,14 @@ static class OptionsResolver
         float gridOffsetYPx = ParseUnit(ResolveSliceString(global.Grid.OffsetY, cycleIndex, outputConfig?.Grid?.OffsetY, slice.Grid?.OffsetY), vw, vh);
         bool gridCoordinates = ResolveSliceBool(global.Grid.Coordinates, cycleIndex, outputConfig?.Grid?.Coordinates, slice.Grid?.Coordinates);
 
+        float circleXPx = ParseUnit(ResolveSliceString(global.Circle.X, cycleIndex, outputConfig?.Circle?.X, slice.Circle?.X), vw, vh);
+        float circleYPx = ParseUnit(ResolveSliceString(global.Circle.Y, cycleIndex, outputConfig?.Circle?.Y, slice.Circle?.Y), vw, vh);
         float circleSizePx = ParseUnit(ResolveSliceString(global.Circle.Size, cycleIndex, outputConfig?.Circle?.Size, slice.Circle?.Size), vw, vh);
         SKColor circleColor = ParseColor(ResolveSliceString(global.Circle.Color, cycleIndex, outputConfig?.Circle?.Color, slice.Circle?.Color));
         float circleStrokePx = ParseUnit(ResolveSliceString(global.Circle.Stroke, cycleIndex, outputConfig?.Circle?.Stroke, slice.Circle?.Stroke), vw, vh);
 
+        float crosshairXPx = ParseUnit(ResolveSliceString(global.Crosshair.X, cycleIndex, outputConfig?.Crosshair?.X, slice.Crosshair?.X), vw, vh);
+        float crosshairYPx = ParseUnit(ResolveSliceString(global.Crosshair.Y, cycleIndex, outputConfig?.Crosshair?.Y, slice.Crosshair?.Y), vw, vh);
         float crosshairLengthPx = ParseUnit(ResolveSliceString(global.Crosshair.Length, cycleIndex, outputConfig?.Crosshair?.Length, slice.Crosshair?.Length), vw, vh);
         SKColor crosshairColor = ParseColor(ResolveSliceString(global.Crosshair.Color, cycleIndex, outputConfig?.Crosshair?.Color, slice.Crosshair?.Color));
         float crosshairStrokePx = ParseUnit(ResolveSliceString(global.Crosshair.Stroke, cycleIndex, outputConfig?.Crosshair?.Stroke, slice.Crosshair?.Stroke), vw, vh);
@@ -235,9 +249,13 @@ static class OptionsResolver
             GridOffsetXPx = gridOffsetXPx,
             GridOffsetYPx = gridOffsetYPx,
             GridCoordinates = gridCoordinates,
+            CircleXPx = circleXPx,
+            CircleYPx = circleYPx,
             CircleSizePx = circleSizePx,
             CircleColor = circleColor,
             CircleStrokePx = circleStrokePx,
+            CrosshairXPx = crosshairXPx,
+            CrosshairYPx = crosshairYPx,
             CrosshairLengthPx = crosshairLengthPx,
             CrosshairColor = crosshairColor,
             CrosshairStrokePx = crosshairStrokePx,
@@ -260,6 +278,9 @@ static class OptionsResolver
 
     static string ResolveString(ImmutableArray<string> global, int index, string? outputOverride) =>
         outputOverride ?? global[index % global.Length];
+
+    static string ResolveMachineName(string configuredMachineName) =>
+        string.IsNullOrWhiteSpace(configuredMachineName) ? Environment.MachineName : configuredMachineName;
 
     static string ResolveSliceString(ImmutableArray<string> global, int index, string? outputOverride, string? sliceOverride) =>
         sliceOverride ?? outputOverride ?? global[index % global.Length];

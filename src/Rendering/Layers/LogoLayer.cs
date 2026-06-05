@@ -6,23 +6,19 @@ sealed class LogoLayer : ILayer
 
     public void Render(RenderContext context, SKCanvas canvas)
     {
+        if (LayerSuppression.ShouldSuppressLogo(context.Options))
+            return;
+
         float centerX = context.CanvasOffsetX + context.Options.LogoXPx;
         float centerY = context.CanvasOffsetY + context.Options.LogoYPx;
         float w = context.Options.LogoWidthPx;
         float h = context.Options.LogoHeightPx;
-        if (w <= 0f || h <= 0f) return;
 
         SKRect fitRect = CreateFitRect(centerX, centerY, w, h);
         byte alpha = (byte)(Math.Clamp(context.Options.LogoOpacity, 0f, 1f) * 255f);
         bool useDarkTheme = IsDarkBackground(context.Options.BackgroundColor);
 
         string source = context.Options.LogoSource;
-
-        // Empty string suppresses logo rendering entirely
-        if (string.IsNullOrWhiteSpace(source))
-        {
-            return;
-        }
 
         // Try to render SVG first (includes pack URIs and file paths)
         if (TryRenderSvgLogo(source, canvas, fitRect, alpha, useDarkTheme))

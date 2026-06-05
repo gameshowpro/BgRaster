@@ -21,6 +21,7 @@ static class ConfigLoader
 
     internal static GlobalOptions ApplyCliOverlay(GlobalOptions options, CliOverlay overlay, List<string>? warnings = null)
     {
+        string machineName = options.MachineName;
         TextOptions text = options.Text;
         BackgroundOptions bg = options.Background;
         GridOptions grid = options.Grid;
@@ -28,6 +29,9 @@ static class ConfigLoader
         CrosshairOptions crosshair = options.Crosshair;
         LogoOptions logo = options.Logo;
         RenderOptions render = options.Render;
+
+        if (overlay.MachineName is not null)
+            machineName = overlay.MachineName;
 
         if (overlay.Text is not null)
             text = text with { Text = ParseCliStringOrArray(overlay.Text, "cli --text", warnings) };
@@ -67,6 +71,10 @@ static class ConfigLoader
 
         if (overlay.CircleSize is not null)
             circle = circle with { Size = ParseCliStringOrArray(overlay.CircleSize, "cli --circle-size", warnings) };
+        if (overlay.CircleX is not null)
+            circle = circle with { X = ParseCliStringOrArray(overlay.CircleX, "cli --circle-x", warnings) };
+        if (overlay.CircleY is not null)
+            circle = circle with { Y = ParseCliStringOrArray(overlay.CircleY, "cli --circle-y", warnings) };
         if (overlay.CircleColor is not null)
             circle = circle with { Color = ParseCliStringOrArray(overlay.CircleColor, "cli --circle-color", warnings) };
         if (overlay.CircleStroke is not null)
@@ -74,6 +82,10 @@ static class ConfigLoader
 
         if (overlay.CrosshairLength is not null)
             crosshair = crosshair with { Length = ParseCliStringOrArray(overlay.CrosshairLength, "cli --crosshair-length", warnings) };
+        if (overlay.CrosshairX is not null)
+            crosshair = crosshair with { X = ParseCliStringOrArray(overlay.CrosshairX, "cli --crosshair-x", warnings) };
+        if (overlay.CrosshairY is not null)
+            crosshair = crosshair with { Y = ParseCliStringOrArray(overlay.CrosshairY, "cli --crosshair-y", warnings) };
         if (overlay.CrosshairColor is not null)
             crosshair = crosshair with { Color = ParseCliStringOrArray(overlay.CrosshairColor, "cli --crosshair-color", warnings) };
         if (overlay.CrosshairStroke is not null)
@@ -112,6 +124,7 @@ static class ConfigLoader
 
         return options with
         {
+            MachineName = machineName,
             Text = text,
             Background = bg,
             Grid = grid,
@@ -124,6 +137,8 @@ static class ConfigLoader
 
     static GlobalOptions ParseGlobalOptions(TomlTable table, List<string>? warnings, string configDirectory)
     {
+        string machineName = GetString(table, "machine-name") ?? string.Empty;
+
         TextOptions text = table.TryGetValue("text", out object? textObj) && textObj is TomlTable textTable
             ? ParseTextOptions(textTable)
             : new TextOptions();
@@ -162,6 +177,7 @@ static class ConfigLoader
 
         return new GlobalOptions
         {
+            MachineName = machineName,
             Text = text,
             Background = background,
             Grid = grid,
@@ -206,6 +222,8 @@ static class ConfigLoader
 
     static CircleOptions ParseCircleOptions(TomlTable t) => new()
     {
+        X = GetStringArray(t, "x") ?? new CircleOptions().X,
+        Y = GetStringArray(t, "y") ?? new CircleOptions().Y,
         Size = GetStringArray(t, "size") ?? new CircleOptions().Size,
         Color = GetStringArray(t, "color") ?? new CircleOptions().Color,
         Stroke = GetStringArray(t, "stroke") ?? new CircleOptions().Stroke,
@@ -213,6 +231,8 @@ static class ConfigLoader
 
     static CrosshairOptions ParseCrosshairOptions(TomlTable t) => new()
     {
+        X = GetStringArray(t, "x") ?? new CrosshairOptions().X,
+        Y = GetStringArray(t, "y") ?? new CrosshairOptions().Y,
         Length = GetStringArray(t, "length") ?? new CrosshairOptions().Length,
         Color = GetStringArray(t, "color") ?? new CrosshairOptions().Color,
         Stroke = GetStringArray(t, "stroke") ?? new CrosshairOptions().Stroke,
@@ -481,6 +501,8 @@ static class ConfigLoader
         if (!parent.TryGetValue(key, out object? obj) || obj is not TomlTable t) return null;
         return new CircleOverride
         {
+            X = GetString(t, "x"),
+            Y = GetString(t, "y"),
             Size = GetString(t, "size"),
             Color = GetString(t, "color"),
             Stroke = GetString(t, "stroke"),
@@ -492,6 +514,8 @@ static class ConfigLoader
         if (!parent.TryGetValue(key, out object? obj) || obj is not TomlTable t) return null;
         return new CrosshairOverride
         {
+            X = GetString(t, "x"),
+            Y = GetString(t, "y"),
             Length = GetString(t, "length"),
             Color = GetString(t, "color"),
             Stroke = GetString(t, "stroke"),

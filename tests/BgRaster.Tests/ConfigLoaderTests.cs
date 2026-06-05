@@ -3,6 +3,17 @@ namespace GameshowPro.BgRaster.Tests;
 public class ConfigLoaderTests
 {
     [Fact]
+    public void ApplyCliOverlay_MachineName_OverridesGlobalMachineName()
+    {
+        GlobalOptions baseOptions = new() { MachineName = "OriginalMachine" };
+        CliOverlay overlay = new() { MachineName = "CliMachine" };
+
+        GlobalOptions result = ConfigLoader.ApplyCliOverlay(baseOptions, overlay);
+
+        result.MachineName.Should().Be("CliMachine");
+    }
+
+    [Fact]
     public void ApplyCliOverlay_TextSize_AcceptsStringArrayLiteral()
     {
         GlobalOptions baseOptions = new();
@@ -11,6 +22,26 @@ public class ConfigLoaderTests
         GlobalOptions result = ConfigLoader.ApplyCliOverlay(baseOptions, overlay);
 
         result.Text.Size.Should().Equal(["3vh", "2vh", "2vh"]);
+    }
+
+    [Fact]
+    public void ApplyCliOverlay_CircleAndCrosshairPosition_OverridesValues()
+    {
+        GlobalOptions baseOptions = new();
+        CliOverlay overlay = new()
+        {
+            CircleX = "10vw",
+            CircleY = "20vh",
+            CrosshairX = "30vw",
+            CrosshairY = "40vh",
+        };
+
+        GlobalOptions result = ConfigLoader.ApplyCliOverlay(baseOptions, overlay);
+
+        result.Circle.X.Should().Equal(["10vw"]);
+        result.Circle.Y.Should().Equal(["20vh"]);
+        result.Crosshair.X.Should().Equal(["30vw"]);
+        result.Crosshair.Y.Should().Equal(["40vh"]);
     }
 
     [Fact]
@@ -80,6 +111,53 @@ public class ConfigLoaderTests
             GlobalOptions result = ConfigLoader.Load(path);
 
             result.Logo.Opacity.Should().Equal([0.4f, 0.8f]);
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+    }
+
+    [Fact]
+    public void Load_CircleAndCrosshairPosition_ParsesFromToml()
+    {
+        string path = Path.Combine(Path.GetTempPath(), $"bgraster-config-{Guid.NewGuid():N}.toml");
+        try
+        {
+            File.WriteAllText(path,
+                "[circle]\n" +
+                "x = [\"10vw\"]\n" +
+                "y = [\"20vh\"]\n" +
+                "[crosshair]\n" +
+                "x = [\"30vw\"]\n" +
+                "y = [\"40vh\"]\n");
+
+            GlobalOptions result = ConfigLoader.Load(path);
+
+            result.Circle.X.Should().Equal(["10vw"]);
+            result.Circle.Y.Should().Equal(["20vh"]);
+            result.Crosshair.X.Should().Equal(["30vw"]);
+            result.Crosshair.Y.Should().Equal(["40vh"]);
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+    }
+
+    [Fact]
+    public void Load_MachineName_ParsesFromToml()
+    {
+        string path = Path.Combine(Path.GetTempPath(), $"bgraster-config-{Guid.NewGuid():N}.toml");
+        try
+        {
+            File.WriteAllText(path, "machine-name = \"TomlMachine\"\n");
+
+            GlobalOptions result = ConfigLoader.Load(path);
+
+            result.MachineName.Should().Be("TomlMachine");
         }
         finally
         {

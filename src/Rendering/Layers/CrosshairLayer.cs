@@ -4,10 +4,11 @@ sealed class CrosshairLayer : ILayer
 {
     public void Render(RenderContext context, SKCanvas canvas)
     {
-        if (context.Options.CrosshairLengthPx <= 0f || context.Options.CrosshairStrokePx <= 0f) return;
+        if (LayerSuppression.ShouldSuppressCrosshair(context.Options))
+            return;
 
-        float cx = context.CanvasOffsetX + context.ViewportWidth / 2f;
-        float cy = context.CanvasOffsetY + context.ViewportHeight / 2f;
+        float cx = context.CanvasOffsetX + context.Options.CrosshairXPx;
+        float cy = context.CanvasOffsetY + context.Options.CrosshairYPx;
         float halfLen = context.Options.CrosshairLengthPx / 2f;
 
         using SKPaint paint = new()
