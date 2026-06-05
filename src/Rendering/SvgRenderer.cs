@@ -1,6 +1,7 @@
 namespace GameshowPro.BgRaster.Rendering;
 
 using System.Globalization;
+using System.Text;
 using System.Xml;
 
 static class SvgRenderer
@@ -113,6 +114,7 @@ static class SvgParser
         float vbX = 0f, vbY = 0f, vbW = 100f, vbH = 100f;
         List<SvgShape> shapes = [];
         List<SvgStyleState> styleStack = [new(null, null, null, null)];
+        Dictionary<string, SvgStyleState> classStyles = new(StringComparer.Ordinal);
 
         using XmlReader reader = XmlReader.Create(stream, settings);
         while (reader.Read())
@@ -128,7 +130,7 @@ static class SvgParser
                 continue;
 
             SvgStyleState inheritedStyle = styleStack[^1];
-            SvgStyleState currentStyle = MergeStyle(inheritedStyle, reader);
+            SvgStyleState currentStyle = MergeStyle(inheritedStyle, reader, classStyles);
 
             switch (reader.LocalName)
             {
@@ -144,6 +146,11 @@ static class SvgParser
                         if (TryParseFloat(reader.GetAttribute("height"), out float hv)) vbH = hv;
                     }
                     break;
+
+                case "style":
+                    string css = reader.ReadElementContentAsString();
+                    ParseCssRules(css, useDarkTheme, classStyles);
+                    continue;
 
                 case "rect":
                     shapes.Add(new SvgRect(
@@ -188,6 +195,202 @@ static class SvgParser
         }
 
         return new SvgDocument(vbX, vbY, vbW, vbH, [.. shapes]);
+    }
+
+    static void ParseCssRules(string css, bool useDarkTheme, Dictionary<string, SvgStyleState> classStyles)
+    {
+        ReadOnlySpan<char> source = RemoveCssComments(css).AsSpan();
+        int index = 0;
+        ParseCssBlock(source, ref index, useDarkTheme, classStyles);
+    }
+
+    static void ParseCssBlock(ReadOnlySpan<char> css, ref int index, bool useDarkTheme, Dictionary<string, SvgStyleState> classStyles)
+    {
+        while (index < css.Length)
+        {
+            SkipCssWhitespace(css, ref index);
+            if (index >= css.Length || css[index] == '}')
+            {
+                if (index < css.Length && css[index] == '}')
+                    index++;
+
+                return;
+            }
+
+            int selectorStart = index;
+            while (index < css.Length && css[index] != '{')
+                index++;
+
+            if (index >= css.Length)
+                return;
+
+            string selector = css[selectorStart..index].ToString().Trim();
+            index++;
+
+            int contentStart = index;
+            int depth = 1;
+            while (index < css.Length && depth > 0)
+            {
+                if (css[index] == '{')
+                    depth++;
+                else if (css[index] == '}')
+                    depth--;
+
+                index++;
+            }
+
+            if (depth != 0)
+                return;
+
+            ReadOnlySpan<char> blockContent = css[contentStart..(index - 1)];
+            if (selector.StartsWith("@media", StringComparison.OrdinalIgnoreCase))
+            {
+                if (ShouldApplyMediaSelector(selector, useDarkTheme))
+                {
+                    int nestedIndex = 0;
+                    ParseCssBlock(blockContent, ref nestedIndex, useDarkTheme, classStyles);
+                }
+
+                continue;
+            }
+
+            SvgStyleState blockStyle = ParseCssDeclarations(blockContent.ToString());
+            foreach (string selectorPart in selector.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            {
+                if (!TryGetClassName(selectorPart, out string? className) || className is null)
+                    continue;
+
+                classStyles[className] = MergeStyleState(
+                    classStyles.TryGetValue(className, out SvgStyleState? existing)
+                        ? existing
+                        : new SvgStyleState(null, null, null, null),
+                    blockStyle);
+            }
+        }
+    }
+
+    static bool ShouldApplyMediaSelector(string selector, bool useDarkTheme)
+    {
+        if (!selector.Contains("prefers-color-scheme", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        if (selector.Contains("dark", StringComparison.OrdinalIgnoreCase))
+            return useDarkTheme;
+
+        if (selector.Contains("light", StringComparison.OrdinalIgnoreCase))
+            return !useDarkTheme;
+
+        return false;
+    }
+
+    static bool TryGetClassName(string selector, out string? className)
+    {
+        className = null;
+        string trimmed = selector.Trim();
+        if (trimmed.Length <= 1 || trimmed[0] != '.')
+            return false;
+
+        int endIndex = 1;
+        while (endIndex < trimmed.Length)
+        {
+            char c = trimmed[endIndex];
+            if (!(char.IsLetterOrDigit(c) || c is '-' or '_'))
+                break;
+
+            endIndex++;
+        }
+
+        className = trimmed[1..endIndex];
+        return className.Length > 0;
+    }
+
+    static SvgStyleState ParseCssDeclarations(string block)
+    {
+        string? fill = null;
+        string? stroke = null;
+        string? strokeWidth = null;
+        string? opacity = null;
+
+        string[] declarations = block.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        foreach (string declaration in declarations)
+        {
+            int separatorIndex = declaration.IndexOf(':');
+            if (separatorIndex <= 0 || separatorIndex >= declaration.Length - 1)
+                continue;
+
+            string key = declaration[..separatorIndex].Trim();
+            string value = declaration[(separatorIndex + 1)..].Trim();
+            if (value.Length == 0)
+                continue;
+
+            switch (key)
+            {
+                case "fill":
+                    fill = value;
+                    break;
+                case "stroke":
+                    stroke = value;
+                    break;
+                case "stroke-width":
+                    strokeWidth = value;
+                    break;
+                case "opacity":
+                    opacity = value;
+                    break;
+            }
+        }
+
+        return new SvgStyleState(fill, stroke, strokeWidth, opacity);
+    }
+
+    static SvgStyleState MergeStyleState(SvgStyleState parent, SvgStyleState child) => new(
+        Choose(child.Fill, parent.Fill),
+        Choose(child.Stroke, parent.Stroke),
+        Choose(child.StrokeWidth, parent.StrokeWidth),
+        Choose(child.Opacity, parent.Opacity));
+
+    static SvgStyleState ResolveClassStyles(string? classNames, Dictionary<string, SvgStyleState> classStyles)
+    {
+        SvgStyleState resolved = new(null, null, null, null);
+        if (string.IsNullOrWhiteSpace(classNames))
+            return resolved;
+
+        foreach (string className in classNames.Split([' ', '\t', '\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            if (classStyles.TryGetValue(className, out SvgStyleState? classStyle))
+                resolved = MergeStyleState(resolved, classStyle);
+        }
+
+        return resolved;
+    }
+
+    static void SkipCssWhitespace(ReadOnlySpan<char> css, ref int index)
+    {
+        while (index < css.Length && char.IsWhiteSpace(css[index]))
+            index++;
+    }
+
+    static string RemoveCssComments(string css)
+    {
+        StringBuilder builder = new(css.Length);
+        int index = 0;
+        while (index < css.Length)
+        {
+            if (index + 1 < css.Length && css[index] == '/' && css[index + 1] == '*')
+            {
+                index += 2;
+                while (index + 1 < css.Length && !(css[index] == '*' && css[index + 1] == '/'))
+                    index++;
+
+                index = Math.Min(index + 2, css.Length);
+                continue;
+            }
+
+            builder.Append(css[index]);
+            index++;
+        }
+
+        return builder.ToString();
     }
 
     static bool TryParseViewBox(string s, out float x, out float y, out float w, out float h)
@@ -246,29 +449,31 @@ static class SvgParser
         return useDarkTheme ? dark : light;
     }
 
-    static SvgStyleState MergeStyle(SvgStyleState parent, XmlReader reader)
+    static SvgStyleState MergeStyle(SvgStyleState parent, XmlReader reader, Dictionary<string, SvgStyleState> classStyles)
     {
         string? style = reader.GetAttribute("style");
+        SvgStyleState classStyle = ResolveClassStyles(reader.GetAttribute("class"), classStyles);
+        SvgStyleState baseStyle = MergeStyleState(parent, classStyle);
 
         string? fill = Choose(
             reader.GetAttribute("fill"),
             ParseStyleProperty(style, "fill"),
-            parent.Fill);
+            baseStyle.Fill);
 
         string? stroke = Choose(
             reader.GetAttribute("stroke"),
             ParseStyleProperty(style, "stroke"),
-            parent.Stroke);
+            baseStyle.Stroke);
 
         string? strokeWidth = Choose(
             reader.GetAttribute("stroke-width"),
             ParseStyleProperty(style, "stroke-width"),
-            parent.StrokeWidth);
+            baseStyle.StrokeWidth);
 
         string? opacity = Choose(
             reader.GetAttribute("opacity"),
             ParseStyleProperty(style, "opacity"),
-            parent.Opacity);
+            baseStyle.Opacity);
 
         return new SvgStyleState(fill, stroke, strokeWidth, opacity);
     }
