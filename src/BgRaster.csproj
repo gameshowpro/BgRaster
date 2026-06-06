@@ -21,6 +21,10 @@
     <LangVersion>13</LangVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)' != 'Debug'">
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);IL2104</WarningsNotAsErrors>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <PublishSingleFile>false</PublishSingleFile>
     <SelfContained>false</SelfContained>
