@@ -1,0 +1,77 @@
+﻿# $schema: https://raw.githubusercontent.com/gameshowpro/BgRaster/refs/heads/main/docs/schemas/bgraster-config.schema.json
+
+machine-name = ""
+
+[text]
+text = ["${MachineName} output ${OutputIndexPlusOne}", "slice ${SliceLetter}", "${SliceWidth}x${SliceHeight}"]
+size = ["3vh", "2vh", "4vh"]
+color = ["#fff"]
+x = ["85vw"]
+y = ["85vh"]
+
+[background]
+color = ["#FF0000", "#00FF00", "#0000FF"]
+image = [""]
+fit = ["CropToFill"]
+alternating = [false]
+border = [false]
+border-color = ["#FFFFFF"]
+
+[grid]
+size = ["100px"]
+odd-color = ["#00000080"]
+even-color = ["transparent"]
+stroke = ["0"]
+offset-x = ["0"]
+offset-y = ["0"]
+coordinates = [false]
+
+[circle]
+x = ["50vw"]
+y = ["50vh"]
+size = ["100vmin"]
+color = ["#ffffff40"]
+stroke = ["0"]
+
+[crosshair]
+x = ["50vw"]
+y = ["50vh"]
+length = ["5vmin"]
+color = ["#ffffff80"]
+stroke = ["1px"]
+
+[labeled-edges]
+text-size = ["10px"]
+tail-length = ["10px"]
+thickness = ["3px"]
+head-scale = [1]
+scope = ["Desktop"]
+side = ["TL", "T", "TR", "R", "BR", "B", "BL", "L"]
+
+[logo]
+source = ["pack://application:,,,/GameshowPro.BgRaster;component/resources/gsp.svg"]
+x = ["85vw"]
+y = ["15vh"]
+width = ["20vw"]
+height = ["20vh"]
+opacity = [1]
+
+[render]
+no-assignment = false
+no-discovery = false
+outputs-skip-unspecified = false
+output = ""
+force = true
+verbosity = "verbose"
+
+[[output]]
+target = "\\\\?\\DISPLAY#SAM734D#5&214a496&0&UID135425#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}"
+# target = 0  # Numeric index fallback for this output
+
+[[output]]
+target = "\\\\?\\DISPLAY#SAM77E9#5&214a496&0&UID135424#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}"
+# target = 1  # Numeric index fallback for this output
+
+[[output]]
+target = "\\\\?\\DISPLAY#GSM0001#5&214a496&0&UID135427#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}"
+# target = 2  # Numeric index fallback for this output

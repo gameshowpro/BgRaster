@@ -96,7 +96,7 @@ The orange diagonal cross is the ultimate fallback. If you're seeing it instead 
 
 ## Stale files accumulating in the output directory
 
-`StaleFileCleaner.RecycleFiles` is currently a stub: it identifies stale BgRaster PNGs but does not yet move them to the recycle bin (see [deferred task 7](deferred-tasks.md)). They remain on disk and are reported as `unrecycledFiles` in `lastRun.toml`. You can safely delete them manually.
+`StaleFileCleaner.RecycleFiles` is currently a stub: it identifies stale BgRaster PNGs but does not yet move them to the recycle bin (see [deferred task 7](developer/future-plans.md)). They remain on disk and are reported as `unrecycledFiles` in `lastRun.toml`. You can safely delete them manually.
 
 The "stale file" heuristic only matches files whose names follow the BgRaster timestamp pattern (`yyyy-MM-ddTHH-mm-ss.fffffffZ_<id>.png`); other files in the output directory are left alone.
 

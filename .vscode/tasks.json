@@ -18,6 +18,32 @@
                 "isDefault": true
             },
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "install docs dependencies",
+            "type": "process",
+            "command": "python",
+            "args": [
+                "-m",
+                "pip",
+                "install",
+                "-r",
+                "${workspaceFolder}/docs/requirements.txt"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "serve docs (mkdocs)",
+            "type": "process",
+            "command": "pwsh",
+            "args": [
+                "-NoLogo",
+                "-NoProfile",
+                "-Command",
+                "& '${workspaceFolder}/scripts/generate-documentation.ps1'; python -m mkdocs serve --dev-addr 127.0.0.1:8000"
+            ],
+            "isBackground": true,
+            "problemMatcher": []
         }
     ]
 }

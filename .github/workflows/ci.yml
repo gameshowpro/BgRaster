@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Install NBGV
+        run: dotnet tool install --global nbgv
+
+      - name: Set version
+        run: nbgv cloud
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build -c Release --no-restore /p:TreatWarningsAsErrors=true
+
+      - name: Test
+        run: >
+          dotnet test tests/BgRaster.Tests/BgRaster.Tests.csproj
+          -c Release
+          --no-build
+          --logger "trx;LogFileName=test-results.trx"
+
+      - name: Publish AOT
+        run: >
+          dotnet publish src/BgRaster.csproj
+          -c Release
+          -r win-x64
+          --no-restore
+          /p:PublishAot=true
+          /p:TreatWarningsAsErrors=true
+          -o publish/win-x64
+
+      - name: Smoke test published binary
+        shell: pwsh
+        run: >
+          ./scripts/run-publish-smoke-test.ps1
+          -SkipPublish
+          -PublishDir publish/win-x64
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BgRaster-win-x64
+          path: publish/win-x64/
+          if-no-files-found: error
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: tests/BgRaster.Tests/TestResults/test-results.trx
+
+      - name: Tag version on push to main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: pwsh
+        run: |
+          $version = nbgv get-version -v NuGetPackageVersion
+          git tag "v$version"
+          git push origin "v$version"

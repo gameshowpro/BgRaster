@@ -1,0 +1,59 @@
+site_name: BgRaster
+site_description: BgRaster documentation
+site_url: https://gameshowpro.github.io/BgRaster/
+repo_url: https://github.com/gameshowpro/BgRaster
+repo_name: gameshowpro/BgRaster
+
+theme:
+  name: material
+  logo: assets/images/logo.svg
+  favicon: assets/images/favicon.svg
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+
+docs_dir: docs
+use_directory_urls: true
+exclude_docs: |
+  plan.md
+not_in_nav: |
+  generated/cli-schema.md
+  generated/toml-root-scalars.md
+  jobs/github-pages.md
+
+nav:
+  - Home: index.md
+  - Features: features.md
+  - TOML Schema: toml-schema.md
+  - CLI Schema: cli-schema.md
+  - Troubleshooting: troubleshooting.md
+  - Developer:
+      - Architecture: developer/architecture.md
+      - Config File Logic: developer/config-file-logic.md
+      - Coding Standards: developer/coding-standards.md
+      - Deployment: developer/deployment.md
+      - Deferred Tasks: developer/future-plans.md
+      - Documentation Generator: developer/documentation-generator.md
+
+markdown_extensions:
+  - pymdownx.snippets:
+      base_path: docs
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - toc:
+      permalink: true

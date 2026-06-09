@@ -696,12 +696,3 @@ All behavioral edge cases are locked as follows. Implementing code must follow t
 1. **wallpaper apply failure**: if `IDesktopWallpaper` fails to assign a rendered file to any output, BgRaster immediately attempts to clear wallpaper assignment for the affected outputs using `IDesktopWallpaper` null/empty-path semantics. This ensures no stale wallpaper is left that could be mistaken for a successfully applied new image. BgRaster then exits with a non-zero exit code, logs the failure, and records the cleanup outcome in `lastRun.toml`.
 
 1. **locked wallpaper files**: generated PNG file names must include a filename-safe ISO 8601 UTC timestamp so every run produces unique files. After a successful assignment, BgRaster sends all older BgRaster-generated files not referenced by the current run to the recycle bin. If any file remains because it is locked, that condition is non-fatal; the file stays in place, is recorded in `lastRun.toml`, and is retried on a later run.
-
-## Possible future development
-1. **Config import command** — a CLI sub-command (`import`) that reads a config file from another system and converts it to a BgRaster TOML file. Possible targets: Ventuz render setup files (.vren), Novastar (VideoWall/NovaLCT JSON/XML project files) and Resolume Avenue/Arena composition files. The import maps each output or layer region to an `[[output]]` or `[[output.slice]]` object with inferred `target`, geometry, and color values.
-
-1. **Windows service mode** — optional installation as a Windows service that listens for OS display change events (WM_DISPLAYCHANGE) and system startup events and reruns the core pipeline automatically when outputs are connected, disconnected, or reconfigured.
-
-1. **Preview window** — a `--preview` flag that opens a scaled-down Win32 window showing the generated image before applying it, for interactive configuration without a full wallpaper commit.
-
-1. **HTTP trigger** — a lightweight embedded HTTP endpoint that accepts a POST request to trigger a re-render, enabling integration with show-control systems such as QLab, Bitfocus Companion, or custom automation scripts. Command line argument could be provided in the post data.
