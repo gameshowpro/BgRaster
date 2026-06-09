@@ -2,6 +2,8 @@ namespace GameshowPro.BgRaster.Resolution;
 
 static class ConfiguredPathResolver
 {
+    static readonly StringComparison PathComparison = StringComparison.OrdinalIgnoreCase;
+
     internal static ImmutableArray<string>? ResolveArray(
         ImmutableArray<string>? values,
         string baseDirectory,
@@ -25,8 +27,19 @@ static class ConfiguredPathResolver
             ? value
             : FieldSubstitutor.Substitute(value, substitutionContext);
 
-        string expanded = Environment.ExpandEnvironmentVariables(substituted);
+        return NormalizeExpandedPath(substituted, baseDirectory);
+    }
+
+    internal static string NormalizeExpandedPath(string? value, string baseDirectory)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return value ?? string.Empty;
+
+        string expanded = Environment.ExpandEnvironmentVariables(value);
         if (string.IsNullOrWhiteSpace(expanded))
+            return expanded;
+
+        if (expanded.StartsWith("pack://application:,,,/", PathComparison))
             return expanded;
 
         if (Uri.TryCreate(expanded, UriKind.Absolute, out Uri? _))

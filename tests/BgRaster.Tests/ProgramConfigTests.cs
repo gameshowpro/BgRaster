@@ -51,12 +51,47 @@ public class ProgramConfigTests
     }
 
     [Fact]
+    public void ResolveConfigPath_ExpandsAndNormalizesExplicitPath()
+    {
+        string tempRoot = CreateTempDirectory();
+        string environmentVariableName = "BGRASTER_TEST_CONFIG_ROOT";
+        string? originalEnvironmentVariable = Environment.GetEnvironmentVariable(environmentVariableName);
+
+        try
+        {
+            Environment.SetEnvironmentVariable(environmentVariableName, tempRoot);
+
+            string explicitPath = $"%{environmentVariableName}%\\BgRaster\\config.toml";
+            ImmutableArray<string> defaultPaths = [Path.Combine(tempRoot, "fallback.toml")];
+
+            string resolvedPath = Program.ResolveConfigPath(explicitPath, defaultPaths);
+
+            resolvedPath.Should().Be(Path.GetFullPath(Path.Combine(tempRoot, "BgRaster", "config.toml")));
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable(environmentVariableName, originalEnvironmentVariable);
+            Directory.Delete(tempRoot, recursive: true);
+        }
+    }
+
+    [Fact]
     public void ShouldSeedExplicitConfigFromDefaults_ReturnsTrueOnlyForMissingExplicitNonDryRunConfig()
     {
         Program.ShouldSeedExplicitConfigFromDefaults(@"C:\cfg.toml", configExistedAtStartup: false, isDryRun: false).Should().BeTrue();
         Program.ShouldSeedExplicitConfigFromDefaults(@"C:\cfg.toml", configExistedAtStartup: true, isDryRun: false).Should().BeFalse();
         Program.ShouldSeedExplicitConfigFromDefaults(@"C:\cfg.toml", configExistedAtStartup: false, isDryRun: true).Should().BeFalse();
         Program.ShouldSeedExplicitConfigFromDefaults(null, configExistedAtStartup: false, isDryRun: false).Should().BeFalse();
+    }
+
+    [Fact]
+    public void ShouldWriteExplicitConfigOnUnchangedSkip_ReturnsTrueOnlyWhenMissingExplicitAndSkipping()
+    {
+        Program.ShouldWriteExplicitConfigOnUnchangedSkip(@"C:\cfg.toml", configExistedAtStartup: false, isDryRun: false, continueAfterUnchanged: false).Should().BeTrue();
+        Program.ShouldWriteExplicitConfigOnUnchangedSkip(@"C:\cfg.toml", configExistedAtStartup: true, isDryRun: false, continueAfterUnchanged: false).Should().BeFalse();
+        Program.ShouldWriteExplicitConfigOnUnchangedSkip(@"C:\cfg.toml", configExistedAtStartup: false, isDryRun: true, continueAfterUnchanged: false).Should().BeFalse();
+        Program.ShouldWriteExplicitConfigOnUnchangedSkip(@"C:\cfg.toml", configExistedAtStartup: false, isDryRun: false, continueAfterUnchanged: true).Should().BeFalse();
+        Program.ShouldWriteExplicitConfigOnUnchangedSkip(null, configExistedAtStartup: false, isDryRun: false, continueAfterUnchanged: false).Should().BeFalse();
     }
 
     [Fact]
