@@ -1,24 +1,61 @@
+using System.Text.Json;
+
 namespace GameshowPro.BgRaster.Tests;
 
 public class CliSchemaDocumentationTests
 {
+    const string OptionsTableBeginMarker = "<!-- BEGIN:CLI_OPTIONS_TABLE -->";
+    const string OptionsTableEndMarker = "<!-- END:CLI_OPTIONS_TABLE -->";
+    const string TomlRootScalarsBeginMarker = "<!-- BEGIN:TOML_ROOT_SCALARS_TABLE -->";
+    const string TomlRootScalarsEndMarker = "<!-- END:TOML_ROOT_SCALARS_TABLE -->";
+
     [Fact]
-    public void CliSchema_OptionsTable_MatchesCatalog()
+    public void CliSchema_OptionsTableBlock_UsesSnippetInclude()
     {
         string cliSchemaPath = FindCliSchemaPath();
         string markdown = File.ReadAllText(cliSchemaPath);
 
-        int beginIndex = markdown.IndexOf(CliOptionCatalog.OptionsTableBeginMarker, StringComparison.Ordinal);
-        int endIndex = markdown.IndexOf(CliOptionCatalog.OptionsTableEndMarker, StringComparison.Ordinal);
+        int beginIndex = markdown.IndexOf(OptionsTableBeginMarker, StringComparison.Ordinal);
+        int endIndex = markdown.IndexOf(OptionsTableEndMarker, StringComparison.Ordinal);
 
         beginIndex.Should().BeGreaterOrEqualTo(0);
         endIndex.Should().BeGreaterThan(beginIndex);
 
-        int contentStart = beginIndex + CliOptionCatalog.OptionsTableBeginMarker.Length;
-        string actualTable = markdown[contentStart..endIndex].Trim();
-        string expectedTable = CliOptionCatalog.BuildOptionsMarkdownTable().Trim();
+        int contentStart = beginIndex + OptionsTableBeginMarker.Length;
+        string includeBlock = markdown[contentStart..endIndex].Trim();
 
-        NormalizeLineEndings(actualTable).Should().Be(NormalizeLineEndings(expectedTable));
+        includeBlock.Should().Be("--8<-- \"generated/cli-schema.md\"");
+    }
+
+    [Fact]
+    public void TomlSchema_RootScalarsBlock_IsEmptyInSource()
+    {
+        string tomlSchemaPath = FindTomlSchemaPath();
+        string markdown = File.ReadAllText(tomlSchemaPath);
+
+        int beginIndex = markdown.IndexOf(TomlRootScalarsBeginMarker, StringComparison.Ordinal);
+        int endIndex = markdown.IndexOf(TomlRootScalarsEndMarker, StringComparison.Ordinal);
+
+        beginIndex.Should().BeGreaterOrEqualTo(0);
+        endIndex.Should().BeGreaterThan(beginIndex);
+
+        int contentStart = beginIndex + TomlRootScalarsBeginMarker.Length;
+        string includeBlock = markdown[contentStart..endIndex].Trim();
+
+        includeBlock.Should().Be("--8<-- \"generated/toml-root-scalars.md\"");
+    }
+
+    [Fact]
+    public void ConfigSchema_CliOptionsMetadata_Exists()
+    {
+        string configSchemaPath = FindConfigSchemaPath();
+        string schemaJson = File.ReadAllText(configSchemaPath);
+        using JsonDocument document = JsonDocument.Parse(schemaJson);
+        JsonElement root = document.RootElement;
+
+        root.TryGetProperty("x-cli-options", out JsonElement options).Should().BeTrue();
+        options.ValueKind.Should().Be(JsonValueKind.Array);
+        options.GetArrayLength().Should().BeGreaterThan(0);
     }
 
     static string FindCliSchemaPath()
@@ -37,6 +74,36 @@ public class CliSchemaDocumentationTests
         throw new InvalidOperationException("Could not locate docs/cli-schema.md from test runtime directory.");
     }
 
-    static string NormalizeLineEndings(string input) =>
-        input.Replace("\r\n", "\n", StringComparison.Ordinal);
+    static string FindConfigSchemaPath()
+    {
+        DirectoryInfo? current = new(AppContext.BaseDirectory);
+
+        while (current is not null)
+        {
+            string candidate = Path.Combine(current.FullName, "docs", "schemas", "bgraster-config.schema.json");
+            if (File.Exists(candidate))
+                return candidate;
+
+            current = current.Parent;
+        }
+
+        throw new InvalidOperationException("Could not locate docs/schemas/bgraster-config.schema.json from test runtime directory.");
+    }
+
+    static string FindTomlSchemaPath()
+    {
+        DirectoryInfo? current = new(AppContext.BaseDirectory);
+
+        while (current is not null)
+        {
+            string candidate = Path.Combine(current.FullName, "docs", "toml-schema.md");
+            if (File.Exists(candidate))
+                return candidate;
+
+            current = current.Parent;
+        }
+
+        throw new InvalidOperationException("Could not locate docs/toml-schema.md from test runtime directory.");
+    }
+
 }

@@ -21,6 +21,8 @@ static class ConfigLoader
 
     internal static GlobalOptions ApplyCliOverlay(GlobalOptions options, CliOverlay overlay, List<string>? warnings = null)
     {
+        string currentDirectory = Directory.GetCurrentDirectory();
+
         string machineName = options.MachineName;
         TextOptions text = options.Text;
         BackgroundOptions bg = options.Background;
@@ -47,7 +49,12 @@ static class ConfigLoader
         if (overlay.BackgroundColor is not null)
             bg = bg with { Color = ParseCliStringOrArray(overlay.BackgroundColor, "cli --background-color", warnings) };
         if (overlay.BackgroundImage is not null)
-            bg = bg with { Image = ParseCliStringOrArray(overlay.BackgroundImage, "cli --background-image", warnings) };
+            bg = bg with
+            {
+                Image = ResolveCliPathArray(
+                    ParseCliStringOrArray(overlay.BackgroundImage, "cli --background-image", warnings),
+                    currentDirectory),
+            };
         if (overlay.BackgroundFit is not null)
             bg = bg with { Fit = ParseCliStringOrArray(overlay.BackgroundFit, "cli --background-fit", warnings) };
         if (overlay.BackgroundAlternating is not null) bg = bg with { Alternating = [overlay.BackgroundAlternating.Value] };
@@ -92,7 +99,12 @@ static class ConfigLoader
             crosshair = crosshair with { Stroke = ParseCliStringOrArray(overlay.CrosshairStroke, "cli --crosshair-stroke", warnings) };
 
         if (overlay.LogoSource is not null)
-            logo = logo with { Source = ParseCliStringOrArray(overlay.LogoSource, "cli --logo-source", warnings) };
+            logo = logo with
+            {
+                Source = ResolveCliPathArray(
+                    ParseCliStringOrArray(overlay.LogoSource, "cli --logo-source", warnings),
+                    currentDirectory),
+            };
         if (overlay.LogoX is not null)
             logo = logo with { X = ParseCliStringOrArray(overlay.LogoX, "cli --logo-x", warnings) };
         if (overlay.LogoY is not null)
@@ -108,7 +120,8 @@ static class ConfigLoader
         if (overlay.RenderNoDiscovery is not null) render = render with { NoDiscovery = overlay.RenderNoDiscovery.Value };
         if (overlay.RenderOutputsSkipUnspecified is not null)
             render = render with { OutputsSkipUnspecified = overlay.RenderOutputsSkipUnspecified.Value };
-        if (overlay.RenderOutput is not null) render = render with { Output = overlay.RenderOutput };
+        if (overlay.RenderOutput is not null)
+            render = render with { Output = ResolveCliPath(overlay.RenderOutput, currentDirectory) };
         if (overlay.RenderVerbosity is not null)
         {
             render = render with
@@ -421,6 +434,16 @@ static class ConfigLoader
         }
 
         return [raw];
+    }
+
+    static ImmutableArray<string> ResolveCliPathArray(ImmutableArray<string> values, string baseDirectory)
+    {
+        return ConfiguredPathResolver.ResolveArray(values, baseDirectory) ?? values;
+    }
+
+    static string ResolveCliPath(string value, string baseDirectory)
+    {
+        return ConfiguredPathResolver.Resolve(value, baseDirectory);
     }
 
     static ImmutableArray<float> ParseCliFloatOrArray(string raw, string source)
