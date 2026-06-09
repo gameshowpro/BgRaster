@@ -29,7 +29,6 @@ static class Program
 
         ImmutableArray<string> defaultConfigSearchPaths = GetDefaultConfigSearchPaths();
         string resolvedConfigPath = ResolveConfigPath(configPath, defaultConfigSearchPaths);
-        string? resolvedExplicitConfigPath = string.IsNullOrWhiteSpace(configPath) ? null : resolvedConfigPath;
         bool configExists = File.Exists(resolvedConfigPath);
 
         GlobalOptions options;
@@ -53,8 +52,6 @@ static class Program
             return 2;
         }
 
-        bool continueAfterUnchanged = options.Render.ContinueAfterUnchanged;
-
         using ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
         {
             builder.ClearProviders();
@@ -75,7 +72,7 @@ static class Program
             configExists,
             options.Outputs.Length,
             options.Render.DryRun,
-            continueAfterUnchanged,
+            options.Render.ContinueAfterUnchanged,
             options.Render.MinimumLogLevel);
 
         if (options.Outputs.Length == 0)
@@ -130,6 +127,7 @@ static class Program
         }
 
         bool isDryRun = options.Render.DryRun;
+        bool continueAfterUnchanged = options.Render.ContinueAfterUnchanged;
         string outputTemplate = FileNamer.GetOutputTemplate(options.Render.Output);
         string outputDir = FileNamer.GetOutputDirectory(outputTemplate);
         string lastRunFileName = isDryRun ? "lastRun.dry.toml" : "lastRun.toml";
@@ -157,15 +155,6 @@ static class Program
             if (unchanged)
             {
                 logger.RunSkippedUnchanged();
-                List<string> unchangedSkipWarnings = [];
-                if (ShouldWriteExplicitConfigOnUnchangedSkip(resolvedExplicitConfigPath, configExists, isDryRun, continueAfterUnchanged))
-                {
-                    SeedExplicitConfigFromDefaults(resolvedExplicitConfigPath, configExists, isDryRun, options, hardware, unchangedSkipWarnings);
-                }
-
-                foreach (string warning in unchangedSkipWarnings)
-                    logger.ConfigurationWarning(warning);
-
                 if (!continueAfterUnchanged)
                 {
                     logger.SkipBecauseUnchanged();
@@ -305,7 +294,7 @@ static class Program
 
         logger.LastRunWrite(lastRunPath, assignedFiles.Count, unrecycled.Length);
         WriteLastRun(lastRunPath, settingsHash, hardware, options, assignedFiles, unrecycled, runStatus, logger);
-        SeedExplicitConfigFromDefaults(resolvedExplicitConfigPath, configExists, isDryRun, options, hardware, configurationWarnings);
+        SeedExplicitConfigFromDefaults(configPath, configExists, isDryRun, options, hardware, configurationWarnings);
         logger.RunComplete();
         return ReturnWithTiming(0);
     }
@@ -364,7 +353,7 @@ static class Program
     internal static string ResolveConfigPath(string? explicitConfigPath, ImmutableArray<string> defaultConfigSearchPaths)
     {
         if (!string.IsNullOrWhiteSpace(explicitConfigPath))
-            return ConfiguredPathResolver.Resolve(explicitConfigPath, Directory.GetCurrentDirectory());
+            return explicitConfigPath;
 
         foreach (string candidate in defaultConfigSearchPaths)
         {
@@ -401,16 +390,6 @@ static class Program
         !string.IsNullOrWhiteSpace(explicitConfigPath)
         && !configExistedAtStartup
         && !isDryRun;
-
-    internal static bool ShouldWriteExplicitConfigOnUnchangedSkip(
-        string? explicitConfigPath,
-        bool configExistedAtStartup,
-        bool isDryRun,
-        bool continueAfterUnchanged) =>
-        !string.IsNullOrWhiteSpace(explicitConfigPath)
-        && !configExistedAtStartup
-        && !isDryRun
-        && !continueAfterUnchanged;
 
     internal static string BuildSeedConfigToml(GlobalOptions effectiveOptions, ImmutableArray<OutputRecord> detectedOutputs)
     {

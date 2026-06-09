@@ -2,17 +2,25 @@
 
 ## Purpose
 
-Sample configs in [docs/sample-config](../sample-config) are rendered into PNG artifacts in [docs/sample-output](../sample-output). Each config demonstrates one visual feature and is designed for stable documentation references.
+Sample configs in [sample-config](sample-config/background-image.toml) are rendered into PNG artifacts in [generated](generated/background-image.png). Each config demonstrates one visual feature and is designed for stable documentation references.
+
+Generated sections in CLI/TOML reference pages are written to `docs/generated/*.md` by `scripts/generate-documentation.ps1` from schema metadata in `docs/schemas/bgraster-config.schema.json`, then included from the static pages with `pymdownx.snippets` so the docs stay aligned with source-of-truth defaults and descriptions.
 
 ## How generation works
 
-The [generator script](/scripts/generate-documentation.ps1):
+The generator script (`scripts/generate-documentation.ps1`):
 
-1. Enumerates all TOML files in [docs/sample-config](../sample-config).
+1. Enumerates all TOML files in `docs/sample-config`.
 1. Invokes BgRaster once per file.
 1. Forces non-assignment mode (`--no-discovery true --no-assignment true`).
 1. Uses `--render-output` with a deterministic stem derived from the sample file name.
-1. Writes PNG outputs to [docs/sample-output](../sample-output).
+1. Writes PNG outputs to `docs/generated`.
+
+The generator script (`scripts/generate-documentation.ps1`):
+
+1. Reads `x-cli-options` from `docs/schemas/bgraster-config.schema.json`.
+1. Writes generated markdown files under `docs/generated/` before `mkdocs build`/`mkdocs serve` runs.
+1. Keeps source files stable in git while still publishing fully expanded tables via snippet includes in [cli-schema.md](cli-schema.md) and [toml-schema.md](toml-schema.md).
 
 ## Config requirements for samples
 
@@ -39,4 +47,4 @@ friendlyName = "Unspecified"
 
 ## Path behavior
 
-Sample configs intentionally use relative paths (for example, `images/logo.png`). Path handling rules are documented centrally in [docs/toml-schema.md](../toml-schema.md#path-resolution).
+Sample configs intentionally use relative paths (for example, `images/logo.png`). Path handling rules are documented centrally in [toml-schema.md](toml-schema.md#path-resolution).

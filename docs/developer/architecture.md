@@ -4,40 +4,31 @@ This document describes the runtime pipeline, module layout, and key design cons
 
 ## Runtime pipeline
 
-```
-       ┌─────────────────────────────────────────────────────────────────────┐
- args  │  CliBinding ─► ConfigLoader ─► CliOverlay merge ─► GlobalOptions    │
- file  │                                                                     │
-       └────────────────────────────────────┬────────────────────────────────┘
-                                            ▼
-                                   SettingsHasher.Compute  → settingsHash
-                                            │
-                                            ▼
-                                  DisplayDiscovery.Discover → HardwareProfile
-                                            │
-                                            ▼
-                       ┌─────────── LastRunReader.Read ──────────┐
-                       │                                         │
-            fingerprint matches?                          fingerprint mismatch
-                       │                                         │
-            print run-skipped-unchanged              TargetMatcher.Match
-                       │                                         │
-                     exit 0                                      ▼
-                                                       OutputRenderer (per match)
-                                                                 │
-                                                                 ▼
-                                                  WallpaperAssigner.AssignAsync
-                                                                 │
-                                                                 ▼
-                                                StaleFileCleaner.FindStaleFiles
-                                                  + RecycleFiles
-                                                                 │
-                                                                 ▼
-                                                       LastRunWriter.Write
-                                                       (atomic + verified)
-                                                                 │
-                                                                 ▼
-                                                          run-complete
+```mermaid
+flowchart TD
+    A[CLI args] --> B[CliBinding<br/>parse argv into CliOverlay]
+    C[TOML file] --> D[ConfigLoader.Load<br/>parse config into GlobalOptions]
+    B --> E[ConfigLoader.ApplyCliOverlay<br/>merge CLI overrides]
+    D --> E
+    E --> F[SettingsHasher.Compute<br/>settingsHash]
+    E --> G[DisplayDiscovery.Discover<br/>HardwareProfile]
+    F --> H[LastRunReader.Read<br/>load previous run]
+    G --> H
+
+    H --> I{fingerprint matches?}
+    I -- no --> J[TargetMatcher.Match]
+    I -- yes --> K[run-skipped-unchanged]
+    K --> L{explicit config missing?}
+    L -- yes --> M[SeedExplicitConfigFromDefaults]
+    L -- no --> N[exit 0]
+    M --> N
+
+    J --> O[OutputRenderer<br/>render each match]
+    O --> P[WallpaperAssigner.AssignAsync]
+    P --> Q[StaleFileCleaner.FindStaleFiles<br/>+ RecycleFiles]
+    Q --> R[LastRunWriter.Write<br/>atomic + verified]
+    R --> S[SeedExplicitConfigFromDefaults<br/>for missing explicit config]
+    S --> T[run-complete]
 ```
 
 ## Phase responsibilities
@@ -61,7 +52,9 @@ Compares three things between `lastRun.toml` (or `.dry.toml` for no-assignment) 
 - settings hash
 - hardware profile (count, IDs, position, resolution, rotation, DPI — sorted by Id)
 
-If all three match, the run prints `run-skipped-unchanged` and exits without rendering or touching wallpapers.
+If all three match, the run prints `run-skipped-unchanged` and exits without rendering or touching wallpapers. If the user supplied an explicit config path that did not exist at startup, BgRaster still seeds that file on this early-exit path.
+
+For the full config-selection and skip/seeding decision process, see [Config File Logic](config-file-logic.md).
 
 ### 5. Target matching (`src/Resolution/TargetMatcher.cs`)
 Walks the configured `[[output]]` list against the discovered `HardwareProfile` and emits a discriminated union:
@@ -89,7 +82,7 @@ Each layer reads from `RenderContext` (which carries `OutputRecord`, resolved op
 Notable layers:
 - **`AlternatingLayer`** uses `SKBitmap.GetPixels()` with an unsafe pointer to set pixels in O(W×H) without per-pixel allocation.
 - **`GridLayer`** optionally draws WCAG-style luminance-aware coordinate labels: text color is chosen per cell based on `0.299·R + 0.587·G + 0.114·B` of the cell background color.
-- **`LogoLayer`** branches by extension: PNG/JPG via `SKBitmap.Decode`; SVG via `SvgRenderer.TryRender` (a hand-rolled XmlReader-based parser supporting a small subset of SVG). On any failure, the embedded `resources/fallback-logo.svg` is used; if even that fails, a programmatic orange cross is drawn.
+- **`LogoLayer`** branches by extension: PNG/JPG via `SKBitmap.Decode`; SVG via `SvgRenderer.TryRender` (a hand-rolled XmlReader-based parser supporting a small subset of SVG). On any failure, the embedded `resources/gsp.svg` logo resource is used; if even that fails, a programmatic orange cross is drawn.
 - **`TextLayer`** uses an embedded `Gidolinya-Regular.otf` via `Assembly.GetManifestResourceStream`, loaded once into a `static SKTypeface`.
 
 The bitmap is encoded to PNG (`SKEncodedImageFormat.Png`, quality 100) and written to `<outputDir>/<timestamp>_<safeId>.png`.
@@ -101,7 +94,7 @@ The bitmap is encoded to PNG (`SKEncodedImageFormat.Png`, quality 100) and writt
 
 ### 9. Stale-file cleanup (`src/FileLifecycle/StaleFileCleaner.cs`)
 - **`FindStaleFiles`** scans the output directory for files whose names match the BgRaster timestamp pattern but are not in the current run's assigned set.
-- **`RecycleFiles`** is a pending implementation; currently it returns the input as the "unrecycled" list. See [deferred task 7](deferred-tasks.md).
+- **`RecycleFiles`** is a pending implementation; currently it returns the input as the "unrecycled" list. See [deferred task 7](future-plans.md).
 
 ### 10. State persistence (`src/StateCache/`)
 - **`LastRunWriter.Write`** hand-emits TOML (Tomlyn's comment API on `[[array_of_tables]]` headers is fragile in 0.17.x). It writes to `<path>.tmp`, parses it back via `LastRunReader.Read`, and only `File.Move`'s into place if the round-trip matches the in-memory state field-by-field. On mismatch it deletes the temp and preserves the previous file — diagnostic, not a hard failure.
@@ -118,7 +111,7 @@ The project publishes with `PublishAot=true`, `TrimMode=full`, `InvariantGlobali
 - **All P/Invoke uses `LibraryImport`** with `StringMarshalling.Utf16` for `W`-suffixed APIs.
 - **No invariant-culture-sensitive ToString/Parse without explicit culture.** All numeric parsing uses `CultureInfo.InvariantCulture`.
 
-`DisableRuntimeMarshalling=true` is intentionally **not** set — see [deferred task 9](deferred-tasks.md). SkiaSharp's interop has not been validated under that flag.
+`DisableRuntimeMarshalling=true` is intentionally **not** set — see [deferred task 9](future-plans.md). SkiaSharp's interop has not been validated under that flag.
 
 ### DPI awareness
 `src/app.manifest` sets `dpiAwareness` to `PerMonitorV2`. Combined with `GetDpiForMonitor`, the rendered PNG dimensions match the physical pixel grid of each output, regardless of mixed-DPI desktops.
@@ -127,7 +120,7 @@ The project publishes with `PublishAot=true`, `TrimMode=full`, `InvariantGlobali
 The manifest declares `requestedExecutionLevel level="asInvoker"`. BgRaster does not implement an elevation-relaunch path; it runs in the caller's token and reports wallpaper-assignment failures through normal HRESULT/status diagnostics.
 
 ### Embedded resources
-Two resources are embedded into the AOT binary: `resources/gidole/Gidolinya-Regular.otf` (font) and `resources/fallback-logo.svg`. Access is via `Assembly.GetManifestResourceStream` — AOT-safe (the resources are linked into the assembly's manifest, not loaded by dynamic type).
+Two resources are embedded into the AOT binary: `resources/gidole/Gidolinya-Regular.otf` (font) and `resources/gsp.svg` (logo). Access is via `Assembly.GetManifestResourceStream` — AOT-safe (the resources are linked into the assembly's manifest, not loaded by dynamic type).
 
 ## Module layout
 
