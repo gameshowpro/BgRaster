@@ -124,9 +124,31 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         shell: pwsh
         run: |
-          $version = nbgv get-version -v NuGetPackageVersion
-          git tag "v$version"
-          git push origin "v$version"
+          $tag = "${{ steps.docs_version.outputs.tag }}"
+          if ([string]::IsNullOrWhiteSpace($tag)) {
+            throw "docs_version output 'tag' is empty."
+          }
+
+          $exists = git ls-remote --tags origin "refs/tags/$tag"
+          if ([string]::IsNullOrWhiteSpace($exists)) {
+            git tag "$tag"
+            git push origin "$tag"
+            Write-Host "Created and pushed tag $tag"
+          }
+          else {
+            Write-Host "Tag $tag already exists on origin; skipping tag creation."
+          }
+
+      - name: Create or update GitHub release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.docs_version.outputs.tag }}
+          name: BgRaster ${{ steps.docs_version.outputs.tag }}
+          generate_release_notes: true
+          files: |
+            publish/win-x64/*
+          fail_on_unmatched_files: true
 
   deploy-docs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
