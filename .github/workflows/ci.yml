@@ -96,7 +96,6 @@ jobs:
           dotnet publish src/BgRaster.csproj
           -c Release
           -r win-x64
-          /p:PublishAot=true
           /p:TreatWarningsAsErrors=true
           -o publish/win-x64
 
