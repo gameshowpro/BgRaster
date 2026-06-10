@@ -6,6 +6,7 @@ repo_name: gameshowpro/BgRaster
 
 theme:
   name: material
+  custom_dir: overrides
   logo: assets/images/logo.svg
   favicon: assets/images/favicon.svg
   palette:
@@ -57,3 +58,7 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format
   - toc:
       permalink: true
+
+extra:
+  build_version: !ENV [GITHUB_REF_NAME]
+  repo_url: https://github.com/gameshowpro/BgRaster
