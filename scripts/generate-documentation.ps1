@@ -74,18 +74,7 @@ try {
         }
 
         if ($options.Count -eq 0) {
-            $existingCliTablePath = Join-Path $SampleOutputDirectory "cli-schema.md"
-            if (Test-Path $existingCliTablePath) {
-                Write-Warning "Schema metadata for CLI options is missing in docs/schemas/bgraster-config.schema.json (x-bgraster). Reusing existing generated/cli-schema.md."
-                return (Get-Content -Raw -Path $existingCliTablePath).TrimEnd("`r", "`n")
-            }
-
-            Write-Warning "Schema metadata for CLI options is missing in docs/schemas/bgraster-config.schema.json (x-bgraster) and no existing generated/cli-schema.md was found. Emitting a placeholder table."
-            return @(
-                '| Option | Type | TOML equivalent | Description | Default resolution |',
-                '|---|---|---|---|---|',
-                '| _Missing schema metadata_ | - | - | Add `x-bgraster` metadata to `docs/schemas/bgraster-config.schema.json`. | - |'
-            ) -join "`n"
+            throw "Schema metadata for CLI options is missing in docs/schemas/bgraster-config.schema.json (x-bgraster.cliOptions / x-bgraster.cliOnlyOptions)."
         }
 
         $lines = @(
@@ -416,12 +405,6 @@ try {
         $xBgraster = if ($null -eq $xBgrasterProperty) { $null } else { $xBgrasterProperty.Value }
         $reference = if ($null -eq $xBgraster) { $null } else { $xBgraster.tomlReference }
         if ($null -eq $reference) {
-            $existingPath = Join-Path $SampleOutputDirectory 'toml-schema-sections.md'
-            if (Test-Path $existingPath) {
-                Write-Warning "Schema metadata for TOML sections is missing in docs/schemas/bgraster-config.schema.json (x-bgraster.tomlReference). Reusing existing generated/toml-schema-sections.md."
-                return (Get-Content -Raw -Path $existingPath).TrimEnd("`r", "`n")
-            }
-
             throw "Schema metadata x-bgraster.tomlReference is missing in docs/schemas/bgraster-config.schema.json."
         }
 
