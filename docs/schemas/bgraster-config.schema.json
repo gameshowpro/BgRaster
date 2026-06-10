@@ -37,5 +37,581 @@
     "output": {
       "$ref": "./bgraster-common.schema.json#/definitions/outputList"
     }
+  },
+  "x-bgraster": {
+    "metadataVersion": 1,
+    "ordering": "cli-option-catalog-order",
+    "cliOptions": [
+      {
+        "key": "machine-name",
+        "alias": "--machine-name",
+        "valueSyntax": "<name>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "machine-name",
+        "tomlPath": "machine-name",
+        "surface": "both",
+        "description": "Override the framework-supplied host name used by ${MachineName} substitutions.",
+        "defaultResolution": "if omitted, uses Environment.MachineName."
+      },
+      {
+        "key": "text",
+        "alias": "--text",
+        "valueSyntax": "<s|[\"s1\",\"s2\"]>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[text].text",
+        "tomlPath": "[text].text",
+        "surface": "both",
+        "description": "Text line(s); accepts a single string or a TOML string array literal.",
+        "defaultResolution": "if omitted, defers to config.toml [text].text; if missing there, uses [\"${MachineName} output ${OutputIndexPlusOne}\", \"slice ${SliceLetter}\", \"${SliceWidth}x${SliceHeight}\"]."
+      },
+      {
+        "key": "text-size",
+        "alias": "--text-size",
+        "valueSyntax": "<dim|[\"d1\",\"d2\"]>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[text].size",
+        "tomlPath": "[text].size",
+        "surface": "both",
+        "description": "Text line height(s); accepts a single dimension or a TOML string array literal.",
+        "defaultResolution": "if omitted, defers to config.toml [text].size; if missing there, uses [\"3vh\", \"2vh\", \"4vh\"]."
+      },
+      {
+        "key": "text-color",
+        "alias": "--text-color",
+        "valueSyntax": "<color|[\"c1\",\"c2\"]>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[text].color",
+        "tomlPath": "[text].color",
+        "surface": "both",
+        "description": "Text color(s); accepts a single color or a TOML string array literal.",
+        "defaultResolution": "if omitted, defers to config.toml [text].color; if missing there, uses [\"#fff\"]."
+      },
+      {
+        "key": "text-x",
+        "alias": "--text-x",
+        "valueSyntax": "<dim>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[text].x",
+        "tomlPath": "[text].x",
+        "surface": "both",
+        "description": "Anchor X.",
+        "defaultResolution": "if omitted, defers to config.toml [text].x; if missing there, uses [\"75vw\"]."
+      },
+      {
+        "key": "text-y",
+        "alias": "--text-y",
+        "valueSyntax": "<dim>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[text].y",
+        "tomlPath": "[text].y",
+        "surface": "both",
+        "description": "Anchor Y.",
+        "defaultResolution": "if omitted, defers to config.toml [text].y; if missing there, uses [\"75vh\"]."
+      },
+      {
+        "key": "background-color",
+        "alias": "--background-color",
+        "valueSyntax": "<color>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[background].color",
+        "tomlPath": "[background].color",
+        "surface": "both",
+        "description": "Background fill color.",
+        "defaultResolution": "if omitted, defers to config.toml [background].color; if missing there, uses [\"#FF0000\", \"#00FF00\", \"#0000FF\"]."
+      },
+      {
+        "key": "background-image",
+        "alias": "--background-image",
+        "valueSyntax": "<path>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[background].image",
+        "tomlPath": "[background].image",
+        "surface": "both",
+        "description": "Path to background bitmap. Relative CLI paths resolve against the current working directory.",
+        "defaultResolution": "if omitted, defers to config.toml [background].image; if missing there, uses [\"\"] (disabled)."
+      },
+      {
+        "key": "background-fit",
+        "alias": "--background-fit",
+        "valueSyntax": "<mode>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[background].fit",
+        "tomlPath": "[background].fit",
+        "surface": "both",
+        "description": "Background fit mode.",
+        "defaultResolution": "if omitted, defers to config.toml [background].fit; if missing there, uses [\"CropToFill\"]."
+      },
+      {
+        "key": "background-alternating",
+        "alias": "--background-alternating",
+        "valueSyntax": "<bool>",
+        "typeName": "bool",
+        "parseKind": "nullable-bool",
+        "tomlEquivalent": "[background].alternating",
+        "tomlPath": "[background].alternating",
+        "surface": "both",
+        "description": "Enable alternating-pixel pattern.",
+        "defaultResolution": "if omitted, defers to config.toml [background].alternating; if missing there, uses [false]."
+      },
+      {
+        "key": "background-border",
+        "alias": "--background-border",
+        "valueSyntax": "<bool>",
+        "typeName": "bool",
+        "parseKind": "nullable-bool",
+        "tomlEquivalent": "[background].border",
+        "tomlPath": "[background].border",
+        "surface": "both",
+        "description": "Enable viewport border.",
+        "defaultResolution": "if omitted, defers to config.toml [background].border; if missing there, uses [false]."
+      },
+      {
+        "key": "background-border-color",
+        "alias": "--background-border-color",
+        "valueSyntax": "<color>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[background].border-color",
+        "tomlPath": "[background].border-color",
+        "surface": "both",
+        "description": "Border color.",
+        "defaultResolution": "if omitted, defers to config.toml [background].border-color; if missing there, uses [\"#FFFFFF\"]."
+      },
+      {
+        "key": "grid-size",
+        "alias": "--grid-size",
+        "valueSyntax": "<dim>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[grid].size",
+        "tomlPath": "[grid].size",
+        "surface": "both",
+        "description": "Grid cell side length.",
+        "defaultResolution": "if omitted, defers to config.toml [grid].size; if missing there, uses [\"100px\"]."
+      },
+      {
+        "key": "grid-odd-color",
+        "alias": "--grid-odd-color",
+        "valueSyntax": "<color>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[grid].odd-color",
+        "tomlPath": "[grid].odd-color",
+        "surface": "both",
+        "description": "Odd-cell color.",
+        "defaultResolution": "if omitted, defers to config.toml [grid].odd-color; if missing there, uses [\"#00000080\"]."
+      },
+      {
+        "key": "grid-even-color",
+        "alias": "--grid-even-color",
+        "valueSyntax": "<color>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[grid].even-color",
+        "tomlPath": "[grid].even-color",
+        "surface": "both",
+        "description": "Even-cell color.",
+        "defaultResolution": "if omitted, defers to config.toml [grid].even-color; if missing there, uses [\"transparent\"]."
+      },
+      {
+        "key": "grid-stroke",
+        "alias": "--grid-stroke",
+        "valueSyntax": "<dim>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[grid].stroke",
+        "tomlPath": "[grid].stroke",
+        "surface": "both",
+        "description": "Cell stroke width.",
+        "defaultResolution": "if omitted, defers to config.toml [grid].stroke; if missing there, uses [\"0\"]."
+      },
+      {
+        "key": "grid-offset-x",
+        "alias": "--grid-offset-x",
+        "valueSyntax": "<dim>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[grid].offset-x",
+        "tomlPath": "[grid].offset-x",
+        "surface": "both",
+        "description": "Grid origin X.",
+        "defaultResolution": "if omitted, defers to config.toml [grid].offset-x; if missing there, uses [\"0\"]."
+      },
+      {
+        "key": "grid-offset-y",
+        "alias": "--grid-offset-y",
+        "valueSyntax": "<dim>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[grid].offset-y",
+        "tomlPath": "[grid].offset-y",
+        "surface": "both",
+        "description": "Grid origin Y.",
+        "defaultResolution": "if omitted, defers to config.toml [grid].offset-y; if missing there, uses [\"0\"]."
+      },
+      {
+        "key": "grid-coordinates",
+        "alias": "--grid-coordinates",
+        "valueSyntax": "<bool>",
+        "typeName": "bool",
+        "parseKind": "nullable-bool",
+        "tomlEquivalent": "[grid].coordinates",
+        "tomlPath": "[grid].coordinates",
+        "surface": "both",
+        "description": "Enable per-cell coordinate labels.",
+        "defaultResolution": "if omitted, defers to config.toml [grid].coordinates; if missing there, uses [false]."
+      },
+      {
+        "key": "circle-size",
+        "alias": "--circle-size",
+        "valueSyntax": "<dim>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[circle].size",
+        "tomlPath": "[circle].size",
+        "surface": "both",
+        "description": "Circle diameter.",
+        "defaultResolution": "if omitted, defers to config.toml [circle].size; if missing there, uses [\"100vmin\"]."
+      },
+      {
+        "key": "circle-x",
+        "alias": "--circle-x",
+        "valueSyntax": "<dim>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[circle].x",
+        "tomlPath": "[circle].x",
+        "surface": "both",
+        "description": "Circle center X.",
+        "defaultResolution": "if omitted, defers to config.toml [circle].x; if missing there, uses [\"50vw\"]."
+      },
+      {
+        "key": "circle-y",
+        "alias": "--circle-y",
+        "valueSyntax": "<dim>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[circle].y",
+        "tomlPath": "[circle].y",
+        "surface": "both",
+        "description": "Circle center Y.",
+        "defaultResolution": "if omitted, defers to config.toml [circle].y; if missing there, uses [\"50vh\"]."
+      },
+      {
+        "key": "circle-color",
+        "alias": "--circle-color",
+        "valueSyntax": "<color>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[circle].color",
+        "tomlPath": "[circle].color",
+        "surface": "both",
+        "description": "Circle color.",
+        "defaultResolution": "if omitted, defers to config.toml [circle].color; if missing there, uses [\"#ffffff40\"]."
+      },
+      {
+        "key": "circle-stroke",
+        "alias": "--circle-stroke",
+        "valueSyntax": "<dim>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[circle].stroke",
+        "tomlPath": "[circle].stroke",
+        "surface": "both",
+        "description": "Circle stroke width.",
+        "defaultResolution": "if omitted, defers to config.toml [circle].stroke; if missing there, uses [\"0\"]."
+      },
+      {
+        "key": "crosshair-length",
+        "alias": "--crosshair-length",
+        "valueSyntax": "<dim>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[crosshair].length",
+        "tomlPath": "[crosshair].length",
+        "surface": "both",
+        "description": "Crosshair half-arm length.",
+        "defaultResolution": "if omitted, defers to config.toml [crosshair].length; if missing there, uses [\"5vmin\"]."
+      },
+      {
+        "key": "crosshair-x",
+        "alias": "--crosshair-x",
+        "valueSyntax": "<dim>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[crosshair].x",
+        "tomlPath": "[crosshair].x",
+        "surface": "both",
+        "description": "Crosshair center X.",
+        "defaultResolution": "if omitted, defers to config.toml [crosshair].x; if missing there, uses [\"50vw\"]."
+      },
+      {
+        "key": "crosshair-y",
+        "alias": "--crosshair-y",
+        "valueSyntax": "<dim>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[crosshair].y",
+        "tomlPath": "[crosshair].y",
+        "surface": "both",
+        "description": "Crosshair center Y.",
+        "defaultResolution": "if omitted, defers to config.toml [crosshair].y; if missing there, uses [\"50vh\"]."
+      },
+      {
+        "key": "crosshair-color",
+        "alias": "--crosshair-color",
+        "valueSyntax": "<color>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[crosshair].color",
+        "tomlPath": "[crosshair].color",
+        "surface": "both",
+        "description": "Crosshair color.",
+        "defaultResolution": "if omitted, defers to config.toml [crosshair].color; if missing there, uses [\"#ffffff80\"]."
+      },
+      {
+        "key": "crosshair-stroke",
+        "alias": "--crosshair-stroke",
+        "valueSyntax": "<dim>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[crosshair].stroke",
+        "tomlPath": "[crosshair].stroke",
+        "surface": "both",
+        "description": "Crosshair stroke width.",
+        "defaultResolution": "if omitted, defers to config.toml [crosshair].stroke; if missing there, uses [\"1px\"]."
+      },
+      {
+        "key": "logo-source",
+        "alias": "--logo-source",
+        "valueSyntax": "<path>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[logo].source",
+        "tomlPath": "[logo].source",
+        "surface": "both",
+        "description": "Path to logo file (PNG/JPG/SVG) or pack URI. Empty string suppresses logo. Relative CLI file paths resolve against the current working directory.",
+        "defaultResolution": "if omitted, defers to config.toml [logo].source; if missing there, uses the embedded logo via pack URI."
+      },
+      {
+        "key": "logo-x",
+        "alias": "--logo-x",
+        "valueSyntax": "<dim>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[logo].x",
+        "tomlPath": "[logo].x",
+        "surface": "both",
+        "description": "Logo center X.",
+        "defaultResolution": "if omitted, defers to config.toml [logo].x; if missing there, uses [\"85vw\"]."
+      },
+      {
+        "key": "logo-y",
+        "alias": "--logo-y",
+        "valueSyntax": "<dim>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[logo].y",
+        "tomlPath": "[logo].y",
+        "surface": "both",
+        "description": "Logo center Y.",
+        "defaultResolution": "if omitted, defers to config.toml [logo].y; if missing there, uses [\"15vh\"]."
+      },
+      {
+        "key": "logo-width",
+        "alias": "--logo-width",
+        "valueSyntax": "<dim>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[logo].width",
+        "tomlPath": "[logo].width",
+        "surface": "both",
+        "description": "Logo rect width.",
+        "defaultResolution": "if omitted, defers to config.toml [logo].width; if missing there, uses [\"20vw\"]."
+      },
+      {
+        "key": "logo-height",
+        "alias": "--logo-height",
+        "valueSyntax": "<dim>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[logo].height",
+        "tomlPath": "[logo].height",
+        "surface": "both",
+        "description": "Logo rect height.",
+        "defaultResolution": "if omitted, defers to config.toml [logo].height; if missing there, uses [\"20vh\"]."
+      },
+      {
+        "key": "logo-opacity",
+        "alias": "--logo-opacity",
+        "valueSyntax": "<f|[f1,f2]>",
+        "typeName": "float|float[]",
+        "parseKind": "string",
+        "tomlEquivalent": "[logo].opacity",
+        "tomlPath": "[logo].opacity",
+        "surface": "both",
+        "description": "Logo alpha multiplier(s) in range [0, 1]; accepts a single float or a TOML float array literal.",
+        "defaultResolution": "if omitted, defers to config.toml [logo].opacity; if missing there, uses [1.0]."
+      },
+      {
+        "key": "no-assignment",
+        "alias": "--no-assignment",
+        "valueSyntax": "<bool>",
+        "typeName": "bool",
+        "parseKind": "nullable-bool",
+        "tomlEquivalent": "[render].no-assignment",
+        "tomlPath": "[render].no-assignment",
+        "surface": "both",
+        "description": "Generate PNGs without assigning wallpaper.",
+        "defaultResolution": "if omitted, defers to config.toml [render].no-assignment; if missing there, uses false."
+      },
+      {
+        "key": "no-discovery",
+        "alias": "--no-discovery",
+        "valueSyntax": "<bool>",
+        "typeName": "bool",
+        "parseKind": "nullable-bool",
+        "tomlEquivalent": "[render].no-discovery",
+        "tomlPath": "[render].no-discovery",
+        "surface": "both",
+        "description": "Skip display discovery and render only configured [[output]] entries using each [output.hardware_output]. Implies --no-assignment.",
+        "defaultResolution": "if omitted, defers to config.toml [render].no-discovery; if missing there, uses false."
+      },
+      {
+        "key": "outputs-skip-unspecified",
+        "alias": "--outputs-skip-unspecified",
+        "valueSyntax": "<bool>",
+        "typeName": "bool",
+        "parseKind": "nullable-bool",
+        "tomlEquivalent": "[render].outputs-skip-unspecified",
+        "tomlPath": "[render].outputs-skip-unspecified",
+        "surface": "both",
+        "description": "Skip discovered displays that have no explicit [[output]] target.",
+        "defaultResolution": "if omitted, defers to config.toml [render].outputs-skip-unspecified; if missing there, uses false."
+      },
+      {
+        "key": "render-output",
+        "alias": "--render-output",
+        "valueSyntax": "<path>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[render].output",
+        "tomlPath": "[render].output",
+        "surface": "both",
+        "description": "Output path template (directory + filename stem) for generated PNGs. Supports {now}, {index}, {friendlyName} tokens. Relative CLI paths resolve against the current working directory.",
+        "defaultResolution": "if omitted, defers to config.toml [render].output; if missing there, defaults to %TEMP%/BgRaster/{now}_{index}."
+      },
+      {
+        "key": "render-force",
+        "alias": "--render-force",
+        "valueSyntax": "<bool>",
+        "typeName": "bool",
+        "parseKind": "nullable-bool",
+        "tomlEquivalent": "[render].force",
+        "tomlPath": "[render].force",
+        "surface": "both",
+        "description": "Continue rendering even after emitting run-skipped-unchanged.",
+        "defaultResolution": "if omitted, defers to config.toml [render].force; if missing there, uses false."
+      },
+      {
+        "key": "verbosity",
+        "alias": "--verbosity",
+        "valueSyntax": "<level>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[render].verbosity",
+        "tomlPath": "[render].verbosity",
+        "surface": "both",
+        "description": "Logging verbosity: quiet, normal, verbose.",
+        "defaultResolution": "if omitted, defers to config.toml [render].verbosity; if missing there, uses \"normal\"."
+      }
+    ],
+    "cliOnlyOptions": [
+      {
+        "key": "config",
+        "alias": "--config",
+        "valueSyntax": "<path>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "-",
+        "tomlPath": "",
+        "surface": "cli",
+        "description": "Path to a TOML config file. If the path does not exist, BgRaster starts from built-in defaults for that run, then after a successful execution writes a seeded config template at that path.",
+        "defaultResolution": "if omitted, searches for config.toml in this order: next to the executable, %ProgramData%\\\\BgInfo, %LocalAppData%\\\\BgInfo, %AppData%\\\\BgInfo; if none exist, starts from built-in defaults."
+      }
+    ],
+    "tomlReference": {
+      "appendix": {
+        "units": [
+          { "suffix": "px", "meaning": "Pixels (literal)." },
+          { "suffix": "vw", "meaning": "1 % of viewport width." },
+          { "suffix": "vh", "meaning": "1 % of viewport height." },
+          { "suffix": "vmin", "meaning": "1 % of min(width, height)." },
+          { "suffix": "vmax", "meaning": "1 % of max(width, height)." }
+        ],
+        "colors": [
+          { "format": "6-digit hex", "example": "#FF8800" },
+          { "format": "8-digit hex with alpha", "example": "#FF8800CC" },
+          { "format": "rgb(r, g, b)", "example": "rgb(255, 136, 0)" },
+          { "format": "rgba(r, g, b, a)", "example": "rgba(255, 136, 0, 0.8)" },
+          { "format": "hsl(h, s%, l%)", "example": "hsl(30, 100%, 50%)" },
+          { "format": "hsla(h, s%, l%, a)", "example": "hsla(30, 100%, 50%, 0.8)" },
+          { "format": "keyword", "example": "transparent" }
+        ],
+        "substitutionTokens": [
+          {
+            "machineScoped": "${MachineName}",
+            "outputScoped": "${OutputName}",
+            "sliceScoped": "",
+            "description": "Configured machine name when set, otherwise Environment.MachineName."
+          },
+          {
+            "machineScoped": "",
+            "outputScoped": "${OutputWidth}",
+            "sliceScoped": "${SliceWidth}",
+            "description": "Output or slice width in pixels."
+          },
+          {
+            "machineScoped": "",
+            "outputScoped": "${OutputHeight}",
+            "sliceScoped": "${SliceHeight}",
+            "description": "Output or slice height in pixels."
+          },
+          {
+            "machineScoped": "",
+            "outputScoped": "${OutputIndex}",
+            "sliceScoped": "${SliceIndex}",
+            "description": "Zero-based output or slice index."
+          },
+          {
+            "machineScoped": "",
+            "outputScoped": "${OutputIndexPlusOne}",
+            "sliceScoped": "${SliceIndexPlusOne}",
+            "description": "One-based output or slice index."
+          },
+          {
+            "machineScoped": "",
+            "outputScoped": "${OutputLetter}",
+            "sliceScoped": "${SliceLetter}",
+            "description": "Alphabetic output or slice index starting at A."
+          },
+          {
+            "machineScoped": "",
+            "outputScoped": "${OutputLetterMinusOne}",
+            "sliceScoped": "${SliceLetterMinusOne}",
+            "description": "Alphabetic index with the first position rendered as #."
+          }
+        ]
+      }
+    }
   }
 }

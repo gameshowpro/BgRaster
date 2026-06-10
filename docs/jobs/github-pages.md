@@ -1,5 +1,14 @@
-The documentation for this repository is partially generated at publish time by the powershell script specified in [documentation-generator.md](../developer/documentation-generator.md). We should move to a model where all documentation is built by mkdocs and depoloyed as a github pages site. Links out to key pages on this site should be included in the repository's root-level readme.md. Existing code to build the CLI reference from the central catalog should be refactored to fit this model. [cli-schema.md](../cli-schema.md) should be built as part of this process based on the raw schema at `docs/schemas/bgraster-config.schema.json`. Any content that's currently in the md and can't be automatically derived should be added to the schema to make a similar output format possible.
+The documentation publish pipeline is implemented and runs through MkDocs.
 
-Use the MkDocs Material theme, set with dark/light theme set to `auto`.
+Current behavior:
 
-The MkDocs setup should be configured to allow documentation to be previewed as I'm writing it in vscode.
+1. Source content lives under `docs/`.
+1. Generated assets and markdown fragments are produced by `scripts/generate-documentation.ps1`.
+1. CLI and TOML reference sections include generated files via snippet markers in [cli-schema.md](../cli-schema.md) and [toml-schema.md](../toml-schema.md).
+1. The site is built with MkDocs Material and published to GitHub Pages by the workflow at `.github/workflows/github-pages.yml`.
+
+Implementation details:
+
+1. The theme is MkDocs Material with color-scheme behavior set to `auto`.
+1. Local preview is supported with `mkdocs serve`.
+1. Schema metadata in `docs/schemas/bgraster-config.schema.json` drives generated CLI documentation content.
