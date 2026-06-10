@@ -353,7 +353,7 @@ static class Program
     internal static string ResolveConfigPath(string? explicitConfigPath, ImmutableArray<string> defaultConfigSearchPaths)
     {
         if (!string.IsNullOrWhiteSpace(explicitConfigPath))
-            return explicitConfigPath;
+            return ConfiguredPathResolver.Resolve(explicitConfigPath, Directory.GetCurrentDirectory());
 
         foreach (string candidate in defaultConfigSearchPaths)
         {
@@ -390,6 +390,15 @@ static class Program
         !string.IsNullOrWhiteSpace(explicitConfigPath)
         && !configExistedAtStartup
         && !isDryRun;
+
+    // Compatibility helper retained for tests while unchanged-skip behavior stays centralized.
+    internal static bool ShouldWriteExplicitConfigOnUnchangedSkip(
+        string? explicitConfigPath,
+        bool configExistedAtStartup,
+        bool isDryRun,
+        bool continueAfterUnchanged) =>
+        ShouldSeedExplicitConfigFromDefaults(explicitConfigPath, configExistedAtStartup, isDryRun)
+        && !continueAfterUnchanged;
 
     internal static string BuildSeedConfigToml(GlobalOptions effectiveOptions, ImmutableArray<OutputRecord> detectedOutputs)
     {

@@ -8,6 +8,8 @@ public class CliSchemaDocumentationTests
     const string OptionsTableEndMarker = "<!-- END:CLI_OPTIONS_TABLE -->";
     const string TomlRootScalarsBeginMarker = "<!-- BEGIN:TOML_ROOT_SCALARS_TABLE -->";
     const string TomlRootScalarsEndMarker = "<!-- END:TOML_ROOT_SCALARS_TABLE -->";
+    const string TomlSchemaSectionsBeginMarker = "<!-- BEGIN:TOML_SCHEMA_SECTIONS -->";
+    const string TomlSchemaSectionsEndMarker = "<!-- END:TOML_SCHEMA_SECTIONS -->";
 
     [Fact]
     public void CliSchema_OptionsTableBlock_UsesSnippetInclude()
@@ -46,6 +48,24 @@ public class CliSchemaDocumentationTests
     }
 
     [Fact]
+    public void TomlSchema_SectionsBlock_UsesSnippetInclude()
+    {
+        string tomlSchemaPath = FindTomlSchemaPath();
+        string markdown = File.ReadAllText(tomlSchemaPath);
+
+        int beginIndex = markdown.IndexOf(TomlSchemaSectionsBeginMarker, StringComparison.Ordinal);
+        int endIndex = markdown.IndexOf(TomlSchemaSectionsEndMarker, StringComparison.Ordinal);
+
+        beginIndex.Should().BeGreaterOrEqualTo(0);
+        endIndex.Should().BeGreaterThan(beginIndex);
+
+        int contentStart = beginIndex + TomlSchemaSectionsBeginMarker.Length;
+        string includeBlock = markdown[contentStart..endIndex].Trim();
+
+        includeBlock.Should().Be("--8<-- \"generated/toml-schema-sections.md\"");
+    }
+
+    [Fact]
     public void ConfigSchema_CliOptionsMetadata_Exists()
     {
         string configSchemaPath = FindConfigSchemaPath();
@@ -53,9 +73,17 @@ public class CliSchemaDocumentationTests
         using JsonDocument document = JsonDocument.Parse(schemaJson);
         JsonElement root = document.RootElement;
 
-        root.TryGetProperty("x-cli-options", out JsonElement options).Should().BeTrue();
-        options.ValueKind.Should().Be(JsonValueKind.Array);
-        options.GetArrayLength().Should().BeGreaterThan(0);
+        root.TryGetProperty("x-bgraster", out JsonElement metadata).Should().BeTrue();
+        metadata.ValueKind.Should().Be(JsonValueKind.Object);
+
+        metadata.TryGetProperty("cliOptions", out JsonElement cliOptions).Should().BeTrue();
+        cliOptions.ValueKind.Should().Be(JsonValueKind.Array);
+        cliOptions.GetArrayLength().Should().BeGreaterThan(0);
+
+        metadata.TryGetProperty("cliOnlyOptions", out JsonElement cliOnlyOptions).Should().BeTrue();
+        cliOnlyOptions.ValueKind.Should().Be(JsonValueKind.Array);
+
+        root.TryGetProperty("x-cli-options", out JsonElement _).Should().BeFalse();
     }
 
     static string FindCliSchemaPath()

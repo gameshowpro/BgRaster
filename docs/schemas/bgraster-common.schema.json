@@ -6,6 +6,11 @@
     "textTable": {
       "type": "object",
       "description": "Global text rendering settings. Array values are resolved by rendered slice sequence with wraparound.",
+      "x-bgraster-doc": {
+        "order": 10,
+        "heading": "[text]",
+        "showDefaults": true
+      },
       "additionalProperties": false,
       "properties": {
         "text": {
@@ -43,6 +48,11 @@
     "backgroundTable": {
       "type": "object",
       "description": "Background rendering settings. Array values are resolved by rendered slice sequence with wraparound.",
+      "x-bgraster-doc": {
+        "order": 20,
+        "heading": "[background]",
+        "showDefaults": true
+      },
       "additionalProperties": false,
       "properties": {
         "color": {
@@ -89,6 +99,11 @@
     "gridTable": {
       "type": "object",
       "description": "Grid rendering settings. Array values are resolved by rendered slice sequence with wraparound.",
+      "x-bgraster-doc": {
+        "order": 30,
+        "heading": "[grid]",
+        "showDefaults": true
+      },
       "additionalProperties": false,
       "properties": {
         "size": {
@@ -138,6 +153,11 @@
     "circleTable": {
       "type": "object",
       "description": "Circle rendering settings. Array values are resolved by rendered slice sequence with wraparound.",
+      "x-bgraster-doc": {
+        "order": 40,
+        "heading": "[circle]",
+        "showDefaults": true
+      },
       "additionalProperties": false,
       "properties": {
         "x": {
@@ -175,6 +195,11 @@
     "crosshairTable": {
       "type": "object",
       "description": "Crosshair rendering settings. Array values are resolved by rendered slice sequence with wraparound.",
+      "x-bgraster-doc": {
+        "order": 50,
+        "heading": "[crosshair]",
+        "showDefaults": true
+      },
       "additionalProperties": false,
       "properties": {
         "x": {
@@ -212,6 +237,11 @@
     "labeledEdgesTable": {
       "type": "object",
       "description": "Labeled edges rendering settings. Array values are resolved by rendered slice sequence with wraparound.",
+      "x-bgraster-doc": {
+        "order": 60,
+        "heading": "[labeled-edges]",
+        "showDefaults": true
+      },
       "additionalProperties": false,
       "properties": {
         "text-size": {
@@ -261,6 +291,11 @@
     "logoTable": {
       "type": "object",
       "description": "Logo rendering settings. Array values are resolved by rendered slice sequence with wraparound.",
+      "x-bgraster-doc": {
+        "order": 70,
+        "heading": "[logo]",
+        "showDefaults": true
+      },
       "additionalProperties": false,
       "properties": {
         "source": {
@@ -304,6 +339,11 @@
     "renderTable": {
       "type": "object",
       "description": "Render and output settings",
+      "x-bgraster-doc": {
+        "order": 80,
+        "heading": "[render]",
+        "showDefaults": true
+      },
       "additionalProperties": false,
       "properties": {
         "no-assignment": {
@@ -472,6 +512,12 @@
     },
     "sliceItem": {
       "type": "object",
+      "description": "Rectangular sub-region of an output. Each slice gets its own substitution context.",
+      "x-bgraster-doc": {
+        "order": 100,
+        "heading": "[[output.slice]] (nested array of tables)",
+        "showDefaults": false
+      },
       "additionalProperties": false,
       "required": ["x", "y", "width", "height"],
       "properties": {
@@ -580,6 +626,12 @@
     },
     "outputItem": {
       "type": "object",
+      "description": "Per-output configuration. Optional; outputs without an entry use global values resolved by slice sequence.",
+      "x-bgraster-doc": {
+        "order": 90,
+        "heading": "[[output]] (array of tables)",
+        "showDefaults": false
+      },
       "additionalProperties": false,
       "required": ["target"],
       "properties": {

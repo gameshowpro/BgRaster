@@ -45,6 +45,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="Generators\BgRaster.SchemaMetadataGenerator\BgRaster.SchemaMetadataGenerator.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+    <AdditionalFiles Include="..\docs\schemas\bgraster-config.schema.json" />
+    <AdditionalFiles Include="..\docs\schemas\bgraster-common.schema.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Generators\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="..\resources\gidole\Gidolinya-Regular.otf" />
     <EmbeddedResource Include="..\resources\gsp.svg" />
   </ItemGroup>

@@ -114,9 +114,13 @@ static class CliBinding
         return root;
 
         static Option<string?> CreateStringOption(string alias) =>
-            new(alias) { Description = CliOptionCatalog.GetByAlias(alias).HelpDescription };
+            new(alias) { Description = GetByAlias(alias).HelpDescription };
 
         static Option<bool?> CreateNullableBoolOption(string alias) =>
-            new(alias) { Description = CliOptionCatalog.GetByAlias(alias).HelpDescription };
+            new(alias) { Description = GetByAlias(alias).HelpDescription };
+
+        static CliOptionDefinition GetByAlias(string alias) =>
+            GeneratedCliOptionCatalog.Definitions.First(definition =>
+                string.Equals(definition.Alias, alias, StringComparison.Ordinal));
     }
 }

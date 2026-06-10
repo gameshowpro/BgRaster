@@ -29,6 +29,19 @@
             "stopAtEntry": false,
             "env": {},
             "justMyCode": true
+        },
+        {
+            "name": "C#: BgRaster help",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/bin/Debug/net10.0/win-x64/GameshowPro.BgRaster.dll",
+            "args": ["--help"],
+            "cwd": "${workspaceFolder}/src",
+            "preLaunchTask": "build BgRaster (Debug win-x64)",
+            "console": "internalConsole",
+            "stopAtEntry": false,
+            "env": {},
+            "justMyCode": true
         }
      
     ]
