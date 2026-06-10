@@ -91,18 +91,11 @@ jobs:
         with:
           path: site
 
-      - name: Restore AOT publish graph
-        run: >
-          dotnet restore src/BgRaster.csproj
-          -r win-x64
-          /p:PublishAot=true
-
       - name: Publish AOT
         run: >
           dotnet publish src/BgRaster.csproj
           -c Release
           -r win-x64
-          --no-restore
           /p:PublishAot=true
           /p:TreatWarningsAsErrors=true
           -o publish/win-x64
