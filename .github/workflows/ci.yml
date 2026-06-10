@@ -42,7 +42,7 @@ jobs:
           "tag=v$version" >> $env:GITHUB_OUTPUT
 
       - name: Restore
-        run: dotnet restore src/BgRaster.slnx
+        run: dotnet restore src/BgRaster.slnx -r win-x64
 
       - name: Build
         run: dotnet build src/BgRaster.slnx -c Release --no-restore /p:TreatWarningsAsErrors=true
