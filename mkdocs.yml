@@ -60,5 +60,5 @@ markdown_extensions:
       permalink: true
 
 extra:
-  build_version: !ENV [GITHUB_REF_NAME]
+  build_version: !ENV [BGRASTER_DOCS_VERSION]
   repo_url: https://github.com/gameshowpro/BgRaster
