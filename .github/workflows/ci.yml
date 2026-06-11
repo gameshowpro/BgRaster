@@ -116,10 +116,12 @@ jobs:
         run: |
           $publishDir = Join-Path $PWD 'publish/win-x64'
           $releaseDir = Join-Path $PWD 'publish/release'
+          $zipDir = Join-Path $releaseDir 'zip'
           New-Item -ItemType Directory -Path $releaseDir -Force | Out-Null
+          New-Item -ItemType Directory -Path $zipDir -Force | Out-Null
 
-          Copy-Item -Path (Join-Path $publishDir 'GameshowPro.BgRaster.exe') -Destination (Join-Path $releaseDir 'BgRaster.exe') -Force
-          Copy-Item -Path (Join-Path $publishDir 'libSkiaSharp.dll') -Destination (Join-Path $releaseDir 'libSkiaSharp.dll') -Force
+          Copy-Item -Path (Join-Path $publishDir 'GameshowPro.BgRaster.exe') -Destination (Join-Path $zipDir 'BgRaster.exe') -Force
+          Copy-Item -Path (Join-Path $publishDir 'libSkiaSharp.dll') -Destination (Join-Path $zipDir 'libSkiaSharp.dll') -Force
           Copy-Item -Path (Join-Path $publishDir 'GameshowPro.BgRaster.pdb') -Destination (Join-Path $releaseDir 'BgRaster.pdb') -Force
 
           $zipPath = Join-Path $PWD 'publish/BgRaster.zip'
@@ -127,7 +129,7 @@ jobs:
             Remove-Item $zipPath -Force
           }
 
-          Compress-Archive -Path (Join-Path $releaseDir '*') -DestinationPath $zipPath -Force
+          Compress-Archive -Path (Join-Path $zipDir '*') -DestinationPath $zipPath -Force
 
       - name: Smoke test published binary
         shell: pwsh

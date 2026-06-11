@@ -1,6 +1,6 @@
 # TOML Schema Reference
 
-BgRaster reads its primary configuration from a TOML file. If `--config` is omitted, it searches for `config.toml` in this order: next to the executable, `%ProgramData%\BgInfo`, `%LocalAppData%\BgInfo`, and `%AppData%\BgInfo`. If `--config` is provided and the file does not exist, BgRaster uses built-in defaults for that run; after a successful execution, it writes a seeded `config.toml` template at the requested path using effective global defaults and detected output targets. Every key is optional — missing keys fall back to the documented defaults. CLI flags override the corresponding TOML values; per-output overrides take precedence over globals; per-slice overrides take precedence over per-output.
+BgRaster reads its primary configuration from a TOML file. If `--config` is omitted, it searches for `config.toml` in this order: next to the executable, `%ProgramData%\BgRaster`, `%LocalAppData%\BgRaster`, and `%AppData%\BgRaster`. If `--config` is provided and the file does not exist, BgRaster uses built-in defaults for that run; after a successful execution, it writes a seeded `config.toml` template at the requested path using effective global defaults and detected output targets. Every key is optional — missing keys fall back to the documented defaults. CLI flags override the corresponding TOML values; per-output overrides take precedence over globals; per-slice overrides take precedence over per-output.
 
 ## Conventions
 

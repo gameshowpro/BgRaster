@@ -39,9 +39,9 @@ Covers:
 Search in this order and use the first existing file:
 
 1. `config.toml` next to executable
-2. `%ProgramData%\BgInfo\config.toml`
-3. `%LocalAppData%\BgInfo\config.toml`
-4. `%AppData%\BgInfo\config.toml`
+2. `%ProgramData%\BgRaster\config.toml`
+3. `%LocalAppData%\BgRaster\config.toml`
+4. `%AppData%\BgRaster\config.toml`
 
 If none exist, use built-in defaults.
 

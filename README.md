@@ -59,9 +59,9 @@ If the file you specified doesn't exist, it will be created containing the defau
 
 The next time you run, it will load its config from this file rather than using defaults. If you don't specify a config file path, it will still find it if it exists in one of the default locations:
 1. In the same folder as `BgRaster.exe`.
-1. `%ProgramData%\BgInfo`
-1. `%LocalAppData%\BgInfo`
-1. `%AppData%\BgInfo`
+1. `%ProgramData%\BgRaster`
+1. `%LocalAppData%\BgRaster`
+1. `%AppData%\BgRaster`
 
 ## Sample configurations
 

@@ -48,3 +48,12 @@ A lightweight embedded HTTP endpoint that accepts a POST request to trigger a re
 
 ## Chocolatey package
 Build should push BgRaster package to Chocolatey community repository for easy installation/upgrade from commandline or GUI tools. Binaries would be embedded in the package. This would automatically make BgRaster available on the path.
+
+## More BgInfo features
+Although not the focus of this application, there are some features from BgInfo that could still be useful. In particular, new substitution variables to allow text to include:
+* Enumeration of graphics hardware
+* Processor name and core details
+* Network adapters and IP addresses
+
+## Named template "super switches"
+Develop a list set of rich templates targetted at different use-cases. The local config can be seeded by including running once with the switch, like `--template-led` or `--template-projector`.

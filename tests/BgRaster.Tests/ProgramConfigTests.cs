@@ -15,9 +15,9 @@ public class ProgramConfigTests
 
         paths.Should().Equal(
             @"C:\Apps\BgRaster\config.toml",
-            @"C:\ProgramData\BgInfo\config.toml",
-            @"C:\Users\User\AppData\Local\BgInfo\config.toml",
-            @"C:\Users\User\AppData\Roaming\BgInfo\config.toml");
+            @"C:\ProgramData\BgRaster\config.toml",
+            @"C:\Users\User\AppData\Local\BgRaster\config.toml",
+            @"C:\Users\User\AppData\Roaming\BgRaster\config.toml");
     }
 
     [Fact]
@@ -162,6 +162,40 @@ public class ProgramConfigTests
         message.Should().StartWith("bg-raster: configuration error");
         message.Should().Contain(@"C:\temp\config.toml");
         message.Should().Contain("Failed to parse TOML config");
+    }
+
+    [Fact]
+    public void IsSkiaNativeDependencyFailure_ReturnsTrue_WhenDllNotFoundIsInExceptionChain()
+    {
+        TypeInitializationException exception = new(
+            "Skia type initializer failed",
+            new DllNotFoundException("Unable to load DLL 'libSkiaSharp' or one of its dependencies."));
+
+        bool result = Program.IsSkiaNativeDependencyFailure(exception);
+
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsSkiaNativeDependencyFailure_ReturnsFalse_ForUnrelatedExceptions()
+    {
+        InvalidOperationException exception = new("Something else failed.", new DllNotFoundException("Unable to load DLL 'sqlite3'."));
+
+        bool result = Program.IsSkiaNativeDependencyFailure(exception);
+
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public void BuildNativeDependencyErrorMessage_ContainsActionableGuidance()
+    {
+        DllNotFoundException exception = new("Unable to load DLL 'libSkiaSharp' or one of its dependencies.");
+
+        string message = Program.BuildNativeDependencyErrorMessage(exception);
+
+        message.Should().StartWith("bg-raster: required native library 'libSkiaSharp.dll' could not be loaded.");
+        message.Should().Contain("BgRaster.exe and libSkiaSharp.dll are in the same folder");
+        message.Should().Contain("Details:");
     }
 
     static string CreateTempDirectory()
