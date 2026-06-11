@@ -38,9 +38,12 @@ jobs:
         id: docs_version
         shell: pwsh
         run: |
-          $version = $env:GitBuildVersionSimple
-          if ([string]::IsNullOrWhiteSpace($version)) {
-            $version = nbgv get-version -v GitBuildVersionSimple
+          $versionInfo = nbgv get-version -f json | ConvertFrom-Json
+          $version = [string]$versionInfo.SimpleVersion
+          $isPublicRelease = [bool]$versionInfo.PublicRelease
+
+          if ("${{ github.event_name }}" -eq "push" -and "${{ github.ref }}" -eq "refs/heads/main" -and -not $isPublicRelease) {
+            throw "NBGV reported PublicRelease=false for main. Check version.json publicReleaseRefSpec before publishing releases."
           }
 
           if ($version.Contains('+') -or $version.Contains('-')) {
