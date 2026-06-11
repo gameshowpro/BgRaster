@@ -45,3 +45,6 @@ Optional installation as a Windows service that listens for OS display change ev
 
 ## HTTP trigger
 A lightweight embedded HTTP endpoint that accepts a POST request to trigger a re-render, enabling integration with show-control systems such as QLab, Bitfocus Companion, or custom automation scripts. Command line argument could be provided in the post data.
+
+## Chocolatey package
+Build should push BgRaster package to Chocolatey community repository for easy installation/upgrade from commandline or GUI tools. Binaries would be embedded in the package. This would automatically make BgRaster available on the path.

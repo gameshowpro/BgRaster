@@ -4,7 +4,7 @@
 BgRaster is inspired by the classic Sysinternals utility [BgInfo](https://learn.microsoft.com/en-us/sysinternals/downloads/bginfo). It was executed perfectly in 2000, but its structure and features feel dated today. In particular, it's focussed on the needs of an IT administrator from that era. It's missing many features that would be valuable to a creative professional in the 2020s.
 
 ## Summary
-BgRaster is a fast console application that uses modern frameworks and APIs to generate and assign wallpapers for any displays it finds. It has many [features](docs/features.md) targetted at creative professionals like AV technicians, video engineers, and real time graphics specialists. It has a rich set of command-line options, but its full power lies in its [TOML](docs/toml-schema.md) configuration files.
+BgRaster is a fast console application that uses modern frameworks and APIs to generate and assign wallpapers for any displays it finds. It has many [features](https://bgraster.gameshow.pro/features/) targetted at creative professionals like AV technicians, video engineers, and real time graphics specialists. It has a rich set of command-line options, but its full power lies in its [TOML](https://bgraster.gameshow.pro/toml-schema/) configuration files.
 
 ## Highlights
 
@@ -16,7 +16,7 @@ BgRaster is a fast console application that uses modern frameworks and APIs to g
 
 ## Sample output
 
-![Slices sample](docs/generated/slices.png)
+![Slices sample](https://bgraster.gameshow.pro/generated/slices.png)
 
 ## Supported environments
 
@@ -35,7 +35,7 @@ Like the original BgInfo, BgRaster runs gets its work done as fast as possible a
 ## Quick start
 
 ### Install
-Download the latest `BgRaster.exe` from the Releases page (or build it yourself, see below) and place it anywhere on disk. It needs `libSkiaSharp.dll` in the same folder too.
+Download the latest `BgRaster.zip` from the Releases page, unzip it, and place the extracted files anywhere on disk. `BgRaster.exe` and `libSkiaSharp.dll` need to stay in the same folder. If you want debugging symbols, download `BgRaster.pdb` separately.
 
 ### Build from source
 ```pwsh
@@ -114,7 +114,10 @@ As a project started in 2026, yes, substantial parts of this application were bu
 
 ## Authors
 
-<img src="resources/gsp.svg" height="60px"/>
+<div style="display: flex; align-items: center; gap: 12px;">
+	<img src="https://bgraster.gameshow.pro/assets/images/logo.svg" alt="Game Show Pro logo." height="60px"/>
+	<img src="https://www.barjonas.com/assets/img/barjonas.svg" alt="Barjonas LLC logo." height="30px"/>
+</div>
 
 Hi, I'm Hamish Barjonas. I provide custom solutions for the broadcast producion, live entertainment, and sports industries. Yes, including game shows. See more details [here](https://www.barjonas.com). As a keen FOSS advocate, I try to keep as much non-customer-specific code open for the wider community as possible, under the Game Show Pro umbrella. If you're in a related industry, I'd love to colloborate! You can contact me [here](https://barjonas.com/contact).
 
