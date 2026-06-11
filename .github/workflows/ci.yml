@@ -110,6 +110,25 @@ jobs:
           /p:TreatWarningsAsErrors=true
           -o publish/win-x64
 
+      - name: Stage release files
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: pwsh
+        run: |
+          $publishDir = Join-Path $PWD 'publish/win-x64'
+          $releaseDir = Join-Path $PWD 'publish/release'
+          New-Item -ItemType Directory -Path $releaseDir -Force | Out-Null
+
+          Copy-Item -Path (Join-Path $publishDir 'GameshowPro.BgRaster.exe') -Destination (Join-Path $releaseDir 'BgRaster.exe') -Force
+          Copy-Item -Path (Join-Path $publishDir 'libSkiaSharp.dll') -Destination (Join-Path $releaseDir 'libSkiaSharp.dll') -Force
+          Copy-Item -Path (Join-Path $publishDir 'GameshowPro.BgRaster.pdb') -Destination (Join-Path $releaseDir 'BgRaster.pdb') -Force
+
+          $zipPath = Join-Path $PWD 'publish/BgRaster.zip'
+          if (Test-Path $zipPath) {
+            Remove-Item $zipPath -Force
+          }
+
+          Compress-Archive -Path (Join-Path $releaseDir '*') -DestinationPath $zipPath -Force
+
       - name: Smoke test published binary
         shell: pwsh
         run: >
@@ -122,6 +141,22 @@ jobs:
         with:
           name: BgRaster-win-x64
           path: publish/win-x64/
+          if-no-files-found: error
+
+      - name: Upload release zip
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: BgRaster-zip
+          path: publish/BgRaster.zip
+          if-no-files-found: error
+
+      - name: Upload release symbols
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: BgRaster-pdb
+          path: publish/release/BgRaster.pdb
           if-no-files-found: error
 
       - name: Upload test results
@@ -158,7 +193,8 @@ jobs:
           name: BgRaster ${{ steps.docs_version.outputs.tag }}
           generate_release_notes: true
           files: |
-            publish/win-x64/*
+            publish/BgRaster.zip
+            publish/release/BgRaster.pdb
           fail_on_unmatched_files: true
 
   deploy-docs:
