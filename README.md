@@ -103,11 +103,11 @@ x = "50vw"; y = "50vh"; width = "50vw"; height = "50vh"
 
 ## Documentation
 
-[Documentation root](https://gameshowpro.github.io/BgRaster/)
+[Documentation root](https://bgraster.gameshow.pro/)
 
-- [Features](docs/features.md) - A summary of visual features with images and config examples.
-- [TOML schema reference](docs/toml-schema.md) — every section, key, type, default, and unit.
-- [CLI schema reference](docs/cli-schema.md) — every command-line option mapped to its TOML equivalent.
+- [Features](https://bgraster.gameshow.pro/features/) - A summary of visual features with images and config examples.
+- [TOML schema reference](https://bgraster.gameshow.pro/toml-schema/) — every section, key, type, default, and unit.
+- [CLI schema reference](https://bgraster.gameshow.pro/cli-schema/) — every command-line option mapped to its TOML equivalent.
 
 ## AI Disclosure
 As a project started in 2026, yes, substantial parts of this application were built using AI tools. I could never have acheived the the application scope, automation, test framework, and quality of documentation in my spare time without it. Be assured that the design, concept, functional testing, and documentation proof-reading burned many human neuron hours.
