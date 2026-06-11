@@ -45,7 +45,7 @@ YAML was considered because it is comment-friendly, but TOML remains the chosen 
 Generated status comments, effective-value comments, and run diagnostics are written to `lastRun.toml` each run. Existing user config TOML is treated as read-only input and is never modified automatically at runtime; the one exception is that when `--config` points to a missing file, BgRaster may create that new file only after a successful run by writing a seeded `config.toml` template.
 
 ### Config file location and schema linking
-The application accepts an explicit config path via `--config path/to/file.toml`. If that path does not exist, the app runs from built-in defaults and CLI overrides; after a successful run it seeds the requested config path by writing a `config.toml` template with effective global defaults and detected output targets. If `--config` is omitted, it searches for `config.toml` in this order: next to the executable, `%ProgramData%\BgInfo`, `%LocalAppData%\BgInfo`, then `%AppData%\BgInfo`.
+The application accepts an explicit config path via `--config path/to/file.toml`. If that path does not exist, the app runs from built-in defaults and CLI overrides; after a successful run it seeds the requested config path by writing a `config.toml` template with effective global defaults and detected output targets. If `--config` is omitted, it searches for `config.toml` in this order: next to the executable, `%ProgramData%\BgRaster`, `%LocalAppData%\BgRaster`, then `%AppData%\BgRaster`.
 
 Every `config.toml` file should include a `$schema` comment at the top that points to the current published schema:
 

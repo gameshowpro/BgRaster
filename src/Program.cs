@@ -17,8 +17,16 @@ static class Program
 {
     static async Task<int> Main(string[] args)
     {
-        RootCommand root = CliBinding.BuildRootCommand(RunAsync);
-        return await root.Parse(args).InvokeAsync();
+        try
+        {
+            RootCommand root = CliBinding.BuildRootCommand(RunAsync);
+            return await root.Parse(args).InvokeAsync();
+        }
+        catch (Exception ex) when (IsSkiaNativeDependencyFailure(ex))
+        {
+            Console.Error.WriteLine(BuildNativeDependencyErrorMessage(ex));
+            return 3;
+        }
     }
 
     static async Task<int> RunAsync(string? configPath, CliOverlay cliOverlay)
@@ -346,7 +354,7 @@ static class Program
             if (string.IsNullOrWhiteSpace(rootDirectory))
                 return;
 
-            builder.Add(Path.Combine(rootDirectory, "BgInfo", "config.toml"));
+            builder.Add(Path.Combine(rootDirectory, "BgRaster", "config.toml"));
         }
     }
 
@@ -427,6 +435,26 @@ static class Program
 
     internal static string BuildConfigurationErrorMessage(string configPath, Exception exception) =>
         $"bg-raster: configuration error in '{configPath}': {exception.Message}";
+
+    internal static bool IsSkiaNativeDependencyFailure(Exception exception)
+    {
+        for (Exception? current = exception; current is not null; current = current.InnerException)
+        {
+            if (current is DllNotFoundException dllNotFoundException
+                && dllNotFoundException.Message.Contains("libSkiaSharp", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    internal static string BuildNativeDependencyErrorMessage(Exception exception)
+    {
+        return "bg-raster: required native library 'libSkiaSharp.dll' could not be loaded. "
+            + "Ensure BgRaster.exe and libSkiaSharp.dll are in the same folder, then run again.";
+    }
 
     static bool HardwareProfileMatches(ImmutableArray<OutputRecord> stored, HardwareProfile current)
     {

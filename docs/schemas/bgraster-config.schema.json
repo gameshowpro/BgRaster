@@ -52,7 +52,7 @@
         "tomlPath": "machine-name",
         "surface": "both",
         "description": "Override the framework-supplied host name used by ${MachineName} substitutions.",
-        "defaultResolution": "if omitted, uses Environment.MachineName."
+        "defaultResolution": "if omitted, searches for config.toml in this order: next to the executable, %ProgramData%\\BgRaster, %LocalAppData%\\BgRaster, %AppData%\\BgRaster; if none exist, starts from built-in defaults."
       },
       {
         "key": "text",
@@ -546,7 +546,7 @@
         "tomlPath": "",
         "surface": "cli",
         "description": "Path to a TOML config file. If the path does not exist, BgRaster starts from built-in defaults for that run, then after a successful execution writes a seeded config template at that path.",
-        "defaultResolution": "if omitted, searches for config.toml in this order: next to the executable, %ProgramData%\\\\BgInfo, %LocalAppData%\\\\BgInfo, %AppData%\\\\BgInfo; if none exist, starts from built-in defaults."
+        "defaultResolution": "if omitted, searches for config.toml in this order: next to the executable, %ProgramData%\\\\BgRaster, %LocalAppData%\\\\BgRaster, %AppData%\\\\BgRaster; if none exist, starts from built-in defaults."
       }
     ],
     "tomlReference": {
