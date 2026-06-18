@@ -25,6 +25,9 @@ theme:
         icon: material/brightness-4
         name: Switch to system preference
 
+extra_css:
+  - assets/stylesheets/extra.css
+
 docs_dir: docs
 use_directory_urls: true
 exclude_docs: |

@@ -115,8 +115,8 @@ As a project started in 2026, yes, substantial parts of this application were bu
 ## Authors
 
 <div style="display: flex; align-items: center; gap: 12px;">
-	<img src="https://bgraster.gameshow.pro/assets/images/logo.svg" alt="Game Show Pro logo." height="60px"/>
-	<img src="https://www.barjonas.com/assets/img/barjonas.svg" alt="Barjonas LLC logo." height="30px"/>
+	<img src="https://bgraster.gameshow.pro/assets/images/logo.svg" alt="Game Show Pro logo." style="height: 60px"/>
+	<img src="https://www.barjonas.com/assets/img/barjonas.svg" alt="Barjonas LLC logo." style="height: 30px"/>
 </div>
 
 Hi, I'm Hamish Barjonas. I provide custom solutions for the broadcast producion, live entertainment, and sports industries. Yes, including game shows. See more details [here](https://www.barjonas.com). As a keen FOSS advocate, I try to keep as much non-customer-specific code open for the wider community as possible, under the Game Show Pro umbrella. If you're in a related industry, I'd love to colloborate! You can contact me [here](https://barjonas.com/contact).
