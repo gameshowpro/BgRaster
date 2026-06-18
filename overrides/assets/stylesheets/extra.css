@@ -1,0 +1,47 @@
+/*
+ * BgRaster documentation overrides.
+ * Fixes narrow content columns on CLI and TOML schema pages by:
+ *   1. Removing the 61rem max-width cap so content can grow.
+ *   2. Enforcing a 1024px minimum on the content column.
+ *   3. Hiding the secondary (TOC) sidebar when the viewport cannot
+ *      accommodate 1024px of content plus the sidebar width.
+ *   4. Letting extra space flow to content instead of centering it.
+ */
+
+/* Remove the grid max-width cap so content uses all available space */
+.md-main__inner.md-grid {
+    max-width: none;
+}
+
+/* Content gets all extra space; sidebars stay pinned on their sides */
+.md-main__inner {
+    justify-content: flex-start;
+}
+
+/* Content column must not shrink below 1024px */
+.md-content {
+    min-width: 1024px;
+}
+
+/*
+ * Secondary sidebar (right TOC) breakpoint.
+ * Content needs 1024px + sidebar 12.1rem (~242px at 20px/rem) +
+ * 1.2rem gap (~24px) + internal padding ~ 1290px total.
+ * Round up to 81em (1296px at 16px/em) for safety.
+ * Below this, the TOC is hidden entirely.
+ */
+@media screen and (max-width: 80.999em) {
+    .md-sidebar--secondary {
+        display: none !important;
+    }
+}
+
+/*
+ * Re-show the secondary sidebar at exactly 81em+.
+ * The Material default is 60em; we override it here.
+ */
+@media screen and (min-width: 81em) {
+    .md-sidebar--secondary {
+        display: block;
+    }
+}

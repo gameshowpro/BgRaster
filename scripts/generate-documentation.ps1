@@ -1,5 +1,6 @@
 [CmdletBinding()]
 param(
+    [string]$RepoRoot,
     [string]$ProjectPath = "src/BgRaster.csproj",
     [string]$SampleConfigDirectory = "docs/sample-config",
     [string]$SampleOutputDirectory = "docs/generated"
@@ -8,7 +9,13 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-$repoRoot = Split-Path -Parent $PSScriptRoot
+$repoRoot = if ($RepoRoot) { $RepoRoot } else { Split-Path -Parent $PSScriptRoot }
+
+# Resolve all relative-path parameters to absolute so UNC working directory quirks don't break them.
+$ProjectPath = if ([System.IO.Path]::IsPathRooted($ProjectPath)) { $ProjectPath } else { Join-Path $repoRoot $ProjectPath }
+$SampleConfigDirectory = if ([System.IO.Path]::IsPathRooted($SampleConfigDirectory)) { $SampleConfigDirectory } else { Join-Path $repoRoot $SampleConfigDirectory }
+$SampleOutputDirectory = if ([System.IO.Path]::IsPathRooted($SampleOutputDirectory)) { $SampleOutputDirectory } else { Join-Path $repoRoot $SampleOutputDirectory }
+
 Push-Location $repoRoot
 try {
     if (-not (Test-Path $SampleConfigDirectory)) {
