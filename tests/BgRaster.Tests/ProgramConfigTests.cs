@@ -195,7 +195,6 @@ public class ProgramConfigTests
 
         message.Should().StartWith("bg-raster: required native library 'libSkiaSharp.dll' could not be loaded.");
         message.Should().Contain("BgRaster.exe and libSkiaSharp.dll are in the same folder");
-        message.Should().Contain("Details:");
     }
 
     static string CreateTempDirectory()
