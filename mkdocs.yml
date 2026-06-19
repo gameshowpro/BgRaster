@@ -62,6 +62,11 @@ markdown_extensions:
   - toc:
       permalink: true
 
+plugins:
+  - social:
+      cards_dir: generated
+      cards_layout: default/variant
+
 extra:
   build_version: !ENV [BGRASTER_DOCS_VERSION]
   repo_url: https://github.com/gameshowpro/BgRaster
