@@ -1,10 +1,5 @@
 {% extends "base.html" %}
 
-{% block announce %}
-  {% if config.extra.build_version != "local" %}
-    <div class="md-banner">
-      Viewing documentation for
-      <a href="{{ config.extra.repo_url }}/releases/tag/{{ config.extra.build_version }}"><strong>{{ config.extra.build_version }}</strong></a>
-    </div>
-  {% endif %}
+{% block extrahead %}
+  <meta property="og:logo" content="{{ config.site_url }}assets/images/logo.svg" />
 {% endblock %}

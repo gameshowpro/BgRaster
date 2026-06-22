@@ -1,11 +1,12 @@
 site_name: BgRaster
 site_description: BgRaster documentation
-site_url: https://gameshowpro.github.io/BgRaster/
+site_url: https://bgraster.gameshow.pro/
 repo_url: https://github.com/gameshowpro/BgRaster
 repo_name: gameshowpro/BgRaster
 
 theme:
   name: material
+  custom_dir: overrides
   logo: assets/images/logo.svg
   favicon: assets/images/favicon.svg
   palette:
@@ -65,6 +66,9 @@ plugins:
   - social:
       cards_dir: generated
       cards_layout: default/variant
+
+hooks:
+  - docs/hooks/og_image.py
 
 extra:
   build_version: !ENV [BGRASTER_DOCS_VERSION]
