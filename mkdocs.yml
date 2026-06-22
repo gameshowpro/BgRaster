@@ -1,5 +1,5 @@
 site_name: BgRaster
-site_description: BgRaster documentation
+site_description: Generate informative test pattern wallpapers for AV, Broadcast, and Events industries. Inspired by BgInfo. 
 site_url: https://bgraster.gameshow.pro/
 repo_url: https://github.com/gameshowpro/BgRaster
 repo_name: gameshowpro/BgRaster
@@ -24,12 +24,18 @@ theme:
       toggle:
         icon: material/brightness-4
         name: Switch to system preference
+  features:
+    - navigation.instant
+    - search.suggest
+    - search.highlight
+    - content.code.copy
 
 extra_css:
   - assets/stylesheets/extra.css
 
 docs_dir: docs
 use_directory_urls: true
+edit_uri: edit/main/docs/
 exclude_docs: |
   plan.md
 not_in_nav: |
@@ -66,10 +72,10 @@ plugins:
   - social:
       cards_dir: generated
       cards_layout: default/variant
+  - search
 
 hooks:
   - docs/hooks/og_image.py
 
 extra:
-  build_version: !ENV [BGRASTER_DOCS_VERSION]
-  repo_url: https://github.com/gameshowpro/BgRaster
+  version: !ENV [BGRASTER_DOCS_VERSION]
