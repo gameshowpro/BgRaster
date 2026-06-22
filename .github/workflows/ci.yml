@@ -76,6 +76,7 @@ jobs:
           path: |
             mkdocs.yml
             docs/
+            overrides/
           if-no-files-found: error
 
       - name: Publish AOT
@@ -213,7 +214,9 @@ jobs:
       - name: Build docs site
         env:
           BGRASTER_DOCS_VERSION: ${{ needs.build.outputs.docs_tag }}
-        run: mkdocs build --strict
+        run: |
+          echo "Building docs with BGRASTER_DOCS_VERSION=${BGRASTER_DOCS_VERSION}"
+          mkdocs build --strict
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
