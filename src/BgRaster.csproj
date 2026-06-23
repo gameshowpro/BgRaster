@@ -19,8 +19,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>13</LangVersion>
-  </PropertyGroup>
 
+    <Copyright>(C) $([System.DateTime]::UtcNow.Year) Barjonas LLC</Copyright>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' != 'Debug'">
     <WarningsNotAsErrors>$(WarningsNotAsErrors);IL2104</WarningsNotAsErrors>
   </PropertyGroup>

@@ -80,3 +80,6 @@ hooks:
 
 extra:
   version: !ENV [BGRASTER_DOCS_VERSION]
+  generator: false
+
+copyright: © 2026 Barjonas LLC

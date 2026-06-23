@@ -123,4 +123,4 @@ Hi, I'm Hamish Barjonas. I provide custom solutions for the broadcast producion,
 
 ## License
 
-[MIT](./LICENCE).
+[MIT](./LICENSE).

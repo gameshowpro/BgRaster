@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright © 2026 Barjonas LLC
+
 using System.Text.Json;
 
 namespace GameshowPro.BgRaster.Tests;
