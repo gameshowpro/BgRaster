@@ -17,7 +17,7 @@ Generated PNGs are expected in `docs/generated` and should be regenerated with `
 ```
 </details>
 
-![Background sample](generated/background.png)
+![Background sample](generated/background_0.png)
 
 ## Background Image
 
@@ -32,7 +32,7 @@ Generated PNGs are expected in `docs/generated` and should be regenerated with `
 ```
 </details>
 
-![Background image sample](generated/background-image.png)
+![Background image sample](generated/background-image_0.png)
 
 ## Background Alternating
 
@@ -47,7 +47,7 @@ Generated PNGs are expected in `docs/generated` and should be regenerated with `
 ```
 </details>
 
-![Background alternating sample](generated/background-alternating.png)
+![Background alternating sample](generated/background-alternating_0.png)
 
 ## Grid
 
@@ -62,7 +62,7 @@ Generated PNGs are expected in `docs/generated` and should be regenerated with `
 ```
 </details>
 
-![Grid sample](generated/grid.png)
+![Grid sample](generated/grid_0.png)
 
 ## Circle
 
@@ -77,7 +77,7 @@ Generated PNGs are expected in `docs/generated` and should be regenerated with `
 ```
 </details>
 
-![Circle sample](generated/circle.png)
+![Circle sample](generated/circle_0.png)
 
 ## Crosshair
 
@@ -92,7 +92,7 @@ Generated PNGs are expected in `docs/generated` and should be regenerated with `
 ```
 </details>
 
-![Crosshair sample](generated/crosshair.png)
+![Crosshair sample](generated/crosshair_0.png)
 
 ## Labeled Edges
 
@@ -107,7 +107,7 @@ Generated PNGs are expected in `docs/generated` and should be regenerated with `
 ```
 </details>
 
-![Labeled edges sample](generated/labeled-edges.png)
+![Labeled edges sample](generated/labeled-edges_0.png)
 
 ## Text + Logo
 
@@ -122,7 +122,7 @@ Generated PNGs are expected in `docs/generated` and should be regenerated with `
 ```
 </details>
 
-![Text and logo sample](generated/text-logo.png)
+![Text and logo sample](generated/text-logo_0.png)
 
 ## Slices
 
@@ -137,4 +137,4 @@ Generated PNGs are expected in `docs/generated` and should be regenerated with `
 ```
 </details>
 
-![Slices sample](generated/slices.png)
+![Slices sample](generated/slices_0.png)

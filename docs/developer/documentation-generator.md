@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Sample configs in [sample-config](../sample-config/background-image.toml) are rendered into PNG artifacts in [generated](../generated/background-image.png). Each config demonstrates one visual feature and is designed for stable documentation references.
+Sample configs in [sample-config](../sample-config/background-image.toml) are rendered into PNG artifacts in [generated](../generated/background-image_0.png). Each config demonstrates one visual feature and is designed for stable documentation references.
 
 Generated sections in CLI/TOML reference pages are written to `docs/generated/*.md` by `scripts/generate-documentation.ps1`, and runtime CLI metadata is generated into C# at build time from schema metadata. The schema is the single source of truth for TOML defaults/descriptions, CLI help metadata, and documentation tables.
 

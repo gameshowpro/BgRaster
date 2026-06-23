@@ -1,0 +1,82 @@
+﻿# $schema: https://raw.githubusercontent.com/gameshowpro/BgRaster/refs/heads/main/docs/schemas/bgraster-config.schema.json
+# This sample is used to generate the background for the social card during the build process. It's not really part of the documentation.
+[text]
+text = ["BgRaster", "Desktop generator for", "display mapping"]
+size = ["15vh", "10vh", "10vh"]
+color = ["#FFFFFF", "#a0a0a0", "#a0a0a0"]
+x = ["50vw"]
+y = ["65vh"]
+
+[logo]
+x = ["50vw"]
+y = ["25vh"]
+width = ["40vw"]
+height = ["40vh"]
+opacity = [1]
+
+[background]
+color = ["#101010"]
+image = [""]
+fit = ["CropToFill"]
+alternating = [false]
+border = [false]
+border-color = ["#FFFFFF"]
+
+[grid]
+size = ["100px"]
+odd-color = ["#500050"]
+even-color = ["transparent"]
+stroke = ["0"]
+offset-x = ["0"]
+offset-y = ["0"]
+coordinates = [false]
+
+[circle]
+x = "50vw"
+size = ["100vmin"]
+color = ["#ff000080"]
+stroke = ["1"]
+
+[crosshair]
+stroke = ["0"]
+
+[labeled-edges]
+text-size = ["10px"]
+tail-length = ["10px"]
+thickness = ["3px"]
+head-scale = [1]
+scope = ["Desktop"]
+side = ["TL", "T", "TR", "R", "BR", "B", "BL", "L"]
+
+[render]
+no-assignment = true
+no-discovery = true
+output = "{index}"
+
+[[output]]
+
+[output.hardware_output]
+index = 0
+desktopX = 0
+desktopY = 0
+widthPx = 1200
+heightPx = 630
+dpiX = 96
+dpiY = 96
+rotation = 0
+adapterName = "Facebook"
+friendlyName = ""
+
+[[output]]
+
+[output.hardware_output]
+index = 1
+desktopX = 0
+desktopY = 0
+widthPx = 1200
+heightPx = 600
+dpiX = 96
+dpiY = 96
+rotation = 0
+adapterName = "X"
+friendlyName = ""

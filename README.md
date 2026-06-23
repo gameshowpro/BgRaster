@@ -16,7 +16,7 @@ BgRaster is a fast console application that uses modern frameworks and APIs to g
 
 ## Sample output
 
-![Slices sample](https://bgraster.gameshow.pro/generated/slices.png)
+![Slices sample](https://bgraster.gameshow.pro/generated/slices_0.png)
 
 ## Supported environments
 
