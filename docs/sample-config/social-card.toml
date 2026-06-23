@@ -22,7 +22,7 @@ odd-color = ["#500050"]
 [circle]
 size = ["100vmin"]
 color = ["#ff000080"]
-stroke = ["1"]
+stroke = ["2"]
 
 [crosshair]
 stroke = ["0"]

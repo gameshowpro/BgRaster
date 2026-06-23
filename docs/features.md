@@ -1,8 +1,6 @@
 # Feature Gallery
 
-This document is intentionally structured as simple sections so automated tooling can refresh image links and keep descriptions current.
-
-Generated PNGs are expected in `docs/generated` and should be regenerated with `scripts/generate-documentation.ps1`.
+These examples are automatically generated from sample config files at during the build. You can see the TOML that defined them and the final results demonstrating many of the features of BgRaster. Note that anything under `render` and `output.hardware_output` is used for generating these files without physical displays so is not useful under most production scenarios.
 
 ## Background Color
 
