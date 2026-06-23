@@ -2,12 +2,9 @@
 
 [background]
 color = ["#000000"]
-alternating = [false]
-border = [false]
 
 [grid]
 size = ["0"]
-coordinates = [false]
 
 [labeled-edges]
 text-size = ["14px"]
@@ -18,7 +15,6 @@ scope = ["Output"]
 side = ["TL", "T", "TR", "R", "BR", "B", "BL", "L"]
 
 [circle]
-stroke = ["0"]
 color = ["#00000000"]
 
 [crosshair]
@@ -34,7 +30,6 @@ source = [""]
 [render]
 no-assignment = true
 no-discovery = true
-output = ""
 
 [[output]]
 target = 0

@@ -4,56 +4,23 @@ machine-name = "SAMPLE_MACHINE"
 [text]
 text = ["${MachineName} output ${OutputIndexPlusOne}", "slice ${SliceLetterMinusOne}", "${SliceWidth}x${SliceHeight}"]
 size = ["16px", "12px", "14px"]
-color = ["#fff"]
 x = ["50vw"]
 y = ["50vh"]
 
 [background]
 color = ["#808080", "#800080", "#008000", "#904000"]
-image = [""]
-fit = ["CropToFill"]
-alternating = [false]
-border = [false]
-border-color = ["#FFFFFF"]
-
-[grid]
-size = ["100px"]
-odd-color = ["#00000080"]
-even-color = ["transparent"]
-stroke = ["0"]
-offset-x = ["0"]
-offset-y = ["0"]
-coordinates = [false]
 
 [circle]
-size = ["100vmin"]
 color = ["#ffffff"]
 stroke = ["1"]
-
-[crosshair]
-length = ["5vmin"]
-color = ["#ffffff80"]
-stroke = ["1px"]
-
-[labeled-edges]
-text-size = ["10px"]
-tail-length = ["10px"]
-thickness = ["3px"]
-head-scale = [1]
-scope = ["Desktop"]
-side = ["TL", "T", "TR", "R", "BR", "B", "BL", "L"]
 
 [logo]
 x = "75vw"
 y = "50vh"
 width = "40vw"
 height = "50vh"
-opacity = 1
 
 [render]
-no-assignment = false
-outputs-skip-unspecified = false
-output = ""
 force = true
 verbosity = "verbose"
 

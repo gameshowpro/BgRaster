@@ -2,12 +2,9 @@
 
 [background]
 color = ["#000000"]
-alternating = [false]
-border = [false]
 
 [grid]
 size = ["0"]
-coordinates = [false]
 
 [circle]
 size = ["70vmin"]
@@ -31,7 +28,6 @@ source = [""]
 [render]
 no-assignment = true
 no-discovery = true
-output = ""
 
 [[output]]
 target = 0

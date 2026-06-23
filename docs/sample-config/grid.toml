@@ -2,18 +2,14 @@
 
 [background]
 color = ["#000000"]
-alternating = [false]
-border = [false]
 
 [grid]
 size = ["64px"]
 odd-color = ["#000"]
 even-color = ["#8d0000"]
-stroke = ["0"]
 coordinates = [true]
 
 [circle]
-stroke = ["0"]
 color = ["#00000000"]
 
 [crosshair]
@@ -32,7 +28,6 @@ source = [""]
 [render]
 no-assignment = true
 no-discovery = true
-output = ""
 
 [[output]]
 target = 0
