@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright © 2026 Barjonas LLC
+
 namespace GameshowPro.BgRaster;
 
 using System.CommandLine;
@@ -19,6 +22,12 @@ static class Program
     {
         try
         {
+            if (args.Any(a => a == "--version"))
+            {
+                Console.WriteLine(CliBinding.GetVersionString());
+                return 0;
+            }
+
             RootCommand root = CliBinding.BuildRootCommand(RunAsync);
             return await root.Parse(args).InvokeAsync();
         }

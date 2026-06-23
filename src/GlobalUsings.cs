@@ -1,8 +1,12 @@
+// SPDX-License-Identifier: MIT
+// Copyright © 2026 Barjonas LLC
+
 global using System;
 global using System.Collections.Frozen;
 global using System.Collections.Generic;
 global using System.Collections.Immutable;
 global using System.IO;
+global using System.Linq;
 global using System.Reflection;
 global using System.Runtime.InteropServices;
 global using System.Security.Cryptography;

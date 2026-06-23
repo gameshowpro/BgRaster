@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright © 2026 Barjonas LLC
+
 namespace GameshowPro.BgRaster.Configuration;
 
 static class CliBinding
@@ -122,5 +125,20 @@ static class CliBinding
         static CliOptionDefinition GetByAlias(string alias) =>
             GeneratedCliOptionCatalog.Definitions.First(definition =>
                 string.Equals(definition.Alias, alias, StringComparison.Ordinal));
+    }
+
+    internal static string GetVersionString()
+    {
+        string version = Assembly.GetExecutingAssembly()
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+            ?.InformationalVersion ?? "0.0.0";
+        return $"BgRaster {version} {GetCopyright()}";
+    }
+
+    internal static string GetCopyright()
+    {
+        return Assembly.GetExecutingAssembly()
+            .GetCustomAttribute<AssemblyCopyrightAttribute>()
+            ?.Copyright ?? "(C) 2026 Barjonas LLC";
     }
 }

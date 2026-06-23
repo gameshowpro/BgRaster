@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright © 2026 Barjonas LLC
+
 global using System.Collections.Frozen;
 global using System.Collections.Immutable;
 global using FluentAssertions;

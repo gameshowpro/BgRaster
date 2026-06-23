@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright © 2026 Barjonas LLC
+
 namespace GameshowPro.BgRaster.Logging;
 
 internal static partial class BgRasterLog
