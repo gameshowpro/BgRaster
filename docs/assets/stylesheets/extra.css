@@ -18,9 +18,16 @@
     justify-content: flex-start;
 }
 
-/* Content column must not shrink below 1024px */
+/* Content column must not shrink below 1024px on wide screens */
 .md-content {
     min-width: 1024px;
+}
+
+/* On narrow screens, let content shrink to fit the viewport */
+@media screen and (max-width: 76.1875em) {
+    .md-content {
+        min-width: 0;
+    }
 }
 
 /*
