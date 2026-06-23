@@ -3,14 +3,11 @@
 [background]
 color = ["#1A365D"]
 alternating = [true]
-border = [false]
 
 [grid]
 size = ["0"]
-coordinates = [false]
 
 [circle]
-stroke = ["0"]
 color = ["#00000000"]
 
 [crosshair]
@@ -30,7 +27,6 @@ source = [""]
 [render]
 no-assignment = true
 no-discovery = true
-output = ""
 
 [[output]]
 target = 0

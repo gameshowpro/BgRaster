@@ -2,12 +2,9 @@
 
 [background]
 color = ["#000000"]
-alternating = [false]
-border = [false]
 
 [grid]
 size = ["0"]
-coordinates = [false]
 
 [crosshair]
 length = ["40vmin"]
@@ -15,7 +12,6 @@ color = ["#00D9FF"]
 stroke = ["3px"]
 
 [circle]
-stroke = ["0"]
 color = ["#00000000"]
 
 [labeled-edges]
@@ -31,7 +27,6 @@ source = [""]
 [render]
 no-assignment = true
 no-discovery = true
-output = ""
 
 [[output]]
 target = 0

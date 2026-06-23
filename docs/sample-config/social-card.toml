@@ -12,41 +12,20 @@ x = ["50vw"]
 y = ["25vh"]
 width = ["40vw"]
 height = ["40vh"]
-opacity = [1]
 
 [background]
 color = ["#101010"]
-image = [""]
-fit = ["CropToFill"]
-alternating = [false]
-border = [false]
-border-color = ["#FFFFFF"]
 
 [grid]
-size = ["100px"]
 odd-color = ["#500050"]
-even-color = ["transparent"]
-stroke = ["0"]
-offset-x = ["0"]
-offset-y = ["0"]
-coordinates = [false]
 
 [circle]
-x = "50vw"
 size = ["100vmin"]
 color = ["#ff000080"]
 stroke = ["1"]
 
 [crosshair]
 stroke = ["0"]
-
-[labeled-edges]
-text-size = ["10px"]
-tail-length = ["10px"]
-thickness = ["3px"]
-head-scale = [1]
-scope = ["Desktop"]
-side = ["TL", "T", "TR", "R", "BR", "B", "BL", "L"]
 
 [render]
 no-assignment = true

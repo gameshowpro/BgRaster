@@ -2,12 +2,9 @@
 
 [background]
 color = ["#000000"]
-alternating = [false]
-border = [false]
 
 [grid]
 size = ["0"]
-coordinates = [false]
 
 [text]
 text = ["BgRaster", "Text + Logo", "640x480"]
@@ -22,10 +19,8 @@ x = ["50vw"]
 y = ["45vh"]
 width = ["40vw"]
 height = ["25vh"]
-opacity = [1]
 
 [circle]
-stroke = ["0"]
 color = ["#00000000"]
 
 [crosshair]
@@ -39,7 +34,6 @@ side = []
 [render]
 no-assignment = true
 no-discovery = true
-output = ""
 
 [[output]]
 target = 0
