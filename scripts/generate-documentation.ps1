@@ -574,7 +574,7 @@ try {
 
     foreach ($config in $configs) {
         $stem = [System.IO.Path]::GetFileNameWithoutExtension($config.Name)
-        $renderTemplate = Join-Path $SampleOutputDirectory $stem
+        $renderTemplate = Join-Path $SampleOutputDirectory "$stem`_{index}"
 
         Write-Host "Generating sample: $($config.Name) -> $renderTemplate.png"
 

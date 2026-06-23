@@ -2,4 +2,38 @@
 
 {% block extrahead %}
   <meta property="og:logo" content="{{ config.site_url }}assets/images/logo.svg" />
+  <meta property="og:image" content="{{ config.site_url }}generated/social-card_0.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="{{ config.site_url }}generated/social-card_1.png" />
+  {% if page and page.meta %}
+  {% set og_title = page.meta.og_title or page.title %}
+  {% if og_title %}
+  <meta name="twitter:title" content="{{ og_title }}" />
+  {% endif %}
+  {% set og_description = page.meta.og_description or config.site_description %}
+  {% if og_description %}
+  <meta name="twitter:description" content="{{ og_description }}" />
+  {% endif %}
+  {% endif %}
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script>
+    /* Prevent cached GitHub API responses for source facts */
+    (function() {
+      var _fetch = window.fetch;
+      window.fetch = function(url, opts) {
+        if (typeof url === 'string' && url.includes('api.github.com/repos/gameshowpro/BgRaster')) {
+          opts = opts || {};
+          opts.cache = 'no-store';
+          url = url + (url.includes('?') ? '&' : '?') + '_cb=' + Date.now();
+        }
+        return _fetch.call(window, url, opts);
+      };
+    })();
+  </script>
 {% endblock %}

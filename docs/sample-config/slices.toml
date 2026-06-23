@@ -9,7 +9,7 @@ x = ["50vw"]
 y = ["50vh"]
 
 [background]
-color = ["#808080", "#FF0000", "#00FF00", "#0000FF"]
+color = ["#808080", "#800080", "#008000", "#904000"]
 image = [""]
 fit = ["CropToFill"]
 alternating = [false]
