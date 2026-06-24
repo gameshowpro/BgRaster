@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>$packageId$</id>
+    <version>$version$</version>
+    <title>BgRaster</title>
+    <authors>Hamish Barjonas</authors>
+    <owners>Hamish Barjonas</owners>
+    <copyright>(C) $copyrightYear$ Barjonas LLC</copyright>
+    <licenseUrl>https://github.com/gameshowpro/BgRaster/blob/main/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/gameshowpro/BgRaster</projectUrl>
+    <docsUrl>https://bgraster.gameshow.pro</docsUrl>
+    <releaseNotes>https://github.com/gameshowpro/BgRaster/releases/tag/v$version$</releaseNotes>
+    <projectSourceUrl>https://github.com/gameshowpro/BgRaster/tree/v$version$</projectSourceUrl>
+    <packageSourceUrl>https://github.com/gameshowpro/BgRaster/tree/v$version$/build/chocolatey/BgRaster</packageSourceUrl>
+    <iconUrl>https://bgraster.gameshow.pro/assets/images/logo.svg</iconUrl>
+    <tags>wallpaper test-pattern av broadcast events video sysadmin desktop</tags>
+    <summary>Generate informative test pattern wallpapers for every display from a TOML config file or CLI flags.</summary>
+    <description><![CDATA[
+## BgRaster
+
+A fast, single-file console application that generates tightly-cropped per-output wallpapers
+and assigns them directly to every display using the Windows `IDesktopWallpaper` COM interface.
+
+### Features
+
+- Per-output wallpaper rendering with independent configuration per display
+- Crosshair, grid, circle, labeled edges, logo, and text layers
+- TOML configuration with CLI overrides
+- ASUS ProArt color space support
+- No runtime dependencies — a single AOT-compiled executable
+
+### Quick start
+
+```powershell
+BgRaster --text "Hello World" --grid-size 64 --circle-size 200
+```
+    ]]></description>
+    <dependencies />
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+    <file src="binaries\**" target="binaries" />
+  </files>
+</package>

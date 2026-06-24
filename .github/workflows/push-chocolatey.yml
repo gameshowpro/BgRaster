@@ -1,0 +1,63 @@
+name: Push to Chocolatey Community Repository
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release tag (e.g. v1.0.47)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  push:
+    name: Push to Chocolatey
+    runs-on: windows-latest
+
+    env:
+      RELEASE_TAG: ${{ github.event.inputs.release_tag }}
+
+    steps:
+      - name: Validate tag
+        shell: pwsh
+        run: |
+          $tag = "$env:RELEASE_TAG"
+          if (-not $tag.StartsWith('v')) {
+            throw "Release tag must start with 'v'. Got: '$tag'"
+          }
+
+      - name: Download nupkg from release
+        shell: pwsh
+        run: |
+          $tag = "$env:RELEASE_TAG"
+          New-Item -Path packages -ItemType Directory -Force | Out-Null
+
+          $release = gh release view $tag --json assets -q '.assets[].name' 2>&1
+          if ($LASTEXITCODE -ne 0) {
+            throw "Failed to find release for tag '$tag'. Ensure the release exists."
+          }
+
+          $nupkgAsset = $release -split "`n" | Where-Object { $_.EndsWith('.nupkg') } | Select-Object -First 1
+          if (-not $nupkgAsset) {
+            throw "No .nupkg asset found in release '$tag'. Ensure the publish-chocolatey workflow ran successfully for this release."
+          }
+
+          gh release download $tag --pattern "$nupkgAsset" --dir packages 2>&1
+          if ($LASTEXITCODE -ne 0) { throw "Failed to download nupkg." }
+
+          $nupkgPath = Get-ChildItem -Path "packages\*.nupkg" | Select-Object -First 1
+          Write-Host "Downloaded: $($nupkgPath.FullName)"
+          "nupkg=$($nupkgPath.FullName)" >> $env:GITHUB_OUTPUT
+        id: download
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Push to Chocolatey Community Repository
+        shell: pwsh
+        run: |
+          choco apikey --key $env:CHOCO_API_KEY --source https://push.chocolatey.org/
+          choco push ${{ steps.download.outputs.nupkg }} --source https://push.chocolatey.org/
+        env:
+          CHOCO_API_KEY: ${{ secrets.CHOCO_API_KEY }}
