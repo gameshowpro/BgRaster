@@ -129,6 +129,10 @@ jobs:
           Get-ChildItem -Path $env:CHOCO_ASSETS_PATH -Include '*.txt' |
             Copy-Item -Destination $env:BINARIES_PATH -Force
 
+          # Copy AOT binaries into the package structure for choco pack
+          New-Item -Path package/binaries -ItemType Directory -Force | Out-Null
+          Copy-Item -Path "$env:BINARIES_PATH/*" -Destination package/binaries -Recurse -Force
+
       - name: Pack Chocolatey nupkg
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         shell: pwsh
