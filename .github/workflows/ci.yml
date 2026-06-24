@@ -28,19 +28,16 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      - name: Install NBGV
-        run: dotnet tool install --global nbgv
+      - name: Install NBGV and set version variables
+        uses: dotnet/nbgv@v0.5.2
+        with:
+          setAllVars: true
 
-      - name: Set version
-        run: nbgv cloud
-
-      - name: Capture docs version
-        id: docs_version
+      - name: Validate release version
         shell: pwsh
         run: |
-          $versionInfo = nbgv get-version -f json | ConvertFrom-Json
-          $version = [string]$versionInfo.SimpleVersion
-          $isPublicRelease = [bool]$versionInfo.PublicRelease
+          $version = [string]$env:NBGV_SimpleVersion
+          $isPublicRelease = [bool]::Parse($env:NBGV_PublicRelease)
 
           if ("${{ github.event_name }}" -eq "push" -and "${{ github.ref }}" -eq "refs/heads/main" -and -not $isPublicRelease) {
             throw "NBGV reported PublicRelease=false for main. Check version.json publicReleaseRefSpec before publishing releases."
@@ -51,6 +48,14 @@ jobs:
           }
 
           "tag=v$version" >> $env:GITHUB_OUTPUT
+        id: docs_version
+
+      - name: Capture Chocolatey version
+        shell: pwsh
+        run: |
+          "version=$env:NBGV_ChocolateyPackageVersion" >> $env:GITHUB_OUTPUT
+          "copyrightYear=$([string](Get-Date).Year)" >> $env:GITHUB_OUTPUT
+        id: choco_version
 
       - name: Restore
         run: dotnet restore src/BgRaster.slnx -r win-x64
@@ -86,6 +91,56 @@ jobs:
           -r win-x64
           /p:TreatWarningsAsErrors=true
           -o publish/win-x64
+
+      - name: Gather Chocolatey package files
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: pwsh
+        env:
+          CHOCO_ASSETS_PATH: build/chocolatey/BgRaster
+          BINARIES_PATH: publish/win-x64
+          TOOLS_PATH: package/tools
+          NUSPEC_PATH: package/BgRaster.nuspec
+        run: |
+          $version = "${{ steps.choco_version.outputs.version }}"
+          $copyrightYear = "${{ steps.choco_version.outputs.copyrightYear }}"
+
+          mkdir $env:TOOLS_PATH -Force | Out-Null
+
+          # Token-replace the nuspec
+          (Get-Content (Join-Path $env:CHOCO_ASSETS_PATH 'publish.nuspec') -Raw) `
+            -replace '\$version\$', $version `
+            -replace '\$packageId\$', 'BgRaster' `
+            -replace '\$copyrightYear\$', $copyrightYear |
+            Set-Content $env:NUSPEC_PATH -NoNewline
+
+          # Copy install script to tools directory
+          Copy-Item (Join-Path $env:CHOCO_ASSETS_PATH 'chocolateyinstall.ps1') -Destination $env:TOOLS_PATH
+
+          # Append SHA256 hashes to VERIFICATION.txt, then copy to binaries
+          $verificationPath = Join-Path $env:CHOCO_ASSETS_PATH 'VERIFICATION.txt'
+          $files = Get-ChildItem -Path $env:BINARIES_PATH -File
+          Add-Content -Path $verificationPath -Value "`nchecksum type: sha256"
+          foreach ($file in $files) {
+            $checksum = Get-FileHash -Path $file.FullName -Algorithm SHA256 | Select-Object -ExpandProperty Hash
+            $relativePath = Resolve-Path -Path $file.FullName -RelativeBasePath $env:BINARIES_PATH -Relative
+            Add-Content -Path $verificationPath -Value "`nfile: $relativePath`nchecksum: $checksum"
+          }
+
+          Get-ChildItem -Path $env:CHOCO_ASSETS_PATH -Include '*.txt' |
+            Copy-Item -Destination $env:BINARIES_PATH -Force
+
+      - name: Pack Chocolatey nupkg
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: pwsh
+        run: |
+          $version = "${{ steps.choco_version.outputs.version }}"
+          New-Item -Path packages -ItemType Directory -Force | Out-Null
+          choco pack package/BgRaster.nuspec --version $version --outputdirectory packages
+          if ($LASTEXITCODE -ne 0) { throw "choco pack failed" }
+
+          $nupkg = (Get-ChildItem -Path "packages\*.nupkg" | Select-Object -First 1).FullName
+          "path=$nupkg" >> $env:GITHUB_OUTPUT
+        id: pack_nupkg
 
       - name: Stage release files
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -174,6 +229,7 @@ jobs:
           files: |
             publish/BgRaster.zip
             publish/release/BgRaster.pdb
+            ${{ steps.pack_nupkg.outputs.path }}
           fail_on_unmatched_files: true
 
   build-docs:

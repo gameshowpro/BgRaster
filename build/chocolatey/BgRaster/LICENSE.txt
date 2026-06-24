@@ -1,3 +1,5 @@
+From: https://github.com/gameshowpro/BgRaster/blob/main/LICENSE
+
 MIT License
 
 Copyright (c) 2026 Barjonas LLC
