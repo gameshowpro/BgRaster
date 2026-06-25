@@ -92,18 +92,40 @@ jobs:
           /p:TreatWarningsAsErrors=true
           -o publish/win-x64
 
-      - name: Gather Chocolatey package files
+      - name: Stage release artifacts (zip, nupkg binaries, symbols)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         shell: pwsh
         env:
           CHOCO_ASSETS_PATH: build/chocolatey/BgRaster
           BINARIES_PATH: publish/win-x64
+          STAGING_PATH: publish/staging
           TOOLS_PATH: package/tools
           NUSPEC_PATH: package/BgRaster.nuspec
         run: |
           $version = "${{ steps.choco_version.outputs.version }}"
           $copyrightYear = "${{ steps.choco_version.outputs.copyrightYear }}"
 
+          # --- Staging directory (single source of truth for renamed files) ---
+          New-Item -Path $env:STAGING_PATH -ItemType Directory -Force | Out-Null
+
+          Copy-Item -Path "$env:BINARIES_PATH/GameshowPro.BgRaster.exe" -Destination "$env:STAGING_PATH/BgRaster.exe" -Force
+          Copy-Item -Path "$env:BINARIES_PATH/libSkiaSharp.dll" -Destination "$env:STAGING_PATH/libSkiaSharp.dll" -Force
+          Copy-Item -Path "$env:BINARIES_PATH/GameshowPro.BgRaster.pdb" -Destination "$env:STAGING_PATH/BgRaster.pdb" -Force
+
+          Copy-Item -Path (Join-Path $env:CHOCO_ASSETS_PATH 'LICENSE.txt') -Destination $env:STAGING_PATH -Force
+          Copy-Item -Path (Join-Path $env:CHOCO_ASSETS_PATH 'VERIFICATION.txt') -Destination $env:STAGING_PATH -Force
+
+          # Append SHA256 hashes for the shipped binaries to VERIFICATION.txt
+          $verificationPath = Join-Path $env:STAGING_PATH 'VERIFICATION.txt'
+          $binaries = @("$env:STAGING_PATH/BgRaster.exe", "$env:STAGING_PATH/libSkiaSharp.dll")
+          Add-Content -Path $verificationPath -Value "`nchecksum type: sha256"
+          foreach ($bin in $binaries) {
+            $checksum = Get-FileHash -Path $bin -Algorithm SHA256 | Select-Object -ExpandProperty Hash
+            $name = Split-Path -Path $bin -Leaf
+            Add-Content -Path $verificationPath -Value "`nfile: $name`nchecksum: $checksum"
+          }
+
+          # --- Chocolatey package structure ---
           mkdir $env:TOOLS_PATH -Force | Out-Null
 
           # Token-replace the nuspec
@@ -113,24 +135,12 @@ jobs:
             -replace '\$copyrightYear\$', $copyrightYear |
             Set-Content $env:NUSPEC_PATH -NoNewline
 
-          # Copy install script to tools directory
           Copy-Item (Join-Path $env:CHOCO_ASSETS_PATH 'chocolateyinstall.ps1') -Destination $env:TOOLS_PATH
 
-          # Copy AOT binaries and docs into the package structure for choco pack, renamed to match release zip
-          New-Item -Path package/binaries -ItemType Directory -Force | Out-Null
-          Copy-Item -Path "$env:BINARIES_PATH/GameshowPro.BgRaster.exe" -Destination package/binaries/BgRaster.exe -Force
-          Copy-Item -Path "$env:BINARIES_PATH/libSkiaSharp.dll" -Destination package/binaries/libSkiaSharp.dll -Force
-          Get-ChildItem -Path $env:CHOCO_ASSETS_PATH -Include '*.txt' |
-            Copy-Item -Destination package/binaries -Force
-
-          # Append SHA256 hashes for the actual package files to VERIFICATION.txt
-          $verificationPath = Join-Path package/binaries 'VERIFICATION.txt'
-          $files = Get-ChildItem -Path package/binaries -File -Exclude 'VERIFICATION.txt','LICENSE.txt'
-          Add-Content -Path $verificationPath -Value "`nchecksum type: sha256"
-          foreach ($file in $files) {
-            $checksum = Get-FileHash -Path $file.FullName -Algorithm SHA256 | Select-Object -ExpandProperty Hash
-            Add-Content -Path $verificationPath -Value "`nfile: $($file.Name)`nchecksum: $checksum"
-          }
+          # --- Release zip ---
+          $zipPath = Join-Path $PWD 'publish/BgRaster.zip'
+          if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
+          Compress-Archive -Path "$env:STAGING_PATH/BgRaster.exe","$env:STAGING_PATH/libSkiaSharp.dll" -DestinationPath $zipPath -Force
 
       - name: Pack Chocolatey nupkg
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -144,27 +154,6 @@ jobs:
           $nupkg = (Get-ChildItem -Path "packages\*.nupkg" | Select-Object -First 1).FullName
           "path=$nupkg" >> $env:GITHUB_OUTPUT
         id: pack_nupkg
-
-      - name: Stage release files
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        shell: pwsh
-        run: |
-          $publishDir = Join-Path $PWD 'publish/win-x64'
-          $releaseDir = Join-Path $PWD 'publish/release'
-          $zipDir = Join-Path $releaseDir 'zip'
-          New-Item -ItemType Directory -Path $releaseDir -Force | Out-Null
-          New-Item -ItemType Directory -Path $zipDir -Force | Out-Null
-
-          Copy-Item -Path (Join-Path $publishDir 'GameshowPro.BgRaster.exe') -Destination (Join-Path $zipDir 'BgRaster.exe') -Force
-          Copy-Item -Path (Join-Path $publishDir 'libSkiaSharp.dll') -Destination (Join-Path $zipDir 'libSkiaSharp.dll') -Force
-          Copy-Item -Path (Join-Path $publishDir 'GameshowPro.BgRaster.pdb') -Destination (Join-Path $releaseDir 'BgRaster.pdb') -Force
-
-          $zipPath = Join-Path $PWD 'publish/BgRaster.zip'
-          if (Test-Path $zipPath) {
-            Remove-Item $zipPath -Force
-          }
-
-          Compress-Archive -Path (Join-Path $zipDir '*') -DestinationPath $zipPath -Force
 
       - name: Smoke test published binary
         shell: pwsh
@@ -193,7 +182,7 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: BgRaster-pdb
-          path: publish/release/BgRaster.pdb
+          path: publish/staging/BgRaster.pdb
           if-no-files-found: error
 
       - name: Upload test results
@@ -231,7 +220,7 @@ jobs:
           generate_release_notes: true
           files: |
             publish/BgRaster.zip
-            publish/release/BgRaster.pdb
+            publish/staging/BgRaster.pdb
             ${{ steps.pack_nupkg.outputs.path }}
           fail_on_unmatched_files: true
 
