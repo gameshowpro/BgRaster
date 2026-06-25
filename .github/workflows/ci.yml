@@ -129,9 +129,10 @@ jobs:
           Get-ChildItem -Path $env:CHOCO_ASSETS_PATH -Include '*.txt' |
             Copy-Item -Destination $env:BINARIES_PATH -Force
 
-          # Copy AOT binaries into the package structure for choco pack
+          # Copy AOT binaries into the package structure for choco pack, renamed to match release zip
           New-Item -Path package/binaries -ItemType Directory -Force | Out-Null
-          Copy-Item -Path "$env:BINARIES_PATH/*" -Destination package/binaries -Recurse -Force
+          Copy-Item -Path "$env:BINARIES_PATH/GameshowPro.BgRaster.exe" -Destination package/binaries/BgRaster.exe -Force
+          Copy-Item -Path "$env:BINARIES_PATH/libSkiaSharp.dll" -Destination package/binaries/libSkiaSharp.dll -Force
 
       - name: Pack Chocolatey nupkg
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
