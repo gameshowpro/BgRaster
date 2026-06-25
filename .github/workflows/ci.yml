@@ -116,23 +116,21 @@ jobs:
           # Copy install script to tools directory
           Copy-Item (Join-Path $env:CHOCO_ASSETS_PATH 'chocolateyinstall.ps1') -Destination $env:TOOLS_PATH
 
-          # Append SHA256 hashes to VERIFICATION.txt, then copy to binaries
-          $verificationPath = Join-Path $env:CHOCO_ASSETS_PATH 'VERIFICATION.txt'
-          $files = Get-ChildItem -Path $env:BINARIES_PATH -File
-          Add-Content -Path $verificationPath -Value "`nchecksum type: sha256"
-          foreach ($file in $files) {
-            $checksum = Get-FileHash -Path $file.FullName -Algorithm SHA256 | Select-Object -ExpandProperty Hash
-            $relativePath = Resolve-Path -Path $file.FullName -RelativeBasePath $env:BINARIES_PATH -Relative
-            Add-Content -Path $verificationPath -Value "`nfile: $relativePath`nchecksum: $checksum"
-          }
-
-          Get-ChildItem -Path $env:CHOCO_ASSETS_PATH -Include '*.txt' |
-            Copy-Item -Destination $env:BINARIES_PATH -Force
-
-          # Copy AOT binaries into the package structure for choco pack, renamed to match release zip
+          # Copy AOT binaries and docs into the package structure for choco pack, renamed to match release zip
           New-Item -Path package/binaries -ItemType Directory -Force | Out-Null
           Copy-Item -Path "$env:BINARIES_PATH/GameshowPro.BgRaster.exe" -Destination package/binaries/BgRaster.exe -Force
           Copy-Item -Path "$env:BINARIES_PATH/libSkiaSharp.dll" -Destination package/binaries/libSkiaSharp.dll -Force
+          Get-ChildItem -Path $env:CHOCO_ASSETS_PATH -Include '*.txt' |
+            Copy-Item -Destination package/binaries -Force
+
+          # Append SHA256 hashes for the actual package files to VERIFICATION.txt
+          $verificationPath = Join-Path package/binaries 'VERIFICATION.txt'
+          $files = Get-ChildItem -Path package/binaries -File -Exclude 'VERIFICATION.txt','LICENSE.txt'
+          Add-Content -Path $verificationPath -Value "`nchecksum type: sha256"
+          foreach ($file in $files) {
+            $checksum = Get-FileHash -Path $file.FullName -Algorithm SHA256 | Select-Object -ExpandProperty Hash
+            Add-Content -Path $verificationPath -Value "`nfile: $($file.Name)`nchecksum: $checksum"
+          }
 
       - name: Pack Chocolatey nupkg
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
