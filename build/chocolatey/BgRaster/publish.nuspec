@@ -13,13 +13,13 @@
     <releaseNotes>https://github.com/gameshowpro/BgRaster/releases/tag/v$version$</releaseNotes>
     <projectSourceUrl>https://github.com/gameshowpro/BgRaster/tree/v$version$</projectSourceUrl>
     <packageSourceUrl>https://github.com/gameshowpro/BgRaster/tree/v$version$/build/chocolatey/BgRaster</packageSourceUrl>
-    <iconUrl>https://bgraster.gameshow.pro/assets/images/logo.svg</iconUrl>
+    <iconUrl>https://bgraster.gameshow.pro/assets/images/gsp.png</iconUrl>
     <tags>wallpaper test-pattern av broadcast events video sysadmin desktop</tags>
     <summary>Generate informative test pattern wallpapers for every display from a TOML config file or CLI flags.</summary>
     <description><![CDATA[
 ## BgRaster
 
-A fast, single-file console application that generates tightly-cropped per-output wallpapers
+A fast, single-file console application that generates per-output wallpapers
 and assigns them directly to every display using the Windows `IDesktopWallpaper` COM interface.
 
 ### Features
