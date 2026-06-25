@@ -32,11 +32,12 @@ jobs:
         shell: pwsh
         run: |
           $tag = "$env:RELEASE_TAG"
+          $repo = "$env:GITHUB_REPOSITORY"
           New-Item -Path packages -ItemType Directory -Force | Out-Null
 
-          $release = gh release view $tag --json assets -q '.assets[].name' 2>&1
+          $release = gh release view $tag -R $repo --json assets -q '.assets[].name' 2>&1
           if ($LASTEXITCODE -ne 0) {
-            throw "Failed to find release for tag '$tag'. Ensure the release exists."
+            throw "Failed to find release for tag '$tag'. gh exit code: $LASTEXITCODE. Output: $release"
           }
 
           $nupkgAsset = $release -split "`n" | Where-Object { $_.EndsWith('.nupkg') } | Select-Object -First 1
@@ -44,7 +45,7 @@ jobs:
             throw "No .nupkg asset found in release '$tag'. Ensure the publish-chocolatey workflow ran successfully for this release."
           }
 
-          gh release download $tag --pattern "$nupkgAsset" --dir packages 2>&1
+          gh release download $tag -R $repo --pattern "$nupkgAsset" --dir packages 2>&1
           if ($LASTEXITCODE -ne 0) { throw "Failed to download nupkg." }
 
           $nupkgPath = Get-ChildItem -Path "packages\*.nupkg" | Select-Object -First 1
