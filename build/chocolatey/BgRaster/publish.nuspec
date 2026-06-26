@@ -13,7 +13,7 @@
     <releaseNotes>https://github.com/gameshowpro/BgRaster/releases/tag/v$version$</releaseNotes>
     <projectSourceUrl>https://github.com/gameshowpro/BgRaster/tree/v$version$</projectSourceUrl>
     <packageSourceUrl>https://github.com/gameshowpro/BgRaster/tree/v$version$/build/chocolatey/BgRaster</packageSourceUrl>
-    <iconUrl>https://bgraster.gameshow.pro/assets/images/gsp.png</iconUrl>
+    <iconUrl>https://bgraster.gameshow.pro/assets/images/favicon.png</iconUrl>
     <tags>wallpaper test-pattern av broadcast events video sysadmin desktop</tags>
     <summary>Generate informative test pattern wallpapers for every display from a TOML config file or CLI flags.</summary>
     <description><![CDATA[
@@ -40,6 +40,9 @@ BgRaster --text "Hello World" --grid-size 64 --circle-size 200
   </metadata>
   <files>
     <file src="tools\**" target="tools" />
-    <file src="binaries\**" target="binaries" />
+    <file src="..\publish\staging\BgRaster.exe" target="binaries" />
+    <file src="..\publish\staging\libSkiaSharp.dll" target="binaries" />
+    <file src="..\publish\staging\LICENSE.txt" target="binaries" />
+    <file src="..\publish\staging\VERIFICATION.txt" target="binaries" />
   </files>
 </package>

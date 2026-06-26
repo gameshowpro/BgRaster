@@ -1,4 +1,4 @@
-# BgRaster
+# <img src="resources/BgRaster.svg" alt="BgRaster logo" width="32" height="32" style="vertical-align: top" /> BgRaster
 
 ## Inspiration
 BgRaster is inspired by the classic Sysinternals utility [BgInfo](https://learn.microsoft.com/en-us/sysinternals/downloads/bginfo). It was executed perfectly in 2000, but its structure and features feel dated today. In particular, it's focussed on the needs of an IT administrator from that era. It's missing many features that would be valuable to a creative professional in the 2020s.
@@ -115,7 +115,7 @@ As a project started in 2026, yes, substantial parts of this application were bu
 ## Authors
 
 <div style="display: flex; align-items: center; gap: 12px;">
-	<img src="https://bgraster.gameshow.pro/assets/images/logo.svg" alt="Game Show Pro logo." style="height: 60px"/>
+	<img src="resources/gsp.svg" alt="Game Show Pro logo." style="height: 60px"/>
 	<img src="https://www.barjonas.com/assets/img/barjonas.svg" alt="Barjonas LLC logo." style="height: 30px"/>
 </div>
 

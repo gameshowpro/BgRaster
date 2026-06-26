@@ -77,12 +77,13 @@ sealed class GridLayer : ILayer
                         SKPaint triPaint = useLight ? lightTri! : darkTri!;
 
                         float triSize = MathF.Min(cellSize * 0.12f, 8f);
-                        using (SKPath tri = new())
+                        using (SKPathBuilder triBuilder = new())
                         {
-                            tri.MoveTo(x, y);
-                            tri.LineTo(x + triSize, y);
-                            tri.LineTo(x, y + triSize);
-                            tri.Close();
+                            triBuilder.MoveTo(x, y);
+                            triBuilder.LineTo(x + triSize, y);
+                            triBuilder.LineTo(x, y + triSize);
+                            triBuilder.Close();
+                            using SKPath tri = triBuilder.Detach();
                             canvas.DrawPath(tri, triPaint);
                         }
 
@@ -90,11 +91,11 @@ sealed class GridLayer : ILayer
                         string rowStr = row.ToString(CultureInfo.InvariantCulture);
                         float pad = MathF.Max(2f, cellSize * 0.05f);
 
-                        canvas.DrawText(colStr, x + triSize + pad, y + fontSize, coordFont, textPaint);
-                        canvas.DrawText("x", x + cellSize / 2f - fontSize / 4f, y + cellSize / 2f + fontSize / 3f, coordFont, textPaint);
+                        canvas.DrawText(colStr, x + triSize + pad, y + fontSize, SKTextAlign.Left, coordFont, textPaint);
+                        canvas.DrawText("x", x + cellSize / 2f - fontSize / 4f, y + cellSize / 2f + fontSize / 3f, SKTextAlign.Left, coordFont, textPaint);
 
                         float rowWidth = fontSize * 0.6f * rowStr.Length;
-                        canvas.DrawText(rowStr, x + cellSize - rowWidth - pad, y + cellSize - pad, coordFont, textPaint);
+                        canvas.DrawText(rowStr, x + cellSize - rowWidth - pad, y + cellSize - pad, SKTextAlign.Left, coordFont, textPaint);
                     }
                 }
             }

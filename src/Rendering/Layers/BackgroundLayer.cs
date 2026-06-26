@@ -44,7 +44,7 @@ sealed class BackgroundLayer : ILayer
         float vw = viewport.Width;
         float vh = viewport.Height;
 
-        using SKPaint paint = new() { IsAntialias = true, FilterQuality = SKFilterQuality.High };
+        using SKPaint paint = new() { IsAntialias = true };
 
         canvas.Save();
         canvas.ClipRect(viewport);
@@ -58,7 +58,7 @@ sealed class BackgroundLayer : ILayer
                 float dh = ih * scale;
                 float dx = viewport.Left + (vw - dw) / 2f;
                 float dy = viewport.Top + (vh - dh) / 2f;
-                canvas.DrawBitmap(bitmap, SKRect.Create(dx, dy, dw, dh), paint);
+                canvas.DrawBitmap(bitmap, SKRect.Create(dx, dy, dw, dh), SKSamplingOptions.Default, paint);
                 break;
             }
             case FitMode.CropToFill:
@@ -68,13 +68,13 @@ sealed class BackgroundLayer : ILayer
                 float dh = ih * scale;
                 float dx = viewport.Left + (vw - dw) / 2f;
                 float dy = viewport.Top + (vh - dh) / 2f;
-                canvas.DrawBitmap(bitmap, SKRect.Create(dx, dy, dw, dh), paint);
+                canvas.DrawBitmap(bitmap, SKRect.Create(dx, dy, dw, dh), SKSamplingOptions.Default, paint);
                 break;
             }
             case FitMode.CropTL:
                 canvas.DrawBitmap(bitmap,
                     SKRect.Create(0, 0, MathF.Min(iw, vw), MathF.Min(ih, vh)),
-                    SKRect.Create(viewport.Left, viewport.Top, MathF.Min(iw, vw), MathF.Min(ih, vh)), paint);
+                    SKRect.Create(viewport.Left, viewport.Top, MathF.Min(iw, vw), MathF.Min(ih, vh)), SKSamplingOptions.Default, paint);
                 break;
             case FitMode.CropTR:
             {
@@ -82,7 +82,7 @@ sealed class BackgroundLayer : ILayer
                 float cropH = MathF.Min(ih, vh);
                 canvas.DrawBitmap(bitmap,
                     SKRect.Create(iw - cropW, 0, cropW, cropH),
-                    SKRect.Create(viewport.Left, viewport.Top, cropW, cropH), paint);
+                    SKRect.Create(viewport.Left, viewport.Top, cropW, cropH), SKSamplingOptions.Default, paint);
                 break;
             }
             case FitMode.CropC:
@@ -91,7 +91,7 @@ sealed class BackgroundLayer : ILayer
                 float cropH = MathF.Min(ih, vh);
                 canvas.DrawBitmap(bitmap,
                     SKRect.Create((iw - cropW) / 2f, (ih - cropH) / 2f, cropW, cropH),
-                    SKRect.Create(viewport.Left, viewport.Top, cropW, cropH), paint);
+                    SKRect.Create(viewport.Left, viewport.Top, cropW, cropH), SKSamplingOptions.Default, paint);
                 break;
             }
             case FitMode.CropBL:
@@ -100,7 +100,7 @@ sealed class BackgroundLayer : ILayer
                 float cropH = MathF.Min(ih, vh);
                 canvas.DrawBitmap(bitmap,
                     SKRect.Create(0, ih - cropH, cropW, cropH),
-                    SKRect.Create(viewport.Left, viewport.Top, cropW, cropH), paint);
+                    SKRect.Create(viewport.Left, viewport.Top, cropW, cropH), SKSamplingOptions.Default, paint);
                 break;
             }
             case FitMode.CropBR:
@@ -109,7 +109,7 @@ sealed class BackgroundLayer : ILayer
                 float cropH = MathF.Min(ih, vh);
                 canvas.DrawBitmap(bitmap,
                     SKRect.Create(iw - cropW, ih - cropH, cropW, cropH),
-                    SKRect.Create(viewport.Left, viewport.Top, cropW, cropH), paint);
+                    SKRect.Create(viewport.Left, viewport.Top, cropW, cropH), SKSamplingOptions.Default, paint);
                 break;
             }
         }

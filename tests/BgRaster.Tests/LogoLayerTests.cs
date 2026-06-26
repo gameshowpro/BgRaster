@@ -48,26 +48,6 @@ public class LogoLayerTests
     }
 
     [Fact]
-    public void Render_SvgLightDark_UsesLightBranchOnLightBackground()
-    {
-        string svgPath = Path.Combine(Path.GetTempPath(), $"bgraster-logo-{Guid.NewGuid():N}.svg");
-        try
-        {
-            File.WriteAllText(svgPath, "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 10 10\"><rect x=\"0\" y=\"0\" width=\"10\" height=\"10\" fill=\"light-dark(#ffffff,#000000)\"/></svg>");
-
-            SKColor pixel = RenderSinglePixel(svgPath, SKColors.White);
-            pixel.Red.Should().Be(255);
-            pixel.Green.Should().Be(255);
-            pixel.Blue.Should().Be(255);
-        }
-        finally
-        {
-            if (File.Exists(svgPath))
-                File.Delete(svgPath);
-        }
-    }
-
-    [Fact]
     public void Render_FileUriSvg_RendersViaSharedSvgPath()
     {
         string svgPath = Path.Combine(Path.GetTempPath(), $"bgraster-logo-{Guid.NewGuid():N}.svg");

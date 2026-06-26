@@ -19,6 +19,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>13</LangVersion>
+    <ApplicationIcon>..\resources\BgRaster.ico</ApplicationIcon>
 
     <Copyright>(C) $([System.DateTime]::UtcNow.Year) Barjonas LLC</Copyright>
   </PropertyGroup>
@@ -37,18 +38,17 @@
 
   <ItemGroup>
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.*" PrivateAssets="all" />
-    <PackageReference Include="SkiaSharp" Version="2.88.*" />
-    <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="2.88.*" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="9.*" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.*" />
+    <PackageReference Include="SkiaSharp" Version="4.148.0" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="4.148.0" />
+    <PackageReference Include="Svg.Skia" Version="5.1.1" />
     <PackageReference Include="System.CommandLine" Version="3.0.0-preview.3.26207.106" />
     <PackageReference Include="Tomlyn" Version="0.17.*" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="Generators\BgRaster.SchemaMetadataGenerator\BgRaster.SchemaMetadataGenerator.csproj"
-                      OutputItemType="Analyzer"
-                      ReferenceOutputAssembly="false" />
+    <ProjectReference Include="Generators\BgRaster.SchemaMetadataGenerator\BgRaster.SchemaMetadataGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <AdditionalFiles Include="..\docs\schemas\bgraster-config.schema.json" />
     <AdditionalFiles Include="..\docs\schemas\bgraster-common.schema.json" />
   </ItemGroup>
@@ -59,6 +59,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="..\resources\gidole\Gidolinya-Regular.otf" />
+    <EmbeddedResource Include="..\resources\BgRaster.svg" />
     <EmbeddedResource Include="..\resources\gsp.svg" />
   </ItemGroup>
 

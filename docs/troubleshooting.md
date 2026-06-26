@@ -90,7 +90,7 @@ The orange diagonal cross is the ultimate fallback. If you're seeing it instead 
 
 - **PNG/JPG**: confirm the path is correct and the file is readable. Substitution tokens (`${MachineName}`, etc.) are applied to `logo.source`, so a malformed token will produce a missing-file path.
 - **SVG**: BgRaster's SVG renderer supports a deliberately small subset — `<rect>`, `<line>`, `<path>` (M/m/L/l/H/h/V/v/Z only), plus `fill`, `stroke`, `stroke-width`, `opacity`. Curves (C/Q/A/S/T) are not yet implemented, and unrecognised elements are skipped. Re-author the SVG with straight segments, or convert to PNG.
-- The first fallback before the orange cross is the embedded `resources/fallback-logo.svg`. If you also see the orange cross, the embedded fallback failed to render too — this should never happen and indicates an SkiaSharp issue worth reporting.
+- The first fallback before the orange cross is the embedded `resources/BgRaster.svg`. If you also see the orange cross, the embedded fallback failed to render too — this should never happen and indicates an SkiaSharp issue worth reporting.
 
 ---
 

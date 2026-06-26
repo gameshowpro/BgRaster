@@ -5,7 +5,7 @@ namespace GameshowPro.BgRaster.Rendering.Layers;
 
 sealed class LogoLayer : ILayer
 {
-    const string DefaultLogoResourceSuffix = "gsp.svg";
+    const string DefaultLogoResourceSuffix = "BgRaster.svg";
 
     public void Render(RenderContext context, SKCanvas canvas)
     {
@@ -122,15 +122,21 @@ sealed class LogoLayer : ILayer
             return string.Empty;
 
         string resourcePath = packUri[(componentIndex + ";component/".Length)..];
-        // Convert path separators to dots for manifest resource name
-        return $"GameshowPro.BgRaster.{resourcePath.Replace('/', '.')}";
+        // Convert forward slashes to dots for manifest resource name matching,
+        // but drop any leading segments — we'll match by suffix.
+        int lastSlash = resourcePath.LastIndexOf('/');
+        return lastSlash >= 0 ? resourcePath[(lastSlash + 1)..] : resourcePath;
     }
 
-    static bool TryOpenEmbeddedResource(string resourceName, out Stream? resourceStream)
+    static bool TryOpenEmbeddedResource(string resourceSuffix, out Stream? resourceStream)
     {
         resourceStream = null;
         Assembly assembly = Assembly.GetExecutingAssembly();
-        resourceStream = assembly.GetManifestResourceStream(resourceName);
+        string? match = assembly.GetManifestResourceNames()
+            .FirstOrDefault(n => n.EndsWith(resourceSuffix, StringComparison.OrdinalIgnoreCase));
+        if (match is null)
+            return false;
+        resourceStream = assembly.GetManifestResourceStream(match);
         return resourceStream is not null;
     }
 
@@ -207,9 +213,9 @@ sealed class LogoLayer : ILayer
         float dx = fitRect.Left + (fitRect.Width - dw) / 2f;
         float dy = fitRect.Top + (fitRect.Height - dh) / 2f;
 
-        using SKPaint paint = new() { IsAntialias = true, FilterQuality = SKFilterQuality.High };
+        using SKPaint paint = new() { IsAntialias = true };
         paint.Color = paint.Color.WithAlpha(alpha);
-        canvas.DrawBitmap(bitmap, SKRect.Create(dx, dy, dw, dh), paint);
+        canvas.DrawBitmap(bitmap, SKRect.Create(dx, dy, dw, dh), SKSamplingOptions.Default, paint);
     }
 
 }

@@ -83,10 +83,9 @@ sealed class TextLayer : ILayer
             {
                 Color = color,
                 IsAntialias = true,
-                TextAlign = SKTextAlign.Center,
             };
 
-            canvas.DrawText(text, cx, y, font, paint);
+            canvas.DrawText(text, cx, y, SKTextAlign.Center, font, paint);
         }
     }
 

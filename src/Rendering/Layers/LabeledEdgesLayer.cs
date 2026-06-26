@@ -280,43 +280,44 @@ sealed class LabeledEdgesLayer : ILayer
             Style = SKPaintStyle.Fill,
         };
 
-        using (SKPath tail = new())
-        {
-            tail.MoveTo(tailStartLeft);
-            tail.LineTo(tailStartRight);
-            tail.LineTo(tailEndRight);
-            tail.LineTo(tailEndLeft);
-            tail.Close();
-            canvas.DrawPath(tail, tailPaint);
-        }
+        using (SKPathBuilder tailBuilder = new())
+                {
+                    tailBuilder.MoveTo(tailStartLeft);
+                    tailBuilder.LineTo(tailStartRight);
+                    tailBuilder.LineTo(tailEndRight);
+                    tailBuilder.LineTo(tailEndLeft);
+                    tailBuilder.Close();
+                    using SKPath tail = tailBuilder.Detach();
+                    canvas.DrawPath(tail, tailPaint);
+                }
 
-        using (SKPath head = new())
-        {
-            head.MoveTo(target);
-            head.LineTo(headLeft);
-            head.LineTo(headRight);
-            head.Close();
-            canvas.DrawPath(head, headPaint);
-        }
+                using (SKPathBuilder headBuilder = new())
+                {
+                    headBuilder.MoveTo(target);
+                    headBuilder.LineTo(headLeft);
+                    headBuilder.LineTo(headRight);
+                    headBuilder.Close();
+                    using SKPath head = headBuilder.Detach();
+                    canvas.DrawPath(head, headPaint);
+                }
     }
 
     static void DrawAnchoredLabel(SKCanvas canvas, string label, SKPoint anchor, TextAnchor textAnchor, float textSizePx)
     {
-        using SKPaint textPaint = new()
-        {
-            Color = SKColors.White,
-            IsAntialias = true,
-            Typeface = FontManager.Typeface,
-            TextSize = textSizePx,
-        };
+            SKFont font = new(FontManager.Typeface, textSizePx);
+            using SKPaint textPaint = new()
+            {
+                Color = SKColors.White,
+                IsAntialias = true,
+            };
 
-        SKRect bounds = default;
-        float advanceWidth = textPaint.MeasureText(label, ref bounds);
+            SKRect bounds = default;
+            float advanceWidth = font.MeasureText(label, out bounds);
 
-        DrawTextAt(canvas, label, textPaint, anchor.X, anchor.Y, textAnchor, bounds, advanceWidth);
-    }
+            DrawTextAt(canvas, label, font, textPaint, anchor.X, anchor.Y, textAnchor, bounds, advanceWidth);
+        }
 
-    static void DrawTextAt(SKCanvas canvas, string text, SKPaint paint, float anchorX, float anchorY, TextAnchor textAnchor, SKRect bounds, float advanceWidth)
+        static void DrawTextAt(SKCanvas canvas, string text, SKFont font, SKPaint paint, float anchorX, float anchorY, TextAnchor textAnchor, SKRect bounds, float advanceWidth)
     {
         float x = anchorX;
         float baselineY = anchorY;
@@ -381,7 +382,7 @@ sealed class LabeledEdgesLayer : ILayer
                 break;
         }
 
-        canvas.DrawText(text, x, baselineY, paint);
+        canvas.DrawText(text, x, baselineY, SKTextAlign.Left, font, paint);
     }
 
     enum TextAnchor

@@ -3,7 +3,7 @@
 [text]
 text = ["BgRaster", "Desktop generator for", "display mapping"]
 size = ["15vh", "10vh", "10vh"]
-color = ["#FFFFFF", "#a0a0a0", "#a0a0a0"]
+color = ["#FFFFFF"]
 x = ["50vw"]
 y = ["65vh"]
 
@@ -14,14 +14,14 @@ width = ["40vw"]
 height = ["40vh"]
 
 [background]
-color = ["#101010"]
+color = ["#0E5800"]
 
 [grid]
-odd-color = ["#500050"]
+odd-color = ["#128000"]
 
 [circle]
 size = ["100vmin"]
-color = ["#ff000080"]
+color = ["#73008680"]
 stroke = ["2"]
 
 [crosshair]
