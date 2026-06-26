@@ -60,9 +60,10 @@ try {
         New-Item -ItemType Directory -Path $docsImageDirectory -Force | Out-Null
 
         Copy-Item -Path $sourceSvg -Destination (Join-Path $docsImageDirectory "favicon.svg") -Force
-        if (Test-Path $sourcePng) {
-            Copy-Item -Path $sourcePng -Destination (Join-Path $docsImageDirectory "favicon.png") -Force
+        if (-not (Test-Path $sourcePng)) {
+            throw "Branding source file not found: $sourcePng"
         }
+        Copy-Item -Path $sourcePng -Destination (Join-Path $docsImageDirectory "favicon.png") -Force
         Copy-Item -Path $sourceGsp -Destination (Join-Path $docsImageDirectory "gsp.svg") -Force
     }
 
