@@ -33,7 +33,7 @@ sealed class AlternatingLayer : ILayer
             }
         }
 
-        canvas.DrawBitmap(layer, ox, oy);
+        canvas.DrawBitmap(layer, ox, oy, SKSamplingOptions.Default);
     }
 
     static unsafe uint PackBgra(SKColor c) =>
