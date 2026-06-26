@@ -34,10 +34,20 @@ Like the original BgInfo, BgRaster runs gets its work done as fast as possible a
 
 ## Quick start
 
-### Install
+### Option 1 - Chocolatey
+Coming soon
+<!--
+With [Chocolatey](https://chocolatey.org/) installed and the [default repository](https://community.chocolatey.org/) in your sources list, run:
+
+```pwsh
+choco install BgRaster -y
+```
+-->
+
+### Option 2 - Manual Install
 Download the latest `BgRaster.zip` from the Releases page, unzip it, and place the extracted files anywhere on disk. `BgRaster.exe` and `libSkiaSharp.dll` need to stay in the same folder. If you want debugging symbols, download `BgRaster.pdb` separately.
 
-### Build from source
+### Option 3 - Build from source
 ```pwsh
 git clone https://github.com/gameshowpro/GameshowPro.git
 cd GameshowPro/BgRaster
