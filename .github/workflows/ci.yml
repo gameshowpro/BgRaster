@@ -239,9 +239,6 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Install Cairo system library
-        run: sudo apt-get update && sudo apt-get install -y libcairo2
-
       - name: Install MkDocs
         run: |
           python -m pip install --upgrade pip
