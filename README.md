@@ -122,6 +122,8 @@ x = "50vw"; y = "50vh"; width = "50vw"; height = "50vh"
 ## AI Disclosure
 As a project started in 2026, yes, substantial parts of this application were built using AI tools. I could never have acheived the the application scope, automation, test framework, and quality of documentation in my spare time without it. Be assured that the design, concept, functional testing, and documentation proof-reading burned many human neuron hours.
 
+I also built BgRaster to make it easy to have your LLM of choice help you with your complex configuations. Just point it as this documenation, describe what you're looking for, and have it generate the config file for you.
+
 ## Authors
 
 <div style="display: flex; align-items: center; gap: 12px;">

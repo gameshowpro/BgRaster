@@ -6,7 +6,7 @@ repo_name: gameshowpro/BgRaster
 
 theme:
   name: material
-  custom_dir: overrides
+  custom_dir: docs/overrides
   logo: assets/images/favicon.svg
   favicon: assets/images/favicon.svg
   palette:
@@ -43,9 +43,7 @@ edit_uri: edit/main/docs/
 exclude_docs: |
   plan.md
 not_in_nav: |
-  generated/cli-schema.md
-  generated/toml-root-scalars.md
-  jobs/github-pages.md
+  generated/**
 
 nav:
   - Home: index.md
