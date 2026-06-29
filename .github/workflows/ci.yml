@@ -12,7 +12,41 @@ permissions:
   id-token: write
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      app: ${{ steps.filter.outputs.app }}
+      docs: ${{ steps.filter.outputs.docs }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            app:
+              - 'src/**'
+              - 'tests/**'
+              - '*.slnx'
+              - '*.csproj'
+              - '**/*.csproj'
+              - 'version.json'
+              - 'build/**'
+              - 'scripts/run-publish-smoke-test.ps1'
+            docs:
+              - 'docs/**'
+              - 'mkdocs.yml'
+              - 'overrides/**'
+              - 'scripts/generate-documentation.ps1'
+              - 'resources/**'
+              - '.github/workflows/ci.yml'
+
   build:
+    needs: changes
+    if: |
+      needs.changes.outputs.app == 'true' ||
+      github.event_name == 'pull_request'
     runs-on: windows-latest
     outputs:
       docs_tag: ${{ steps.docs_version.outputs.tag }}
@@ -34,12 +68,13 @@ jobs:
           setAllVars: true
 
       - name: Validate release version
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         shell: pwsh
         run: |
           $version = [string]$env:NBGV_SimpleVersion
           $isPublicRelease = [bool]::Parse($env:NBGV_PublicRelease)
 
-          if ("${{ github.event_name }}" -eq "push" -and "${{ github.ref }}" -eq "refs/heads/main" -and -not $isPublicRelease) {
+          if (-not $isPublicRelease) {
             throw "NBGV reported PublicRelease=false for main. Check version.json publicReleaseRefSpec before publishing releases."
           }
 
@@ -51,6 +86,7 @@ jobs:
         id: docs_version
 
       - name: Capture Chocolatey version
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         shell: pwsh
         run: |
           "version=$env:NBGV_ChocolateyPackageVersion" >> $env:GITHUB_OUTPUT
@@ -81,10 +117,17 @@ jobs:
           path: |
             mkdocs.yml
             docs/
-            overrides/
           if-no-files-found: error
 
+      - name: Upload test results
+        uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: test-results
+          path: tests/BgRaster.Tests/TestResults/test-results.trx
+
       - name: Publish AOT
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: >
           dotnet publish src/BgRaster.csproj
           -c Release
@@ -156,6 +199,7 @@ jobs:
         id: pack_nupkg
 
       - name: Smoke test published binary
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         shell: pwsh
         run: >
           ./scripts/run-publish-smoke-test.ps1
@@ -184,13 +228,6 @@ jobs:
           name: BgRaster-pdb
           path: publish/staging/BgRaster.pdb
           if-no-files-found: error
-
-      - name: Upload test results
-        uses: actions/upload-artifact@v5
-        if: always()
-        with:
-          name: test-results
-          path: tests/BgRaster.Tests/TestResults/test-results.trx
 
       - name: Tag version on push to main
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -224,10 +261,78 @@ jobs:
             ${{ steps.pack_nupkg.outputs.path }}
           fail_on_unmatched_files: true
 
+  generate-docs-source:
+    needs: changes
+    if: |
+      needs.changes.outputs.app != 'true' &&
+      needs.changes.outputs.docs == 'true' &&
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main'
+    runs-on: windows-latest
+    outputs:
+      docs_tag: ${{ steps.docs_version.outputs.tag }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Install NBGV and set version variables
+        uses: dotnet/nbgv@v0.5.2
+        with:
+          setAllVars: true
+
+      - name: Validate release version
+        shell: pwsh
+        run: |
+          $version = [string]$env:NBGV_SimpleVersion
+          $isPublicRelease = [bool]::Parse($env:NBGV_PublicRelease)
+
+          if (-not $isPublicRelease) {
+            throw "NBGV reported PublicRelease=false for main. Check version.json publicReleaseRefSpec before publishing releases."
+          }
+
+          if ($version.Contains('+') -or $version.Contains('-')) {
+            throw "Stable release version expected, but got '$version'. Pre-release/build-metadata suffixes are not allowed."
+          }
+
+          "tag=v$version" >> $env:GITHUB_OUTPUT
+        id: docs_version
+
+      - name: Restore and build (needed for dotnet run in generate-documentation.ps1)
+        run: |
+          dotnet restore src/BgRaster.slnx -r win-x64
+          dotnet build src/BgRaster.csproj -c Release --no-restore -r win-x64
+
+      - name: Generate documentation assets
+        shell: pwsh
+        run: ./scripts/generate-documentation.ps1
+
+      - name: Upload docs source
+        uses: actions/upload-artifact@v5
+        with:
+          name: docs-source
+          path: |
+            mkdocs.yml
+            docs/
+            overrides/
+          if-no-files-found: error
+
   build-docs:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [build, generate-docs-source]
+    if: |
+      always() &&
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      (needs.build.result == 'success' || needs.build.result == 'skipped') &&
+      (needs.generate-docs-source.result == 'success' || needs.generate-docs-source.result == 'skipped')
     runs-on: ubuntu-latest
-    needs: build
     steps:
       - name: Download docs source
         uses: actions/download-artifact@v5
@@ -244,21 +349,23 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r docs/requirements.txt
 
-      - name: Validate docs version tag
+      - name: Resolve docs version
         shell: pwsh
         run: |
-          $tag = "${{ needs.build.outputs.docs_tag }}"
+          $tag = "${{ needs.build.outputs.docs_tag || needs.generate-docs-source.outputs.docs_tag }}"
           if ([string]::IsNullOrWhiteSpace($tag)) {
-            throw "docs_tag is empty. Refusing to build documentation without an explicit version."
+            throw "docs_tag is empty from both build and generate-docs-source. Refusing to build documentation without an explicit version."
           }
           if (-not $tag.StartsWith('v', [System.StringComparison]::Ordinal)) {
             throw "docs_tag must start with 'v'. Actual: '$tag'"
           }
           Write-Host "Using documentation build tag: $tag"
+          "tag=$tag" >> $env:GITHUB_OUTPUT
+        id: resolve_tag
 
       - name: Build docs site
         env:
-          BGRASTER_DOCS_VERSION: ${{ needs.build.outputs.docs_tag }}
+          BGRASTER_DOCS_VERSION: ${{ steps.resolve_tag.outputs.tag }}
         run: |
           echo "Building docs with BGRASTER_DOCS_VERSION=${BGRASTER_DOCS_VERSION}"
           mkdocs build --strict
