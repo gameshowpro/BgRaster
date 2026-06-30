@@ -28,9 +28,6 @@ jobs:
             app:
               - 'src/**'
               - 'tests/**'
-              - '*.slnx'
-              - '*.csproj'
-              - '**/*.csproj'
               - 'version.json'
               - 'build/**'
               - 'scripts/run-publish-smoke-test.ps1'
