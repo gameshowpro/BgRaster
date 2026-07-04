@@ -195,7 +195,7 @@ public sealed class DefaultsGenerator : IIncrementalGenerator
                         continue;
                     }
 
-                    string csharpType = ResolveCSharpType(prop.Value, definitionName, prop.Name, context, ref hasErrors);
+                    string? csharpType = ResolveCSharpType(prop.Value, definitionName, prop.Name, context, ref hasErrors);
                     if (csharpType is null)
                         continue;
 

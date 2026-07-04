@@ -5,8 +5,9 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <IsRoslynComponent>true</IsRoslynComponent>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <NoWarn>$(NoWarn);RS2000</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
