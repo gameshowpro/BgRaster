@@ -18,15 +18,19 @@ thickness = ["0"]
 side = []
 
 [text]
-text = [""]
+format = [""]
 
 [logo]
 source = [""]
 
+########### Everything from here ownwards is for sample-building purposes. 
+########### Remove this is you're copying this sample to a production-ready config file.
 [render]
 no-assignment = true
 no-discovery = true
 
+########### Everything from here ownwards is for sample-building purposes. 
+########### Remove this is you're copying this sample to a production-ready config file.
 [[output]]
 target = 0
 

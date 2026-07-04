@@ -145,15 +145,13 @@ static class LastRunWriter
 
     static void WriteEffectiveConfig(StringBuilder sb, GlobalOptions opts, RunStatus runStatus)
     {
-        sb.AppendLine($"machine-name = \"{Escape(opts.MachineName)}\"");
-        sb.AppendLine();
-
         WriteTextSection(sb, opts.Text);
         WriteBackgroundSection(sb, opts.Background);
         WriteGridSection(sb, opts.Grid);
         WriteCircleSection(sb, opts.Circle);
         WriteCrosshairSection(sb, opts.Crosshair);
         WriteLabeledEdgesSection(sb, opts.LabeledEdges);
+        WriteNetworkSection(sb, opts.Network);
         WriteLogoSection(sb, opts.Logo);
         WriteRenderSection(sb, opts.Render);
         WriteOutputsSection(sb, opts.Outputs, runStatus);
@@ -162,7 +160,7 @@ static class LastRunWriter
     static void WriteTextSection(StringBuilder sb, TextOptions t)
     {
         sb.AppendLine("[text]");
-        WriteTomlStringArray(sb, "text", t.Text);
+        WriteTomlStringArray(sb, "format", t.Format);
         WriteTomlStringArray(sb, "size", t.Size);
         WriteTomlStringArray(sb, "color", t.Color);
         WriteTomlStringArray(sb, "x", t.X);
@@ -229,6 +227,31 @@ static class LastRunWriter
         sb.AppendLine();
     }
 
+    static void WriteNetworkSection(StringBuilder sb, NetworkOptions n)
+    {
+        sb.AppendLine("[network]");
+        sb.AppendLine($"render = {n.Render.ToString().ToLowerInvariant()}");
+        WriteTomlStringArray(sb, "x", n.X);
+        WriteTomlStringArray(sb, "y", n.Y);
+        WriteTomlStringArray(sb, "size", n.Size);
+        WriteTomlStringArray(sb, "color", n.Color);
+        WriteTomlStringArray(sb, "require_adapter_type", n.RequireAdapterType);
+        WriteTomlStringArray(sb, "exclude_adapter_type", n.ExcludeAdapterType);
+        sb.AppendLine($"require_up = {n.RequireUp.ToString().ToLowerInvariant()}");
+        sb.AppendLine($"require_family = \"{Escape(n.RequireFamily)}\"");
+        WriteTomlStringArray(sb, "require_mac_address", n.RequireMacAddress);
+        WriteTomlStringArray(sb, "require_subnet", n.RequireSubnet);
+        sb.AppendLine($"minimum_address_count = {n.MinimumAddressCount}");
+        WriteTomlStringArray(sb, "require_name", n.RequireName);
+        WriteTomlStringArray(sb, "require_description", n.RequireDescription);
+        sb.AppendLine($"ip_address_format = \"{Escape(n.IpAddressFormat)}\"");
+        sb.AppendLine($"adapter_format = \"{Escape(n.AdapterFormat)}\"");
+        sb.AppendLine($"text-align = \"{n.TextAlign}\"");
+        sb.AppendLine($"anchor-x = \"{n.AnchorX}\"");
+        sb.AppendLine($"anchor-y = \"{n.AnchorY}\"");
+        sb.AppendLine();
+    }
+
     static void WriteLogoSection(StringBuilder sb, LogoOptions l)
     {
         sb.AppendLine("[logo]");
@@ -250,6 +273,10 @@ static class LastRunWriter
         sb.AppendLine($"output = \"{Escape(r.Output)}\"");
         sb.AppendLine($"force = {r.ContinueAfterUnchanged.ToString().ToLowerInvariant()}");
         sb.AppendLine($"verbosity = \"{VerbosityToml(r.MinimumLogLevel)}\"");
+        if (!string.IsNullOrEmpty(r.MachineName))
+            sb.AppendLine($"machine-name = \"{Escape(r.MachineName)}\"");
+        if (r.SimulateNetwork)
+            sb.AppendLine("simulate-network = true");
         sb.AppendLine();
     }
 
@@ -327,7 +354,7 @@ static class LastRunWriter
         {
             case TextOverride textOverride:
                 sb.AppendLine($"[{key}]");
-                if (textOverride.Text is not null) WriteTomlStringArray(sb, "text", textOverride.Text.Value);
+                if (textOverride.Format is not null) WriteTomlStringArray(sb, "format", textOverride.Format.Value);
                 if (textOverride.Size is not null) WriteTomlStringArray(sb, "size", textOverride.Size.Value);
                 if (textOverride.Color is not null) WriteTomlStringArray(sb, "color", textOverride.Color.Value);
                 if (textOverride.X is not null) sb.AppendLine($"x = \"{Escape(textOverride.X)}\"");
@@ -456,5 +483,9 @@ static class LastRunWriter
         sb.AppendLine("]");
     }
 
-    static string Escape(string s) => s.Replace("\\", "\\\\").Replace("\"", "\\\"");
+    static string Escape(string s) => s
+            .Replace("\\", "\\\\")
+            .Replace("\"", "\\\"")
+            .Replace("\n", "\\n")
+            .Replace("\r", "\\r");
 }

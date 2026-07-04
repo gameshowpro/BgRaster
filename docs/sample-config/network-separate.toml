@@ -1,0 +1,73 @@
+# $schema: https://raw.githubusercontent.com/gameshowpro/BgRaster/refs/heads/main/docs/schemas/bgraster-config.schema.json
+
+[background]
+color = ["black"]
+
+[grid]
+size = "0"
+
+[circle]
+size = "0"
+
+[crosshair]
+length = "0"
+
+[network]
+render = true
+require_family = ""
+ip_address_format=" ◊${Address}/${CidrBits} (${Origin})<br>"
+adapter_format="•${Name}<br>${Description}<br>${MacAddress}<br>${Speed} ${Status} (${Type})<br>${IpAddresses}<br>"
+color = ["#00a000", "#a000a0", "#900090", "#a0a0a0", "#FFFFFF"]
+size = ["2vh", "3vh", "2vh", "2vh", "3vh"]
+x = "5vw"
+y = "95vh"
+anchor-x = "left"
+anchor-y = "bottom"
+text-align = "start"
+
+[text]
+x = "95vw"
+y = "5vh"
+anchor-x = "right"
+anchor-y = "top"
+text-align = "end"
+format = ["${MachineName}", "Output ${OutputLetter}", "${OutputWidth} x ${OutputHeight}", "Network text separate"]
+size = ["8vh", "3vh", "3vh", "3vh"]
+color = ["#FFFFFF", "#a000a0", "#00a000", "#a0a0a0"]
+
+
+[logo]
+x = "95vw"
+y = "33vh"
+anchor-x = "right"
+anchor-y = "top"
+
+
+[labeled-edges]
+thickness = ["0"]
+
+########### Everything from here ownwards is for sample-building purposes. 
+########### Remove this is you're copying this sample to a production-ready config file.
+
+[render]
+no-assignment = true
+no-discovery = true
+machine-name = "SAMPLE_MACHINE"
+simulate-network = true
+
+########### Everything from here ownwards is for sample-building purposes. 
+########### Remove this is you're copying this sample to a production-ready config file.
+[[output]]
+target = 0
+
+[output.hardware_output]
+index = 0
+desktopX = 0
+desktopY = 0
+widthPx = 640
+heightPx = 480
+dpiX = 96
+dpiY = 96
+rotation = 0
+adapterName = "FIXED"
+friendlyName = "Network separate"

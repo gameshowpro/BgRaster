@@ -49,8 +49,14 @@
 
   <ItemGroup>
     <ProjectReference Include="Generators\BgRaster.SchemaMetadataGenerator\BgRaster.SchemaMetadataGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    <AdditionalFiles Include="..\docs\schemas\bgraster-config.schema.json" />
-    <AdditionalFiles Include="..\docs\schemas\bgraster-common.schema.json" />
+    <AdditionalFiles Include="..\docs\schemas\bgraster-config.schema.json" Watch="true" />
+    <AdditionalFiles Include="..\docs\schemas\bgraster-common.schema.json" Watch="true" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Watch Include="..\scripts\generate-documentation.ps1" />
+    <Watch Include="..\docs\schemas\bgraster-config.schema.json" />
+    <Watch Include="..\docs\schemas\bgraster-common.schema.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -66,5 +72,9 @@
   <ItemGroup>
     <InternalsVisibleTo Include="GameshowPro.BgRaster.Tests" />
   </ItemGroup>
+
+  <Target Name="GenerateDocs">
+    <Exec Command="pwsh -NoProfile -Command &quot;&amp; '$(MSBuildProjectDirectory)\..\scripts\generate-documentation.ps1' -RepoRoot '$(MSBuildProjectDirectory)\..'&quot;" />
+  </Target>
 
 </Project>

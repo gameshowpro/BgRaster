@@ -1,11 +1,24 @@
-﻿# $schema: https://raw.githubusercontent.com/gameshowpro/BgRaster/refs/heads/main/docs/schemas/bgraster-config.schema.json
+# $schema: https://raw.githubusercontent.com/gameshowpro/BgRaster/refs/heads/main/docs/schemas/bgraster-config.schema.json
 
 [text]
-text = ["${MachineName} output ${OutputIndexPlusOne}", "slice ${SliceLetter}", "${SliceWidth}x${SliceHeight}"]
+format = ["${MachineName} output ${OutputIndexPlusOne}", "slice ${SliceLetter}", "${SliceWidth}x${SliceHeight}"]
 size = ["3vh", "2vh", "4vh"]
 color = ["#fff"]
 x = ["85vw"]
 y = ["85vh"]
+
+[network]
+render = true
+
+ip_address_format=" ${Address}/${CidrBits}<br>"
+adapter_format="${Name}<br>${Description}<br>${MacAddress}<br>${Speed} ${Status} (${Type})<br>${IpAddresses}<br>"
+color = ["#000", "#a000a0", "#900090", "#a0a0a0", "#FFFFFF"]
+size = ["2vh", "3vh", "2vh", "2vh", "3vh"]
+x = "95vw"
+y = "5vh"
+anchor-x = "right"
+anchor-y = "top"
+text-align = "end"
 
 [background]
 color = ["#FF0000", "#00FF00", "#0000FF"]
@@ -75,7 +88,7 @@ size = "25vh"
 x = "50vw"
 y = "50vh"
 size = ["5vh", "6vh", "7vh"]
-text = ["${MachineName} output ${OutputIndexPlusOne}", "slice ${SliceLetterMinusOne}", "${SliceWidth}x${SliceHeight}"]
+format = ["${MachineName} output ${OutputIndexPlusOne}", "slice ${SliceLetterMinusOne}", "${SliceWidth}x${SliceHeight}"]
 
 [[output.slice]]
 x = "0"
@@ -84,7 +97,7 @@ width = "100vw"
 height = "100vh"
 
 [output.slice.text]
-text = ["${MachineName} ${OutputIndexPlusOne}", "${OutputName}", "${SliceWidth}x${SliceHeight}"]
+format = ["${MachineName} ${OutputIndexPlusOne}", "${OutputName}", "${SliceWidth}x${SliceHeight}"]
 x = "85vw"
 size = ["3vh", "5vh", "4vh"]
 

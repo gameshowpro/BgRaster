@@ -79,7 +79,24 @@ public class ProgramConfigTests
     }
 
     [Fact]
-    public void ShouldSeedExplicitConfigFromDefaults_ReturnsTrueOnlyForMissingExplicitNonDryRunConfig()
+        public void ResolveConfigPath_AppendsDefaultFilename_WhenExplicitPathIsDirectory()
+        {
+            string tempRoot = CreateTempDirectory();
+            try
+            {
+                ImmutableArray<string> defaultPaths = [Path.Combine(tempRoot, "fallback.toml")];
+                string resolvedPath = Program.ResolveConfigPath(tempRoot, defaultPaths);
+
+                resolvedPath.Should().Be(Path.Combine(tempRoot, "config.toml"));
+            }
+            finally
+            {
+                Directory.Delete(tempRoot, recursive: true);
+            }
+        }
+
+        [Fact]
+        public void ShouldSeedExplicitConfigFromDefaults_ReturnsTrueOnlyForMissingExplicitNonDryRunConfig()
     {
         Program.ShouldSeedExplicitConfigFromDefaults(@"C:\cfg.toml", configExistedAtStartup: false, isDryRun: false).Should().BeTrue();
         Program.ShouldSeedExplicitConfigFromDefaults(@"C:\cfg.toml", configExistedAtStartup: true, isDryRun: false).Should().BeFalse();

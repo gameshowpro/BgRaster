@@ -26,7 +26,6 @@ static class ConfigLoader
     {
         string currentDirectory = Directory.GetCurrentDirectory();
 
-        string machineName = options.MachineName;
         TextOptions text = options.Text;
         BackgroundOptions bg = options.Background;
         GridOptions grid = options.Grid;
@@ -36,10 +35,10 @@ static class ConfigLoader
         RenderOptions render = options.Render;
 
         if (overlay.MachineName is not null)
-            machineName = overlay.MachineName;
+            render = render with { MachineName = overlay.MachineName };
 
-        if (overlay.Text is not null)
-            text = text with { Text = ParseCliStringOrArray(overlay.Text, "cli --text", warnings) };
+        if (overlay.TextFormat is not null)
+            text = text with { Format = ParseCliStringOrArray(overlay.TextFormat, "cli --text-format", warnings) };
         if (overlay.TextSize is not null)
             text = text with { Size = ParseCliStringOrArray(overlay.TextSize, "cli --text-size", warnings) };
         if (overlay.TextColor is not null)
@@ -112,6 +111,10 @@ static class ConfigLoader
             logo = logo with { X = ParseCliStringOrArray(overlay.LogoX, "cli --logo-x", warnings) };
         if (overlay.LogoY is not null)
             logo = logo with { Y = ParseCliStringOrArray(overlay.LogoY, "cli --logo-y", warnings) };
+        if (overlay.LogoAnchorX is not null)
+            logo = logo with { AnchorX = overlay.LogoAnchorX };
+        if (overlay.LogoAnchorY is not null)
+            logo = logo with { AnchorY = overlay.LogoAnchorY };
         if (overlay.LogoWidth is not null)
             logo = logo with { Width = ParseCliStringOrArray(overlay.LogoWidth, "cli --logo-width", warnings) };
         if (overlay.LogoHeight is not null)
@@ -135,12 +138,24 @@ static class ConfigLoader
                     warnings),
             };
         }
+        NetworkOptions network = options.Network;
+        if (overlay.NetworkRequireAdapterType is not null)
+            network = network with { RequireAdapterType = ParseCliStringOrArray(overlay.NetworkRequireAdapterType, "cli --network-require-adapter-type", warnings) };
+        if (overlay.NetworkRequireUp is not null) network = network with { RequireUp = overlay.NetworkRequireUp.Value };
+        if (overlay.NetworkRequireFamily is not null) network = network with { RequireFamily = overlay.NetworkRequireFamily };
+        if (overlay.NetworkAdapterFormat is not null) network = network with { AdapterFormat = overlay.NetworkAdapterFormat };
+        if (overlay.NetworkIpAddressFormat is not null) network = network with { IpAddressFormat = overlay.NetworkIpAddressFormat };
+        if (overlay.NetworkX is not null) network = network with { X = ParseCliStringOrArray(overlay.NetworkX, "cli --network-x", warnings) };
+        if (overlay.NetworkY is not null) network = network with { Y = ParseCliStringOrArray(overlay.NetworkY, "cli --network-y", warnings) };
+        if (overlay.NetworkSize is not null) network = network with { Size = ParseCliStringOrArray(overlay.NetworkSize, "cli --network-size", warnings) };
+        if (overlay.NetworkColor is not null) network = network with { Color = ParseCliStringOrArray(overlay.NetworkColor, "cli --network-color", warnings) };
+        if (overlay.NetworkRender is not null) network = network with { Render = overlay.NetworkRender.Value };
+
         if (overlay.RenderContinueAfterUnchanged is not null)
             render = render with { ContinueAfterUnchanged = overlay.RenderContinueAfterUnchanged.Value };
 
         return options with
         {
-            MachineName = machineName,
             Text = text,
             Background = bg,
             Grid = grid,
@@ -148,12 +163,12 @@ static class ConfigLoader
             Crosshair = crosshair,
             Logo = logo,
             Render = render,
+            Network = network,
         };
     }
 
     static GlobalOptions ParseGlobalOptions(TomlTable table, List<string>? warnings, string configDirectory)
     {
-        string machineName = GetString(table, "machine-name") ?? string.Empty;
 
         TextOptions text = table.TryGetValue("text", out object? textObj) && textObj is TomlTable textTable
             ? ParseTextOptions(textTable)
@@ -187,13 +202,16 @@ static class ConfigLoader
             ? ParseRenderOptions(renderTable, warnings, configDirectory)
             : new RenderOptions();
 
+        NetworkOptions network = table.TryGetValue("network", out object? networkObj) && networkObj is TomlTable networkTable
+            ? ParseNetworkOptions(networkTable)
+            : new NetworkOptions();
+
         ImmutableArray<OutputOptions> outputs = table.TryGetValue("output", out object? outputObj) && outputObj is TomlTableArray outputArray
             ? [.. outputArray.Select(outputTable => ParseOutputOptions(outputTable, configDirectory))]
             : [];
 
         return new GlobalOptions
         {
-            MachineName = machineName,
             Text = text,
             Background = background,
             Grid = grid,
@@ -202,13 +220,17 @@ static class ConfigLoader
             LabeledEdges = labeledEdges,
             Logo = logo,
             Render = render,
+            Network = network,
             Outputs = outputs,
         };
     }
 
     static TextOptions ParseTextOptions(TomlTable t) => new()
     {
-        Text = GetStringArray(t, "text") ?? ParseLegacyText(t) ?? new TextOptions().Text,
+        Format = GetStringArray(t, "format") ?? ParseLegacyText(t) ?? new TextOptions().Format,
+        TextAlign = GetString(t, "text-align") ?? GetString(t, "textAlign") ?? GetString(t, "justify") ?? new TextOptions().TextAlign,
+        AnchorX = GetString(t, "anchor-x") ?? GetString(t, "anchorX") ?? new TextOptions().AnchorX,
+        AnchorY = GetString(t, "anchor-y") ?? GetString(t, "anchorY") ?? new TextOptions().AnchorY,
         Size = GetStringArray(t, "size") ?? new TextOptions().Size,
         Color = GetStringArray(t, "color") ?? new TextOptions().Color,
         X = GetStringArray(t, "x") ?? new TextOptions().X,
@@ -269,6 +291,8 @@ static class ConfigLoader
         Source = ResolveConfigRelativePathArray(GetStringArray(t, "source"), configDirectory) ?? new LogoOptions().Source,
         X = GetStringArray(t, "x") ?? new LogoOptions().X,
         Y = GetStringArray(t, "y") ?? new LogoOptions().Y,
+        AnchorX = GetString(t, "anchor-x") ?? GetString(t, "anchorX") ?? new LogoOptions().AnchorX,
+        AnchorY = GetString(t, "anchor-y") ?? GetString(t, "anchorY") ?? new LogoOptions().AnchorY,
         Width = GetStringArray(t, "width") ?? new LogoOptions().Width,
         Height = GetStringArray(t, "height") ?? new LogoOptions().Height,
         Opacity = GetFloatArrayRequiredRange(t, "opacity", "config [logo].opacity", minInclusive: 0f, maxInclusive: 1f) ?? new LogoOptions().Opacity,
@@ -286,6 +310,8 @@ static class ConfigLoader
             Output = ResolveConfigRelativePath(GetString(t, "output") ?? string.Empty, configDirectory),
             MinimumLogLevel = ParseLogLevel(verbosityText, "config [render].verbosity", warnings),
             ContinueAfterUnchanged = GetBool(t, "force") ?? GetBool(t, "render-force") ?? false,
+            MachineName = GetString(t, "machine-name") ?? new RenderOptions().MachineName,
+            SimulateNetwork = GetBool(t, "simulate-network") ?? new RenderOptions().SimulateNetwork,
         };
     }
 
@@ -315,6 +341,7 @@ static class ConfigLoader
             Crosshair = ParseCrosshairOverride(t, "crosshair"),
             LabeledEdges = ParseLabeledEdgesOverride(t, "labeled-edges"),
             Logo = ParseLogoOverride(t, "logo", configDirectory),
+            Network = ParseNetworkOverride(t, "network"),
             Slices = slices,
         };
     }
@@ -380,17 +407,21 @@ static class ConfigLoader
         Crosshair = ParseCrosshairOverride(t, "crosshair"),
         LabeledEdges = ParseLabeledEdgesOverride(t, "labeled-edges"),
         Logo = ParseLogoOverride(t, "logo", configDirectory),
+        Network = ParseNetworkOverride(t, "network"),
     };
 
     static TextOverride? ParseTextOverride(TomlTable parent, string key)
     {
         if (!parent.TryGetValue(key, out object? obj) || obj is not TomlTable t) return null;
 
-        ImmutableArray<string>? textOverride = GetStringArray(t, "text") ?? ParseLegacyText(t);
+        ImmutableArray<string>? formatOverride = GetStringArray(t, "format") ?? ParseLegacyText(t);
 
         return new TextOverride
         {
-            Text = textOverride,
+            Format = formatOverride,
+            TextAlign = GetString(t, "text-align") ?? GetString(t, "textAlign") ?? GetString(t, "justify"),
+            AnchorX = GetString(t, "anchor-x") ?? GetString(t, "anchorX"),
+            AnchorY = GetString(t, "anchor-y") ?? GetString(t, "anchorY"),
             Size = GetStringArray(t, "size"),
             Color = GetStringArray(t, "color"),
             X = GetString(t, "x"),
@@ -406,7 +437,7 @@ static class ConfigLoader
         if (title is null && subtitle is null)
             return null;
 
-        string[] defaults = new TextOptions().Text.ToArray();
+        string[] defaults = new TextOptions().Format.ToArray();
         defaults[0] = title is { Length: > 0 } ? title.Value[0] : defaults[0];
         defaults[2] = subtitle is { Length: > 0 } ? subtitle.Value[0] : defaults[2];
         return [.. defaults];
@@ -567,6 +598,56 @@ static class ConfigLoader
         };
     }
 
+    static NetworkOptions ParseNetworkOptions(TomlTable t) => new()
+    {
+        RequireAdapterType = GetStringArray(t, "require_adapter_type") ?? new NetworkOptions().RequireAdapterType,
+        ExcludeAdapterType = GetStringArray(t, "exclude_adapter_type") ?? new NetworkOptions().ExcludeAdapterType,
+        RequireUp = GetBool(t, "require_up") ?? true,
+        RequireFamily = GetString(t, "require_family") ?? "IPv4",
+        RequireMacAddress = GetStringArray(t, "require_mac_address") ?? new NetworkOptions().RequireMacAddress,
+        RequireSubnet = GetStringArray(t, "require_subnet") ?? new NetworkOptions().RequireSubnet,
+        MinimumAddressCount = GetInt(t, "minimum_address_count") ?? new NetworkOptions().MinimumAddressCount,
+        RequireName = GetStringArray(t, "require_name") ?? new NetworkOptions().RequireName,
+        RequireDescription = GetStringArray(t, "require_description") ?? new NetworkOptions().RequireDescription,
+        IpAddressFormat = GetString(t, "ip_address_format") ?? new NetworkOptions().IpAddressFormat,
+        AdapterFormat = GetString(t, "adapter_format") ?? new NetworkOptions().AdapterFormat,
+        TextAlign = GetString(t, "text-align") ?? GetString(t, "textAlign") ?? GetString(t, "justify") ?? new NetworkOptions().TextAlign,
+        AnchorX = GetString(t, "anchor-x") ?? GetString(t, "anchorX") ?? new NetworkOptions().AnchorX,
+        AnchorY = GetString(t, "anchor-y") ?? GetString(t, "anchorY") ?? new NetworkOptions().AnchorY,
+        X = GetStringArray(t, "x") ?? new NetworkOptions().X,
+        Y = GetStringArray(t, "y") ?? new NetworkOptions().Y,
+        Size = GetStringArray(t, "size") ?? new NetworkOptions().Size,
+        Color = GetStringArray(t, "color") ?? new NetworkOptions().Color,
+        Render = GetBool(t, "render") ?? new NetworkOptions().Render,
+    };
+
+    static NetworkOverride? ParseNetworkOverride(TomlTable parent, string key)
+    {
+        if (!parent.TryGetValue(key, out object? obj) || obj is not TomlTable t) return null;
+        return new NetworkOverride
+        {
+            RequireAdapterType = GetStringArray(t, "require_adapter_type"),
+            ExcludeAdapterType = GetStringArray(t, "exclude_adapter_type"),
+            RequireUp = GetBool(t, "require_up"),
+            RequireFamily = GetString(t, "require_family"),
+            RequireMacAddress = GetStringArray(t, "require_mac_address"),
+            RequireSubnet = GetStringArray(t, "require_subnet"),
+            MinimumAddressCount = GetInt(t, "minimum_address_count"),
+            RequireName = GetStringArray(t, "require_name"),
+            RequireDescription = GetStringArray(t, "require_description"),
+            IpAddressFormat = GetString(t, "ip_address_format"),
+            AdapterFormat = GetString(t, "adapter_format"),
+            TextAlign = GetString(t, "text-align") ?? GetString(t, "textAlign") ?? GetString(t, "justify"),
+            AnchorX = GetString(t, "anchor-x") ?? GetString(t, "anchorX"),
+            AnchorY = GetString(t, "anchor-y") ?? GetString(t, "anchorY"),
+            X = GetStringArray(t, "x"),
+            Y = GetStringArray(t, "y"),
+            Size = GetStringArray(t, "size"),
+            Color = GetStringArray(t, "color"),
+            Render = GetBool(t, "render"),
+        };
+    }
+
     static ImmutableArray<LabeledEdgeSide> ParseLabeledEdgeSides(ImmutableArray<string> values, string source)
     {
         HashSet<LabeledEdgeSide> seen = [];
@@ -641,6 +722,8 @@ static class ConfigLoader
             Source = ResolveConfigRelativePath(GetString(t, "source"), configDirectory),
             X = GetString(t, "x"),
             Y = GetString(t, "y"),
+            AnchorX = GetString(t, "anchor-x") ?? GetString(t, "anchorX"),
+            AnchorY = GetString(t, "anchor-y") ?? GetString(t, "anchorY"),
             Width = GetString(t, "width"),
             Height = GetString(t, "height"),
             Opacity = GetFloatRequiredRange(t, "opacity", $"config [{key}].opacity", minInclusive: 0f, maxInclusive: 1f),
@@ -752,6 +835,9 @@ static class ConfigLoader
 
     static bool? GetBool(TomlTable t, string key) =>
         t.TryGetValue(key, out object? obj) && obj is bool b ? b : null;
+
+    static int? GetInt(TomlTable t, string key) =>
+        t.TryGetValue(key, out object? obj) && TryConvertTomlNumber(obj, out float parsed) ? (int)Math.Round(parsed) : null;
 
     static LogLevel ParseLogLevel(string? raw, string source, List<string>? warnings)
     {

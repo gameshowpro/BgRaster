@@ -5,7 +5,6 @@ namespace GameshowPro.BgRaster.Models;
 
 record GlobalOptions
 {
-    internal string MachineName { get; init; } = string.Empty;
     internal TextOptions Text { get; init; } = new();
     internal BackgroundOptions Background { get; init; } = new();
     internal GridOptions Grid { get; init; } = new();
@@ -15,4 +14,5 @@ record GlobalOptions
     internal LogoOptions Logo { get; init; } = new();
     internal RenderOptions Render { get; init; } = new();
     internal ImmutableArray<OutputOptions> Outputs { get; init; } = [];
+    internal NetworkOptions Network { get; init; } = new();
 }

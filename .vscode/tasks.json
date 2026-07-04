@@ -7,7 +7,7 @@
             "command": "dotnet",
             "args": [
                 "build",
-                "${workspaceFolder}/src/BgRaster.csproj",
+                "${workspaceFolder}\\src\\BgRaster.csproj",
                 "-c",
                 "Debug",
                 "-r",
@@ -21,28 +21,75 @@
         },
         {
             "label": "install docs dependencies",
-            "type": "process",
-            "command": "python",
-            "args": [
-                "-m",
-                "pip",
-                "install",
-                "-r",
-                "${workspaceFolder}/docs/requirements.txt"
-            ],
+            "detail": "Install mkdocs and plugins for the system Python.",
+            "type": "shell",
+            "command": "python -m pip install -r \"${workspaceFolder}\\docs\\requirements.txt\"",
+            "options": {
+                "shell": {
+                    "executable": "pwsh.exe",
+                    "args": ["-NoLogo", "-NoProfile", "-Command"]
+                }
+            },
             "problemMatcher": []
         },
         {
-            "label": "serve docs (mkdocs)",
-            "type": "process",
-            "command": "pwsh",
-            "args": [
-                "-NoLogo",
-                "-NoProfile",
-                "-Command",
-                "& '${workspaceFolder}/scripts/generate-documentation.ps1'; python -m mkdocs serve --dev-addr 127.0.0.1:8000"
-            ],
+            "label": "generate docs",
+            "detail": "Runs generate-documentation.ps1 to regenerate schema tables, CLI docs, and sample images.",
+            "type": "shell",
+            "command": "& '${workspaceFolder}\\scripts\\generate-documentation.ps1' -RepoRoot '${workspaceFolder}'",
+            "options": {
+                "shell": {
+                    "executable": "pwsh.exe",
+                    "args": ["-NoLogo", "-NoProfile", "-Command"]
+                }
+            },
+            "group": {
+                "kind": "test",
+                "isDefault": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "watch docs source",
+            "detail": "Polls for schema/README/sample-config changes and auto-regenerates docs.",
+            "type": "shell",
+            "command": "& '${workspaceFolder}\\scripts\\watch-docs.ps1' -RepoRoot '${workspaceFolder}'",
+            "options": {
+                "shell": {
+                    "executable": "pwsh.exe",
+                    "args": ["-NoLogo", "-NoProfile", "-Command"]
+                }
+            },
             "isBackground": true,
+            "problemMatcher": []
+        },
+        {
+            "label": "serve docs",
+            "detail": "Starts mkdocs serve. Rebuilds automatically when files change.",
+            "type": "shell",
+            "command": "python -m mkdocs serve --dev-addr 127.0.0.1:8000",
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "shell": {
+                    "executable": "pwsh.exe",
+                    "args": ["-NoLogo", "-NoProfile", "-Command"]
+                }
+            },
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": { "regexp": "." },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^INFO\\s+-\\s+Building documentation",
+                    "endsPattern": "^INFO\\s+-\\s+Serving on"
+                }
+            }
+        },
+        {
+            "label": "docs",
+            "detail": "Starts doc regeneration watcher + mkdocs serve in parallel.",
+            "dependsOn": ["watch docs source", "serve docs"],
+            "dependsOrder": "parallel",
             "problemMatcher": []
         }
     ]

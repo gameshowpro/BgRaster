@@ -9,7 +9,7 @@ static class CliBinding
     {
         Option<string?> configOption = CreateStringOption("--config");
         Option<string?> machineNameOption = CreateStringOption("--machine-name");
-        Option<string?> textOption = CreateStringOption("--text");
+        Option<string?> textFormatOption = CreateStringOption("--text-format");
         Option<string?> textSizeOption = CreateStringOption("--text-size");
         Option<string?> textColorOption = CreateStringOption("--text-color");
         Option<string?> textXOption = CreateStringOption("--text-x");
@@ -40,6 +40,8 @@ static class CliBinding
         Option<string?> logoSourceOption = CreateStringOption("--logo-source");
         Option<string?> logoXOption = CreateStringOption("--logo-x");
         Option<string?> logoYOption = CreateStringOption("--logo-y");
+        Option<string?> logoAnchorXOption = CreateStringOption("--logo-anchor-x");
+        Option<string?> logoAnchorYOption = CreateStringOption("--logo-anchor-y");
         Option<string?> logoWidthOption = CreateStringOption("--logo-width");
         Option<string?> logoHeightOption = CreateStringOption("--logo-height");
         Option<string?> logoOpacityOption = CreateStringOption("--logo-opacity");
@@ -50,18 +52,31 @@ static class CliBinding
         Option<bool?> continueAfterUnchangedOption = CreateNullableBoolOption("--render-force");
         Option<string?> verbosityOption = CreateStringOption("--verbosity");
 
+        Option<string?> NetworkRequireAdapterTypeOption = CreateStringOption("--network-require-adapter-type");
+        Option<bool?> networkRequireUpOption = CreateNullableBoolOption("--network-require-up");
+        Option<string?> networkRequireFamilyOption = CreateStringOption("--network-require-family");
+        Option<string?> networkAdapterFormatOption = CreateStringOption("--network-adapter-format");
+        Option<string?> networkIpAddressFormatOption = CreateStringOption("--network-ip-address-format");
+        Option<string?> networkXOption = CreateStringOption("--network-x");
+        Option<string?> networkYOption = CreateStringOption("--network-y");
+        Option<string?> networkSizeOption = CreateStringOption("--network-size");
+        Option<string?> networkColorOption = CreateStringOption("--network-color");
+        Option<bool?> networkRenderOption = CreateNullableBoolOption("--network-render");
+
         RootCommand root = new("BgRaster — per-output wallpaper renderer")
         {
             configOption,
             machineNameOption,
-            textOption, textSizeOption, textColorOption, textXOption, textYOption,
+            textFormatOption, textSizeOption, textColorOption, textXOption, textYOption,
             bgColorOption, bgImageOption, bgFitOption, bgAlternatingOption, bgBorderOption, bgBorderColorOption,
             gridSizeOption, gridOddColorOption, gridEvenColorOption, gridStrokeOption,
             gridOffsetXOption, gridOffsetYOption, gridCoordinatesOption,
             circleSizeOption, circleXOption, circleYOption, circleColorOption, circleStrokeOption,
             crosshairLengthOption, crosshairXOption, crosshairYOption, crosshairColorOption, crosshairStrokeOption,
-            logoSourceOption, logoXOption, logoYOption, logoWidthOption, logoHeightOption, logoOpacityOption,
+            logoSourceOption, logoXOption, logoYOption, logoAnchorXOption, logoAnchorYOption, logoWidthOption, logoHeightOption, logoOpacityOption,
             dryRunOption, noDiscoveryOption, outputsSkipUnspecifiedOption, outputDirOption, verbosityOption, continueAfterUnchangedOption,
+            NetworkRequireAdapterTypeOption, networkRequireUpOption, networkRequireFamilyOption, networkAdapterFormatOption, networkIpAddressFormatOption,
+            networkXOption, networkYOption, networkSizeOption, networkColorOption, networkRenderOption,
         };
 
         root.SetAction(async (parseResult, ct) =>
@@ -70,7 +85,7 @@ static class CliBinding
             CliOverlay overlay = new()
             {
                 MachineName = parseResult.GetValue(machineNameOption),
-                Text = parseResult.GetValue(textOption),
+                TextFormat = parseResult.GetValue(textFormatOption),
                 TextSize = parseResult.GetValue(textSizeOption),
                 TextColor = parseResult.GetValue(textColorOption),
                 TextX = parseResult.GetValue(textXOption),
@@ -101,6 +116,8 @@ static class CliBinding
                 LogoSource = parseResult.GetValue(logoSourceOption),
                 LogoX = parseResult.GetValue(logoXOption),
                 LogoY = parseResult.GetValue(logoYOption),
+                LogoAnchorX = parseResult.GetValue(logoAnchorXOption),
+                LogoAnchorY = parseResult.GetValue(logoAnchorYOption),
                 LogoWidth = parseResult.GetValue(logoWidthOption),
                 LogoHeight = parseResult.GetValue(logoHeightOption),
                 LogoOpacity = parseResult.GetValue(logoOpacityOption),
@@ -110,6 +127,16 @@ static class CliBinding
                 RenderOutput = parseResult.GetValue(outputDirOption),
                 RenderVerbosity = parseResult.GetValue(verbosityOption),
                 RenderContinueAfterUnchanged = parseResult.GetValue(continueAfterUnchangedOption),
+                NetworkRequireAdapterType = parseResult.GetValue(NetworkRequireAdapterTypeOption),
+                NetworkRequireUp = parseResult.GetValue(networkRequireUpOption),
+                NetworkRequireFamily = parseResult.GetValue(networkRequireFamilyOption),
+                NetworkAdapterFormat = parseResult.GetValue(networkAdapterFormatOption),
+                NetworkIpAddressFormat = parseResult.GetValue(networkIpAddressFormatOption),
+                NetworkX = parseResult.GetValue(networkXOption),
+                NetworkY = parseResult.GetValue(networkYOption),
+                NetworkSize = parseResult.GetValue(networkSizeOption),
+                NetworkColor = parseResult.GetValue(networkColorOption),
+                NetworkRender = parseResult.GetValue(networkRenderOption),
             };
             return await handler(config, overlay);
         });

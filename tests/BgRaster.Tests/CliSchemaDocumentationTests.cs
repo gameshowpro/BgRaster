@@ -9,8 +9,6 @@ public class CliSchemaDocumentationTests
 {
     const string OptionsTableBeginMarker = "<!-- BEGIN:CLI_OPTIONS_TABLE -->";
     const string OptionsTableEndMarker = "<!-- END:CLI_OPTIONS_TABLE -->";
-    const string TomlRootScalarsBeginMarker = "<!-- BEGIN:TOML_ROOT_SCALARS_TABLE -->";
-    const string TomlRootScalarsEndMarker = "<!-- END:TOML_ROOT_SCALARS_TABLE -->";
     const string TomlSchemaSectionsBeginMarker = "<!-- BEGIN:TOML_SCHEMA_SECTIONS -->";
     const string TomlSchemaSectionsEndMarker = "<!-- END:TOML_SCHEMA_SECTIONS -->";
 
@@ -33,25 +31,7 @@ public class CliSchemaDocumentationTests
     }
 
     [Fact]
-    public void TomlSchema_RootScalarsBlock_IsEmptyInSource()
-    {
-        string tomlSchemaPath = FindTomlSchemaPath();
-        string markdown = File.ReadAllText(tomlSchemaPath);
-
-        int beginIndex = markdown.IndexOf(TomlRootScalarsBeginMarker, StringComparison.Ordinal);
-        int endIndex = markdown.IndexOf(TomlRootScalarsEndMarker, StringComparison.Ordinal);
-
-        beginIndex.Should().BeGreaterOrEqualTo(0);
-        endIndex.Should().BeGreaterThan(beginIndex);
-
-        int contentStart = beginIndex + TomlRootScalarsBeginMarker.Length;
-        string includeBlock = markdown[contentStart..endIndex].Trim();
-
-        includeBlock.Should().Be("--8<-- \"generated/toml-root-scalars.md\"");
-    }
-
-    [Fact]
-    public void TomlSchema_SectionsBlock_UsesSnippetInclude()
+        public void TomlSchema_SectionsBlock_UsesSnippetInclude()
     {
         string tomlSchemaPath = FindTomlSchemaPath();
         string markdown = File.ReadAllText(tomlSchemaPath);

@@ -101,7 +101,7 @@ public class OptionsResolverTests
     {
         GlobalOptions global = new()
         {
-            Text = new TextOptions { Text = ["Hello ${MachineName}"] },
+            Text = new TextOptions { Format = ["Hello ${MachineName}"] },
         };
 
         string line = OptionsResolver.Resolve(global, MakeOutput(0), null).TextLines[0];
@@ -113,8 +113,8 @@ public class OptionsResolverTests
     {
         GlobalOptions global = new()
         {
-            MachineName = "ConfiguredMachine",
-            Text = new TextOptions { Text = ["Hello ${MachineName}"] },
+            Render = new RenderOptions { MachineName = "ConfiguredMachine" },
+            Text = new TextOptions { Format = ["Hello ${MachineName}"] },
         };
 
         string line = OptionsResolver.Resolve(global, MakeOutput(0), null).TextLines[0];
@@ -126,7 +126,7 @@ public class OptionsResolverTests
     {
         GlobalOptions global = new()
         {
-            Text = new TextOptions { Text = ["${OutputWidth}x${OutputHeight}"] },
+            Text = new TextOptions { Format = ["${OutputWidth}x${OutputHeight}"] },
         };
 
         string line = OptionsResolver.Resolve(global, MakeOutput(0, 1920, 1080), null).TextLines[0];
@@ -138,7 +138,7 @@ public class OptionsResolverTests
     {
         GlobalOptions global = new()
         {
-            Text = new TextOptions { Text = ["${OutputIndex}|${OutputIndexPlusOne}|${OutputLetter}"] },
+            Text = new TextOptions { Format = ["${OutputIndex}|${OutputIndexPlusOne}|${OutputLetter}"] },
         };
 
         string line = OptionsResolver.Resolve(global, MakeOutput(27), null).TextLines[0];
@@ -150,7 +150,7 @@ public class OptionsResolverTests
     {
         GlobalOptions global = new()
         {
-            Text = new TextOptions { Text = ["${OutputLetterMinusOne}"] },
+            Text = new TextOptions { Format = ["${OutputLetterMinusOne}"] },
         };
 
         string zero = OptionsResolver.Resolve(global, MakeOutput(0), null).TextLines[0];
@@ -167,7 +167,7 @@ public class OptionsResolverTests
     {
         GlobalOptions global = new()
         {
-            Text = new TextOptions { Text = ["${SliceIndex}|${SliceIndexPlusOne}|${SliceLetter}|${SliceWidth}x${SliceHeight}"] },
+            Text = new TextOptions { Format = ["${SliceIndex}|${SliceIndexPlusOne}|${SliceLetter}|${SliceWidth}x${SliceHeight}"] },
         };
         SliceOptions slice = new()
         {
@@ -186,7 +186,7 @@ public class OptionsResolverTests
     {
         GlobalOptions global = new()
         {
-            Text = new TextOptions { Text = ["${SliceLetterMinusOne}"] },
+            Text = new TextOptions { Format = ["${SliceLetterMinusOne}"] },
         };
         SliceOptions slice = new()
         {
@@ -248,7 +248,7 @@ public class OptionsResolverTests
         OutputOptions outputConfig = new()
         {
             Target = OutputTarget.FromIndex(0),
-            Text = new TextOverride { Text = ["output"] },
+            Text = new TextOverride { Format = ["output"] },
         };
         SliceOptions sliceWithText = new()
         {
@@ -256,7 +256,7 @@ public class OptionsResolverTests
             Y = "0",
             Width = "100px",
             Height = "100px",
-            Text = new TextOverride { Text = ["slice"] },
+            Text = new TextOverride { Format = ["slice"] },
         };
         SliceOptions sliceWithoutText = new()
         {
@@ -266,8 +266,8 @@ public class OptionsResolverTests
             Height = "100px",
         };
 
-        GlobalOptions fileGlobal = new() { Text = new TextOptions { Text = ["file"] } };
-        GlobalOptions cliGlobal = ConfigLoader.ApplyCliOverlay(fileGlobal, new CliOverlay { Text = "cli" });
+        GlobalOptions fileGlobal = new() { Text = new TextOptions { Format = ["file"] } };
+        GlobalOptions cliGlobal = ConfigLoader.ApplyCliOverlay(fileGlobal, new CliOverlay { TextFormat = "cli" });
 
         OptionsResolver.ResolveForSlice(cliGlobal, output, outputConfig, sliceWithText, 100, 100)
             .TextLines[0]
@@ -411,7 +411,7 @@ public class OptionsResolverTests
     {
         GlobalOptions global = new()
         {
-            Text = new TextOptions { Text = ["configured"] },
+            Text = new TextOptions { Format = ["configured"] },
         };
         SliceOptions implicitSlice = new()
         {

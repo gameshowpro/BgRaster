@@ -8,12 +8,12 @@ public class ConfigLoaderTests
     [Fact]
     public void ApplyCliOverlay_MachineName_OverridesGlobalMachineName()
     {
-        GlobalOptions baseOptions = new() { MachineName = "OriginalMachine" };
+        GlobalOptions baseOptions = new() { Render = new RenderOptions { MachineName = "OriginalMachine" } };
         CliOverlay overlay = new() { MachineName = "CliMachine" };
 
         GlobalOptions result = ConfigLoader.ApplyCliOverlay(baseOptions, overlay);
 
-        result.MachineName.Should().Be("CliMachine");
+        result.Render.MachineName.Should().Be("CliMachine");
     }
 
     [Fact]
@@ -156,11 +156,11 @@ public class ConfigLoaderTests
         string path = Path.Combine(Path.GetTempPath(), $"bgraster-config-{Guid.NewGuid():N}.toml");
         try
         {
-            File.WriteAllText(path, "machine-name = \"TomlMachine\"\n");
+            File.WriteAllText(path, "[render]\nmachine-name = \"TomlMachine\"\n");
 
             GlobalOptions result = ConfigLoader.Load(path);
 
-            result.MachineName.Should().Be("TomlMachine");
+            result.Render.MachineName.Should().Be("TomlMachine");
         }
         finally
         {

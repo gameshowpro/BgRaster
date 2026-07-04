@@ -48,6 +48,12 @@ static class Program
         string resolvedConfigPath = ResolveConfigPath(configPath, defaultConfigSearchPaths);
         bool configExists = File.Exists(resolvedConfigPath);
 
+        if (!string.IsNullOrWhiteSpace(configPath) && !configExists)
+        {
+            Console.Error.WriteLine($"bg-raster: config file not found: '{resolvedConfigPath}'");
+            return 1;
+        }
+
         GlobalOptions options;
         try
         {
@@ -204,7 +210,7 @@ static class Program
             {
                 string targetDescription = DescribeTarget(mapping.Config.Target);
                 logger.RenderStart(mapping.Output.Id, targetDescription);
-                FileNamer.RenderOutputPathResult outputPath = FileNamer.ResolveRenderOutputPath(outputTemplate, mapping.Output, options.MachineName);
+                FileNamer.RenderOutputPathResult outputPath = FileNamer.ResolveRenderOutputPath(outputTemplate, mapping.Output, options.Render.MachineName);
                 foreach (string warning in outputPath.Warnings)
                     logger.ConfigurationWarning(warning);
 
@@ -229,7 +235,7 @@ static class Program
                 {
                     case MatchResult.Matched(OutputRecord output, OutputOptions outputConfig):
                         logger.RenderStart(output.Id, DescribeTarget(outputConfig.Target));
-                        FileNamer.RenderOutputPathResult outputPath = FileNamer.ResolveRenderOutputPath(outputTemplate, output, options.MachineName);
+                        FileNamer.RenderOutputPathResult outputPath = FileNamer.ResolveRenderOutputPath(outputTemplate, output, options.Render.MachineName);
                         foreach (string warning in outputPath.Warnings)
                             logger.ConfigurationWarning(warning);
 
@@ -311,7 +317,7 @@ static class Program
 
         logger.LastRunWrite(lastRunPath, assignedFiles.Count, unrecycled.Length);
         WriteLastRun(lastRunPath, settingsHash, hardware, options, assignedFiles, unrecycled, runStatus, logger);
-        SeedExplicitConfigFromDefaults(configPath, configExists, isDryRun, options, hardware, configurationWarnings);
+        SeedExplicitConfigFromDefaults(resolvedConfigPath, configExists, isDryRun, options, hardware, configurationWarnings);
         logger.RunComplete();
         return ReturnWithTiming(0);
     }
@@ -370,7 +376,15 @@ static class Program
     internal static string ResolveConfigPath(string? explicitConfigPath, ImmutableArray<string> defaultConfigSearchPaths)
     {
         if (!string.IsNullOrWhiteSpace(explicitConfigPath))
-            return ConfiguredPathResolver.Resolve(explicitConfigPath, Directory.GetCurrentDirectory());
+        {
+            string resolved = ConfiguredPathResolver.Resolve(explicitConfigPath, Directory.GetCurrentDirectory());
+
+            // If the resolved path is an existing directory, append the default filename
+            if (Directory.Exists(resolved))
+                return Path.Combine(resolved, "config.toml");
+
+            return resolved;
+        }
 
         foreach (string candidate in defaultConfigSearchPaths)
         {

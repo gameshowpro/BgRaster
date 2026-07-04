@@ -13,34 +13,102 @@
       },
       "additionalProperties": false,
       "properties": {
-        "text": {
+        "format": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["${MachineName} output ${OutputIndexPlusOne}", "slice ${SliceLetter}", "${SliceWidth}x${SliceHeight}"],
-          "description": "Text lines, supports ${MachineName}, ${OutputWidth}, ${OutputHeight}, ${OutputIndex}, ${OutputIndexPlusOne}, ${OutputLetter}, ${OutputName}, ${SliceWidth}, ${SliceHeight}, ${SliceIndex}, ${SliceIndexPlusOne}, ${SliceLetter}"
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "${MachineName} output ${OutputIndexPlusOne}",
+            "slice ${SliceLetter}",
+            "${SliceWidth}x${SliceHeight}"
+          ],
+          "description": "Text lines, supports tokens detailed in the [Substitution tokens](#substitution-tokens) table."
+        },
+        "text-align": {
+          "type": "string",
+          "enum": [
+            "start",
+            "end",
+            "center"
+          ],
+          "default": "center",
+          "description": "Internal text alignment within the block"
+        },
+        "anchor-x": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "left",
+                "center",
+                "right"
+              ]
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "default": "center",
+          "description": "Horizontal block anchoring. Accepts float values (0 to 1)."
+        },
+        "anchor-y": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "top",
+                "center",
+                "bottom"
+              ]
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "default": "center",
+          "description": "Vertical block anchoring. Accepts float values (0 to 1)."
         },
         "size": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["3vh", "2vh", "4vh"],
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "3vh",
+            "2vh",
+            "4vh"
+          ],
           "description": "Per-line text heights with units (px, vh, vw, vmin, vmax)"
         },
         "color": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["#fff"],
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "#fff"
+          ],
           "description": "Per-line text colors"
         },
         "x": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["75vw"],
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "75vw"
+          ],
           "description": "Text anchor x-coordinate"
         },
         "y": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["75vh"],
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "75vh"
+          ],
           "description": "Text anchor y-coordinate"
         }
       }
@@ -57,41 +125,73 @@
       "properties": {
         "color": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["#FF0000", "#00FF00", "#0000FF"],
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "#FF0000",
+            "#00FF00",
+            "#0000FF"
+          ],
           "description": "Base fill color, cycles by rendered slice sequence with wraparound. Supports #RRGGBB, #RRGGBBAA, rgb(), rgba(), hsl(), hsla()"
         },
         "image": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": [""],
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            ""
+          ],
           "description": "Optional path to background image (SVG or PNG), rendered over color layer. Relative paths resolve against the config file directory. Field substitution is applied. Empty = no image."
         },
         "fit": {
           "type": "array",
           "items": {
             "type": "string",
-            "enum": ["CropTL", "CropTR", "CropC", "CropBL", "CropBR", "BestFit", "CropToFill"]
+            "enum": [
+              "CropTL",
+              "CropTR",
+              "CropC",
+              "CropBL",
+              "CropBR",
+              "BestFit",
+              "CropToFill"
+            ]
           },
-          "default": ["CropToFill"],
+          "default": [
+            "CropToFill"
+          ],
           "description": "Background image fit mode. CropToFill and BestFit use uniform scaling; crop modes do not scale."
         },
         "alternating": {
           "type": "array",
-          "items": { "type": "boolean" },
-          "default": [false],
+          "items": {
+            "type": "boolean"
+          },
+          "default": [
+            false
+          ],
           "description": "Enable checkerboard alternating pixel pattern (renders over grid)"
         },
         "border": {
           "type": "array",
-          "items": { "type": "boolean" },
-          "default": [false],
+          "items": {
+            "type": "boolean"
+          },
+          "default": [
+            false
+          ],
           "description": "Enable 1-pixel border at viewport edge"
         },
         "border-color": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["#FFFFFF"],
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "#FFFFFF"
+          ],
           "description": "Border color"
         }
       }
@@ -108,44 +208,72 @@
       "properties": {
         "size": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["100px"],
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "100px"
+          ],
           "description": "Checker cell size with units"
         },
         "odd-color": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["#00000080"],
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "#00000080"
+          ],
           "description": "Color for odd-indexed grid squares"
         },
         "even-color": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["transparent"],
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "transparent"
+          ],
           "description": "Color for even-indexed grid squares"
         },
         "stroke": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["0"],
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "0"
+          ],
           "description": "Grid line width. 0 = filled cells, non-zero = line width"
         },
         "offset-x": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["0"],
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "0"
+          ],
           "description": "Horizontal grid phase offset"
         },
         "offset-y": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["0"],
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "0"
+          ],
           "description": "Vertical grid phase offset"
         },
         "coordinates": {
           "type": "array",
-          "items": { "type": "boolean" },
-          "default": [false],
+          "items": {
+            "type": "boolean"
+          },
+          "default": [
+            false
+          ],
           "description": "Enable pixel coordinate display in each grid square"
         }
       }
@@ -162,32 +290,52 @@
       "properties": {
         "x": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["50vw"],
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "50vw"
+          ],
           "description": "Circle center X coordinate with units"
         },
         "y": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["50vh"],
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "50vh"
+          ],
           "description": "Circle center Y coordinate with units"
         },
         "size": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["100vmin"],
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "100vmin"
+          ],
           "description": "Circle diameter with units"
         },
         "color": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["#ffffff40"],
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "#ffffff40"
+          ],
           "description": "Circle fill/stroke color"
         },
         "stroke": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["0"],
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "0"
+          ],
           "description": "Circle stroke width. 0 = fill only, non-zero = stroke width"
         }
       }
@@ -204,32 +352,52 @@
       "properties": {
         "x": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["50vw"],
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "50vw"
+          ],
           "description": "Crosshair center X coordinate with units"
         },
         "y": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["50vh"],
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "50vh"
+          ],
           "description": "Crosshair center Y coordinate with units"
         },
         "length": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["5vmin"],
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "5vmin"
+          ],
           "description": "Crosshair arm length (total, not radius)"
         },
         "color": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["#ffffff80"],
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "#ffffff80"
+          ],
           "description": "Crosshair color"
         },
         "stroke": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["1px"],
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "1px"
+          ],
           "description": "Crosshair line thickness"
         }
       }
@@ -246,44 +414,85 @@
       "properties": {
         "text-size": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["10px"],
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "10px"
+          ],
           "description": "Label text height with units"
         },
         "tail-length": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["10px"],
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "10px"
+          ],
           "description": "Length of the arrow tail, excluding the head"
         },
         "thickness": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["3px"],
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "3px"
+          ],
           "description": "Arrow stem thickness with units"
         },
         "head-scale": {
           "type": "array",
-          "items": { "type": "number", "minimum": 0 },
-          "default": [1.0],
+          "items": {
+            "type": "number",
+            "minimum": 0
+          },
+          "default": [
+            1.0
+          ],
           "description": "Multiplier applied to the arrowhead dimensions"
         },
         "scope": {
           "type": "array",
           "items": {
             "type": "string",
-            "enum": ["Desktop", "Output", "Slice"]
+            "enum": [
+              "Desktop",
+              "Output",
+              "Slice"
+            ]
           },
-          "default": ["Desktop"],
+          "default": [
+            "Desktop"
+          ],
           "description": "Scope used when resolving viewport-unit measurements and displayed numbers"
         },
         "side": {
           "type": "array",
           "items": {
             "type": "string",
-            "enum": ["TL", "T", "TR", "R", "BR", "B", "BL", "L"]
+            "enum": [
+              "TL",
+              "T",
+              "TR",
+              "R",
+              "BR",
+              "B",
+              "BL",
+              "L"
+            ]
           },
-          "default": ["TL", "T", "TR", "R", "BR", "B", "BL", "L"],
+          "default": [
+            "TL",
+            "T",
+            "TR",
+            "R",
+            "BR",
+            "B",
+            "BL",
+            "L"
+          ],
           "description": "Sides or corners to label; values may not repeat"
         }
       }
@@ -300,45 +509,107 @@
       "properties": {
         "source": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["pack://application:,,,/GameshowPro.BgRaster;component/resources/gsp.svg"],
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "pack://application:,,,/GameshowPro.BgRaster;component/resources/BgRaster.svg"
+          ],
           "description": "Path to logo image file (SVG or PNG), pack URI to embedded resource, or empty string to suppress. Relative file paths resolve against the config file directory. Field substitution is applied. Pack URIs use format: pack://application:,,,/GameshowPro.BgRaster;component/path/to/resource. If path is invalid/missing, falls back to embedded logo."
         },
         "x": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["85vw"],
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "85vw"
+          ],
           "description": "Logo center X position"
         },
         "y": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["15vh"],
-          "description": "Logo center Y position"
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "15vh"
+          ],
+          "description": "Logo anchor Y position"
+        },
+        "anchor-x": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "left",
+                "center",
+                "right"
+              ]
+            },
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          ],
+          "default": "center",
+          "description": "Horizontal block anchoring. Accepts float values (0 to 1)."
+        },
+        "anchor-y": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "top",
+                "center",
+                "bottom"
+              ]
+            },
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          ],
+          "default": "center",
+          "description": "Vertical block anchoring. Accepts float values (0 to 1)."
         },
         "width": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["20vw"],
-          "description": "Logo fit rectangle width"
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Logo fit rectangle width. If unset, computed from height and the logo source's natural aspect ratio."
         },
         "height": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["20vh"],
-          "description": "Logo fit rectangle height"
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "20vh"
+          ],
+          "description": "Logo fit rectangle height. If unset, computed from width and the logo source's natural aspect ratio."
         },
         "opacity": {
           "type": "array",
-          "items": { "type": "number", "minimum": 0, "maximum": 1 },
-          "default": [1.0],
+          "items": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "default": [
+            1.0
+          ],
           "description": "Additional opacity multiplier (0 = transparent, 1 = opaque)"
         }
       }
     },
     "renderTable": {
       "type": "object",
-      "description": "Render and output settings",
+      "description": "Render and output settings. Some settings are required for simulating output, such as when generating samples.",
       "x-bgraster-doc": {
         "order": 80,
         "heading": "[render]",
@@ -364,7 +635,7 @@
         "output": {
           "type": "string",
           "default": "",
-          "description": "Output path template for generated PNGs (directory + filename stem). Relative paths resolve against the config file directory. Field substitution is applied. Supports {now}, {index}, and {friendlyName}. Empty = %TEMP%/BgRaster/{now}_{index}."
+          "description": "Output path template for generated PNGs (directory + filename stem). Relative paths resolve against the config file directory. `${  }` field substitution tokens and `{now}`, `{index}`, `{friendlyName}` file-naming tokens are both supported. Empty = %TEMP%/BgRaster/{now}_{index}."
         },
         "force": {
           "type": "boolean",
@@ -373,9 +644,23 @@
         },
         "verbosity": {
           "type": "string",
-          "enum": ["quiet", "normal", "verbose"],
+          "enum": [
+            "quiet",
+            "normal",
+            "verbose"
+          ],
           "default": "normal",
           "description": "Logging verbosity level"
+        },
+        "machine-name": {
+          "type": "string",
+          "default": "",
+          "description": "Override the framework-supplied host name used by ${MachineName} substitutions. Empty uses Environment.MachineName."
+        },
+        "simulate-network": {
+          "type": "boolean",
+          "default": false,
+          "description": "If true, uses a built-in network simulator instead of querying real network interfaces. Useful for testing and sample generation."
         }
       }
     },
@@ -386,8 +671,51 @@
       "properties": {
         "text": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": {
+            "type": "string"
+          },
           "description": "Text lines, supports ${MachineName}, ${OutputWidth}, ${OutputHeight}, ${OutputIndex}, ${OutputIndexPlusOne}, ${OutputLetter}, ${OutputName}, ${SliceWidth}, ${SliceHeight}, ${SliceIndex}, ${SliceIndexPlusOne}, ${SliceLetter}"
+        },
+        "text-align": {
+          "type": "string",
+          "enum": [
+            "start",
+            "end",
+            "center"
+          ],
+          "description": "Internal text alignment for the override viewport"
+        },
+        "anchor-x": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "left",
+                "center",
+                "right"
+              ]
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "description": "Horizontal block anchoring override"
+        },
+        "anchor-y": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "top",
+                "center",
+                "bottom"
+              ]
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "description": "Vertical block anchoring override"
         },
         "size": {
           "type": "string",
@@ -422,7 +750,15 @@
         },
         "fit": {
           "type": "string",
-          "enum": ["CropTL", "CropTR", "CropC", "CropBL", "CropBR", "BestFit", "CropToFill"],
+          "enum": [
+            "CropTL",
+            "CropTR",
+            "CropC",
+            "CropBL",
+            "CropBR",
+            "BestFit",
+            "CropToFill"
+          ],
           "description": "Background image fit mode"
         },
         "alternating": {
@@ -444,13 +780,34 @@
       "description": "Per-output or per-slice grid override. Scalar values only.",
       "additionalProperties": false,
       "properties": {
-        "size": { "type": "string", "description": "Checker cell size with units" },
-        "odd-color": { "type": "string", "description": "Color for odd-indexed grid squares" },
-        "even-color": { "type": "string", "description": "Color for even-indexed grid squares" },
-        "stroke": { "type": "string", "description": "Grid line width" },
-        "offset-x": { "type": "string", "description": "Horizontal grid phase offset" },
-        "offset-y": { "type": "string", "description": "Vertical grid phase offset" },
-        "coordinates": { "type": "boolean", "description": "Enable pixel coordinate display in each grid square" }
+        "size": {
+          "type": "string",
+          "description": "Checker cell size with units"
+        },
+        "odd-color": {
+          "type": "string",
+          "description": "Color for odd-indexed grid squares"
+        },
+        "even-color": {
+          "type": "string",
+          "description": "Color for even-indexed grid squares"
+        },
+        "stroke": {
+          "type": "string",
+          "description": "Grid line width"
+        },
+        "offset-x": {
+          "type": "string",
+          "description": "Horizontal grid phase offset"
+        },
+        "offset-y": {
+          "type": "string",
+          "description": "Vertical grid phase offset"
+        },
+        "coordinates": {
+          "type": "boolean",
+          "description": "Enable pixel coordinate display in each grid square"
+        }
       }
     },
     "circleOverride": {
@@ -458,9 +815,18 @@
       "description": "Per-output or per-slice circle override. Scalar values only.",
       "additionalProperties": false,
       "properties": {
-        "size": { "type": "string", "description": "Circle diameter with units" },
-        "color": { "type": "string", "description": "Circle fill/stroke color" },
-        "stroke": { "type": "string", "description": "Circle stroke width" }
+        "size": {
+          "type": "string",
+          "description": "Circle diameter with units"
+        },
+        "color": {
+          "type": "string",
+          "description": "Circle fill/stroke color"
+        },
+        "stroke": {
+          "type": "string",
+          "description": "Circle stroke width"
+        }
       }
     },
     "crosshairOverride": {
@@ -468,9 +834,18 @@
       "description": "Per-output or per-slice crosshair override. Scalar values only.",
       "additionalProperties": false,
       "properties": {
-        "length": { "type": "string", "description": "Crosshair arm length" },
-        "color": { "type": "string", "description": "Crosshair color" },
-        "stroke": { "type": "string", "description": "Crosshair line thickness" }
+        "length": {
+          "type": "string",
+          "description": "Crosshair arm length"
+        },
+        "color": {
+          "type": "string",
+          "description": "Crosshair color"
+        },
+        "stroke": {
+          "type": "string",
+          "description": "Crosshair line thickness"
+        }
       }
     },
     "labeledEdgesOverride": {
@@ -478,22 +853,340 @@
       "description": "Per-output or per-slice labeled edges override.",
       "additionalProperties": false,
       "properties": {
-        "text-size": { "type": "string", "description": "Label text height with units" },
-        "tail-length": { "type": "string", "description": "Length of the arrow tail, excluding the head" },
-        "thickness": { "type": "string", "description": "Arrow stem thickness with units" },
-        "head-scale": { "type": "number", "minimum": 0, "description": "Multiplier applied to the arrowhead dimensions" },
+        "text-size": {
+          "type": "string",
+          "description": "Label text height with units"
+        },
+        "tail-length": {
+          "type": "string",
+          "description": "Length of the arrow tail, excluding the head"
+        },
+        "thickness": {
+          "type": "string",
+          "description": "Arrow stem thickness with units"
+        },
+        "head-scale": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Multiplier applied to the arrowhead dimensions"
+        },
         "scope": {
           "type": "string",
-          "enum": ["Desktop", "Output", "Slice"],
+          "enum": [
+            "Desktop",
+            "Output",
+            "Slice"
+          ],
           "description": "Scope used when resolving viewport-unit measurements and displayed numbers"
         },
         "side": {
           "type": "array",
           "items": {
             "type": "string",
-            "enum": ["TL", "T", "TR", "R", "BR", "B", "BL", "L"]
+            "enum": [
+              "TL",
+              "T",
+              "TR",
+              "R",
+              "BR",
+              "B",
+              "BL",
+              "L"
+            ]
           },
           "description": "Sides or corners to label; values may not repeat"
+        }
+      }
+    },
+    "networkTable": {
+      "type": "object",
+      "description": "See the sections below for a full explanation of filtering, formatting, substitution tokens, and address origins.",
+      "x-bgraster-doc": {
+        "order": 11,
+        "heading": "[network]",
+        "showDefaults": true
+      },
+      "additionalProperties": false,
+      "properties": {
+        "render": {
+          "type": "boolean",
+          "default": false,
+          "description": "Set to true to enable the dedicated network block. The ${Network} token in text blocks always works regardless."
+        },
+        "x": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "10vw"
+          ],
+          "description": "Horizontal text block position."
+        },
+        "y": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "75vh"
+          ],
+          "description": "Vertical text block position."
+        },
+        "size": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "3vh",
+            "2vh",
+            "2vh",
+            "4vh"
+          ],
+          "description": "Text height per rendered item. Index 0 applies to adapter name, index 1 to each IP."
+        },
+        "color": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "transparent"
+          ],
+          "description": "Text color. Set to a valid color to enable rendering."
+        },
+        "require_adapter_type": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "Wireless80211",
+            "Ethernet"
+          ],
+          "description": "Adapter types to include. Accepts .NET names, IANA short names, or integers. See [network interface types](#about-network-interface-types)."
+        },
+        "exclude_adapter_type": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Adapter types to exclude. If require_adapter_type is non-empty, exclude_adapter_type is skipped."
+        },
+        "require_up": {
+          "type": "boolean",
+          "default": true,
+          "description": "If true, interfaces that are down will be dropped."
+        },
+        "require_family": {
+          "type": "string",
+          "default": "IPv4",
+          "description": "IP address family filter: IPv4, IPv6, or empty for both."
+        },
+        "require_mac_address": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Only include adapters with MAC addresses in this list."
+        },
+        "require_subnet": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "CIDR subnets to filter IP addresses by (e.g. 192.168.1.0/24). See [CIDR notation](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing#CIDR_notation)."
+        },
+        "minimum_address_count": {
+          "type": "integer",
+          "default": 1,
+          "description": "Number of matches from require_subnet required for adapter to be included"
+        },
+        "require_name": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Wildcard expressions for adapter names. See [wildcard matching](#about-wildcard-expression-matching). Matching adapters pass immediately; non-matching are dropped."
+        },
+        "require_description": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Wildcard expressions for adapter descriptions. See [wildcard matching](#about-wildcard-expression-matching). Matching adapters pass immediately; non-matching are dropped."
+        },
+        "ip_address_format": {
+          "type": "string",
+          "default": "   \u2192${Address}/${CidrBits} (${Origin})<br>",
+          "description": "Format string for each IP address entry. See [substitution tokens](#substitution-tokens-per-ip-address)."
+        },
+        "adapter_format": {
+          "type": "string",
+          "default": "${Name}<br>  ${MacAddress}<br>   ${Speed}<br>  ${IpAddresses}<br>",
+          "description": "Format string for each network adapter entry. See [substitution tokens](#substitution-tokens-per-network-interface)."
+        },
+        "text-align": {
+          "type": "string",
+          "enum": [
+            "start",
+            "end",
+            "center"
+          ],
+          "default": "start",
+          "description": "Internal text alignment for the network block."
+        },
+        "anchor-x": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "left",
+                "center",
+                "right"
+              ]
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "default": "left",
+          "description": "Horizontal block anchoring for the network block. Accepts float values (0 to 1)."
+        },
+        "anchor-y": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "top",
+                "center",
+                "bottom"
+              ]
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "default": "bottom",
+          "description": "Vertical block anchoring for the network block. Accepts float values (0 to 1)."
+        }
+      }
+    },
+    "networkOverride": {
+      "type": "object",
+      "description": "Per-output or per-slice network override. Scalar values only.",
+      "additionalProperties": false,
+      "properties": {
+        "render": {
+          "type": "boolean",
+          "description": "Set to true to render the dedicated network block on this output/slice."
+        },
+        "require_adapter_type": {
+          "type": "string",
+          "description": "Comma-separated adapter types to include."
+        },
+        "exclude_adapter_type": {
+          "type": "string",
+          "description": "Comma-separated adapter types to exclude."
+        },
+        "require_up": {
+          "type": "boolean",
+          "description": "Filter to only up interfaces."
+        },
+        "require_family": {
+          "type": "string",
+          "description": "IP address family filter."
+        },
+        "require_mac_address": {
+          "type": "string",
+          "description": "Comma-separated MAC addresses."
+        },
+        "require_subnet": {
+          "type": "string",
+          "description": "Comma-separated CIDR subnets."
+        },
+        "minimum_address_count": {
+          "type": "integer",
+          "description": "Minimum required IP addresses."
+        },
+        "require_name": {
+          "type": "string",
+          "description": "Comma-separated wildcard names."
+        },
+        "require_description": {
+          "type": "string",
+          "description": "Comma-separated wildcard descriptions."
+        },
+        "ip_address_format": {
+          "type": "string",
+          "description": "IP address format string."
+        },
+        "adapter_format": {
+          "type": "string",
+          "description": "Adapter format string."
+        },
+        "text-align": {
+          "type": "string",
+          "enum": [
+            "start",
+            "end",
+            "center"
+          ],
+          "description": "Text alignment override."
+        },
+        "anchor-x": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "left",
+                "center",
+                "right"
+              ]
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "description": "Horizontal anchoring override."
+        },
+        "anchor-y": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "top",
+                "center",
+                "bottom"
+              ]
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "description": "Vertical anchoring override."
+        },
+        "size": {
+          "type": "string",
+          "description": "Text size override."
+        },
+        "color": {
+          "type": "string",
+          "description": "Text color override."
+        },
+        "x": {
+          "type": "string",
+          "description": "Text anchor x-coordinate override."
+        },
+        "y": {
+          "type": "string",
+          "description": "Text anchor y-coordinate override."
         }
       }
     },
@@ -502,12 +1195,32 @@
       "description": "Per-output or per-slice logo override. Scalar values only.",
       "additionalProperties": false,
       "properties": {
-        "source": { "type": "string", "description": "Path to logo image file. Relative file paths resolve against the config file directory. Field substitution is applied." },
-        "x": { "type": "string", "description": "Logo center X position" },
-        "y": { "type": "string", "description": "Logo center Y position" },
-        "width": { "type": "string", "description": "Logo fit rectangle width" },
-        "height": { "type": "string", "description": "Logo fit rectangle height" },
-        "opacity": { "type": "number", "minimum": 0, "maximum": 1, "description": "Additional opacity multiplier" }
+        "source": {
+          "type": "string",
+          "description": "Path to logo image file. Relative file paths resolve against the config file directory. Field substitution is applied."
+        },
+        "x": {
+          "type": "string",
+          "description": "Logo center X position"
+        },
+        "y": {
+          "type": "string",
+          "description": "Logo center Y position"
+        },
+        "width": {
+          "type": "string",
+          "description": "Logo fit rectangle width"
+        },
+        "height": {
+          "type": "string",
+          "description": "Logo fit rectangle height"
+        },
+        "opacity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Additional opacity multiplier"
+        }
       }
     },
     "sliceItem": {
@@ -519,7 +1232,12 @@
         "showDefaults": false
       },
       "additionalProperties": false,
-      "required": ["x", "y", "width", "height"],
+      "required": [
+        "x",
+        "y",
+        "width",
+        "height"
+      ],
       "properties": {
         "x": {
           "type": "string",
@@ -557,6 +1275,9 @@
         },
         "logo": {
           "$ref": "#/definitions/logoOverride"
+        },
+        "network": {
+          "$ref": "#/definitions/networkOverride"
         }
       }
     },
@@ -569,58 +1290,80 @@
     },
     "hardwareOutput": {
       "type": "object",
+      "description": "Fixed hardware dimensions for no-discovery mode. When set, BgRaster uses these values instead of querying Windows display APIs (`EnumDisplayDevices`, `EnumDisplaySettingsEx`, `GetDpiForMonitor`).",
+      "x-bgraster-doc": {
+        "order": 95,
+        "heading": "[output.hardware_output]",
+        "showDefaults": false
+      },
       "additionalProperties": false,
-      "required": ["index", "desktopX", "desktopY", "widthPx", "heightPx", "dpiX", "dpiY", "rotation", "adapterName", "friendlyName"],
+      "required": [
+        "index",
+        "desktopX",
+        "desktopY",
+        "widthPx",
+        "heightPx",
+        "dpiX",
+        "dpiY",
+        "rotation",
+        "adapterName",
+        "friendlyName"
+      ],
       "properties": {
         "id": {
           "type": "string",
-          "description": "Stable monitor identifier. Optional for fixed no-discovery samples."
+          "description": "Stable monitor identifier from `EnumDisplayDevices` (monitor `DeviceID`). Optional for fixed no-discovery samples."
         },
         "index": {
           "type": "integer",
           "minimum": 0,
-          "description": "Zero-based output index"
+          "description": "Zero-based output index, assigned by BgRaster during discovery."
         },
         "desktopX": {
           "type": "integer",
-          "description": "Virtual desktop position X in pixels"
+          "description": "Virtual desktop X position in pixels. From `EnumDisplaySettingsEx` `DEVMODE.dmPosition.x`."
         },
         "desktopY": {
           "type": "integer",
-          "description": "Virtual desktop position Y in pixels"
+          "description": "Virtual desktop Y position in pixels. From `EnumDisplaySettingsEx` `DEVMODE.dmPosition.y`."
         },
         "widthPx": {
           "type": "integer",
           "minimum": 1,
-          "description": "Output width in physical pixels"
+          "description": "Output width in physical pixels. From `EnumDisplaySettingsEx` `DEVMODE.dmPelsWidth`."
         },
         "heightPx": {
           "type": "integer",
           "minimum": 1,
-          "description": "Output height in physical pixels"
+          "description": "Output height in physical pixels. From `EnumDisplaySettingsEx` `DEVMODE.dmPelsHeight`."
         },
         "dpiX": {
           "type": "integer",
           "minimum": 0,
-          "description": "Logical DPI X"
+          "description": "Horizontal logical DPI. From `GetDpiForMonitor` or `GetDpiForWindow` at the output's desktop position."
         },
         "dpiY": {
           "type": "integer",
           "minimum": 0,
-          "description": "Logical DPI Y"
+          "description": "Vertical logical DPI. From `GetDpiForMonitor` or `GetDpiForWindow` at the output's desktop position."
         },
         "rotation": {
           "type": "integer",
-          "enum": [0, 90, 180, 270],
-          "description": "Display rotation in degrees"
+          "enum": [
+            0,
+            90,
+            180,
+            270
+          ],
+          "description": "Display rotation in degrees. From `EnumDisplaySettingsEx` `DEVMODE.dmDisplayOrientation` (`DMDO_0`/`DMDO_90`/`DMDO_180`/`DMDO_270`)."
         },
         "adapterName": {
           "type": "string",
-          "description": "Adapter device name"
+          "description": "Display adapter device name. From `EnumDisplayDevices` adapter-level `DeviceName` (e.g. `\\\\.\\DISPLAY1`)."
         },
         "friendlyName": {
           "type": "string",
-          "description": "Friendly output name"
+          "description": "Human-readable monitor name. From `EnumDisplayDevices` monitor-level `DeviceString`. In no-discovery mode, this value also feeds `${OutputName}` in text substitution and `{friendlyName}` in `render.output` path templates."
         }
       }
     },
@@ -633,7 +1376,9 @@
         "showDefaults": false
       },
       "additionalProperties": false,
-      "required": ["target"],
+      "required": [
+        "target"
+      ],
       "properties": {
         "target": {
           "oneOf": [
@@ -667,6 +1412,9 @@
         },
         "logo": {
           "$ref": "#/definitions/logoOverride"
+        },
+        "network": {
+          "$ref": "#/definitions/networkOverride"
         },
         "slice": {
           "$ref": "#/definitions/sliceList"

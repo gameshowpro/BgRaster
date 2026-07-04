@@ -373,3 +373,7 @@ FodyWeavers.xsd
 .venv
 hermes.md
 .vscode/
+lastRun.dry.toml
+lastrun.toml
+.gemini/
+.hermes/

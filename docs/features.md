@@ -136,3 +136,34 @@ These examples are automatically generated from sample config files at during th
 </details>
 
 ![Slices sample](generated/slices_0.png)
+
+## Network Integrated
+
+- What it demonstrates: using the `${Network}` format variable in a text block. Logo is anchored to the bottom. Colors and sizes are set for every line of the main text and included `${Network}`.
+- Sample config: [network-integrated.toml](sample-config/network-integrated.toml)
+
+<details>
+<summary>View sample TOML</summary>
+
+`	oml
+--8<-- "sample-config/network-integrated.toml"
+`
+</details>
+
+![Network integrated sample](generated/network-integrated_0.png)
+
+## Network Separate
+
+- What it demonstrates: using the dedicated [network] block separate from [text]. Colors and sizes are set for every line of the network block and custom formats are defined exposing extra fields.
+- Sample config: [network-separate.toml](sample-config/network-separate.toml)
+
+<details>
+<summary>View sample TOML</summary>
+
+`	oml
+--8<-- "sample-config/network-separate.toml"
+`
+</details>
+
+![Network separate sample](generated/network-separate_0.png)
+

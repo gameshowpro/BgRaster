@@ -5,7 +5,10 @@ namespace GameshowPro.BgRaster.Models;
 
 record TextOverride
 {
-    internal ImmutableArray<string>? Text { get; init; }
+    internal ImmutableArray<string>? Format { get; init; }
+    internal string? TextAlign { get; init; }
+    internal string? AnchorX { get; init; }
+    internal string? AnchorY { get; init; }
     internal ImmutableArray<string>? Size { get; init; }
     internal ImmutableArray<string>? Color { get; init; }
     internal string? X { get; init; }

@@ -5,10 +5,12 @@ namespace GameshowPro.BgRaster.Models;
 
 record LogoOptions
 {
-    internal ImmutableArray<string> Source { get; init; } = ["pack://application:,,,/GameshowPro.BgRaster;component/resources/BgRaster.svg"];
-    internal ImmutableArray<string> X { get; init; } = ["85vw"];
-    internal ImmutableArray<string> Y { get; init; } = ["15vh"];
-    internal ImmutableArray<string> Width { get; init; } = ["20vw"];
-    internal ImmutableArray<string> Height { get; init; } = ["20vh"];
-    internal ImmutableArray<float> Opacity { get; init; } = [1f];
+    internal ImmutableArray<string> Source { get; init; } = Configuration.LogoDefaults.Source;
+    internal ImmutableArray<string> X { get; init; } = Configuration.LogoDefaults.X;
+    internal ImmutableArray<string> Y { get; init; } = Configuration.LogoDefaults.Y;
+    internal string AnchorX { get; init; } = Configuration.LogoDefaults.AnchorX;
+    internal string AnchorY { get; init; } = Configuration.LogoDefaults.AnchorY;
+    internal ImmutableArray<string> Width { get; init; } = Configuration.LogoDefaults.Width;
+    internal ImmutableArray<string> Height { get; init; } = Configuration.LogoDefaults.Height;
+    internal ImmutableArray<float> Opacity { get; init; } = Configuration.LogoDefaults.Opacity;
 }

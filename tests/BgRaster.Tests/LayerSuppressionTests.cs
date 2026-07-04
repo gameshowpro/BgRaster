@@ -74,30 +74,42 @@ public class LayerSuppressionTests
     }
 
     [Fact]
-    public void Logo_IsSuppressed_WhenWidthOrHeightIsNonPositive()
-    {
-        RenderContext zeroWidth = CreateContext(new ResolvedOptions
+        public void Logo_IsSuppressed_WhenBothDimensionsAreNonPositive()
         {
-            LogoSource = "pack://application:,,,/GameshowPro.BgRaster;component/resources/gsp.svg",
-            LogoXPx = 64f,
-            LogoYPx = 64f,
-            LogoWidthPx = 0f,
-            LogoHeightPx = 64f,
-            LogoOpacity = 1f,
-        });
-        RenderContext zeroHeight = CreateContext(new ResolvedOptions
-        {
-            LogoSource = "pack://application:,,,/GameshowPro.BgRaster;component/resources/gsp.svg",
-            LogoXPx = 64f,
-            LogoYPx = 64f,
-            LogoWidthPx = 64f,
-            LogoHeightPx = 0f,
-            LogoOpacity = 1f,
-        });
+            RenderContext zeroWidth = CreateContext(new ResolvedOptions
+            {
+                LogoSource = "pack://application:,,,/GameshowPro.BgRaster;component/resources/gsp.svg",
+                LogoXPx = 64f,
+                LogoYPx = 64f,
+                LogoWidthPx = 0f,
+                LogoHeightPx = 64f,
+                LogoOpacity = 1f,
+            });
+            RenderContext zeroHeight = CreateContext(new ResolvedOptions
+            {
+                LogoSource = "pack://application:,,,/GameshowPro.BgRaster;component/resources/gsp.svg",
+                LogoXPx = 64f,
+                LogoYPx = 64f,
+                LogoWidthPx = 64f,
+                LogoHeightPx = 0f,
+                LogoOpacity = 1f,
+            });
+            RenderContext bothZero = CreateContext(new ResolvedOptions
+            {
+                LogoSource = "pack://application:,,,/GameshowPro.BgRaster;component/resources/gsp.svg",
+                LogoXPx = 64f,
+                LogoYPx = 64f,
+                LogoWidthPx = 0f,
+                LogoHeightPx = 0f,
+                LogoOpacity = 1f,
+            });
 
-        RenderAndDetectPixels(new LogoLayer(), zeroWidth).Should().BeFalse();
-        RenderAndDetectPixels(new LogoLayer(), zeroHeight).Should().BeFalse();
-    }
+            // One dimension zero — still renders (uniform scale from the non-zero dimension)
+            RenderAndDetectPixels(new LogoLayer(), zeroWidth).Should().BeTrue();
+            RenderAndDetectPixels(new LogoLayer(), zeroHeight).Should().BeTrue();
+            // Both dimensions zero — suppressed
+            RenderAndDetectPixels(new LogoLayer(), bothZero).Should().BeFalse();
+        }
 
     static RenderContext CreateContext(ResolvedOptions options) =>
         new(

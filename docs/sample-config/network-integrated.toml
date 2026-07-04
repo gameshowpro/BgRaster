@@ -1,0 +1,60 @@
+# $schema: https://raw.githubusercontent.com/gameshowpro/BgRaster/refs/heads/main/docs/schemas/bgraster-config.schema.json
+
+[background]
+color = ["black"]
+
+[grid]
+size = "0"
+
+[circle]
+size = "0"
+
+[crosshair]
+length = "0"
+
+[text]
+x = "10vw"
+y = "20px"
+anchor-x = "left"
+anchor-y = "top"
+text-align = "left"
+format = ["${MachineName}", "Output ${OutputLetter}", "${OutputWidth} x ${OutputHeight}", "Network text integrated", "${Network}"]
+size = ["8vh", "3vh", "3vh", "3vh", "4vh"]
+color = ["#FFFFFF", "#a00000", "#00a000", "#a0a0a0"]
+
+[network]
+color = ["#00a000", "#a000a0", "#a0a0a0", "#FFFFFF"]
+size = ["2vh", "3vh", "2vh", "3vh"]
+
+[logo]
+x = "90vw"
+y = "20px"
+anchor-x = "right"
+anchor-y = "top"
+
+[labeled-edges]
+thickness = ["0"]
+
+########### Everything from here ownwards is for sample-building purposes. 
+########### Remove this is you're copying this sample to a production-ready config file.
+[render]
+no-assignment = true
+no-discovery = true
+simulate-network = true
+
+########### Everything from here ownwards is for sample-building purposes. 
+########### Remove this is you're copying this sample to a production-ready config file.
+[[output]]
+target = 0
+
+[output.hardware_output]
+index = 0
+desktopX = 0
+desktopY = 0
+widthPx = 640
+heightPx = 480
+dpiX = 96
+dpiY = 96
+rotation = 0
+adapterName = "FIXED"
+friendlyName = "Network Integrated"

@@ -58,7 +58,7 @@ public class LastRunWriterTests
                                 {
                                     Text = new TextOverride
                                     {
-                                        Text = ["line"],
+                                        Format = ["line"],
                                         X = "10px",
                                     },
                                     Circle = new CircleOverride

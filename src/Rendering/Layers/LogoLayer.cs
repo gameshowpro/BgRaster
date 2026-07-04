@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright © 2026 Barjonas LLC
 
+using Svg.Skia;
+
 namespace GameshowPro.BgRaster.Rendering.Layers;
 
 sealed class LogoLayer : ILayer
@@ -12,32 +14,194 @@ sealed class LogoLayer : ILayer
         if (LayerSuppression.ShouldSuppressLogo(context.Options))
             return;
 
-        float centerX = context.CanvasOffsetX + context.Options.LogoXPx;
-        float centerY = context.CanvasOffsetY + context.Options.LogoYPx;
-        float w = context.Options.LogoWidthPx;
-        float h = context.Options.LogoHeightPx;
+        float anchorX = TextLayer.ParseAnchorX(context.Options.LogoAnchorX);
+        float anchorY = TextLayer.ParseAnchorY(context.Options.LogoAnchorY);
+        float cx = context.CanvasOffsetX + context.Options.LogoXPx;
+        float cy = context.CanvasOffsetY + context.Options.LogoYPx;
+        float targetWidth = context.Options.LogoWidthPx;
+        float targetHeight = context.Options.LogoHeightPx;
 
-        SKRect fitRect = CreateFitRect(centerX, centerY, w, h);
+        string source = context.Options.LogoSource;
         byte alpha = (byte)(Math.Clamp(context.Options.LogoOpacity, 0f, 1f) * 255f);
         bool useDarkTheme = IsDarkBackground(context.Options.BackgroundColor);
 
-        string source = context.Options.LogoSource;
-
-        // Try to render SVG first (includes pack URIs and file paths)
-        if (TryRenderSvgLogo(source, canvas, fitRect, alpha, useDarkTheme))
+        if (!string.IsNullOrEmpty(source) && TryRenderSvgLogo(source, canvas, cx, cy, targetWidth, targetHeight, anchorX, anchorY, alpha, useDarkTheme))
             return;
 
-        // Try bitmap second
-        if (TryRenderBitmapLogo(source, canvas, fitRect, alpha))
+        if (!string.IsNullOrEmpty(source) && TryRenderBitmapLogo(source, canvas, cx, cy, targetWidth, targetHeight, anchorX, anchorY, alpha))
             return;
 
-        // Fallback to embedded logo on failure
         Console.WriteLine($"LogoLayer: status=logo-fallback-used source=\"{source}\"");
-        RenderDefaultSvgLogo(canvas, fitRect, alpha, useDarkTheme);
+        RenderDefaultSvgLogo(canvas, cx, cy, targetWidth, targetHeight, anchorX, anchorY, alpha, useDarkTheme);
     }
 
-    internal static SKRect CreateFitRect(float centerX, float centerY, float width, float height) =>
-        SKRect.Create(centerX - (width / 2f), centerY - (height / 2f), width, height);
+    static bool TryRenderSvgLogo(string source, SKCanvas canvas, float cx, float cy, float targetWidth, float targetHeight, float anchorX, float anchorY, byte alpha, bool useDarkTheme)
+    {
+        Stream? svgStream = null;
+        try
+        {
+            if (!TryOpenSvgLogoStream(source, out svgStream) || svgStream is null)
+                return false;
+
+            SKSvg svg = new();
+            svg.Load(svgStream);
+            if (svg.Picture is null) return false;
+
+            SKRect svgBounds = svg.Picture.CullRect;
+            if (svgBounds.Width <= 0 || svgBounds.Height <= 0) return false;
+
+            (float renderW, float renderH, float scaleX, float scaleY, float offsetX, float offsetY) =
+                ComputeRender(targetWidth, targetHeight, svgBounds.Width, svgBounds.Height, anchorX, anchorY);
+
+            canvas.Save();
+            canvas.Translate(cx + offsetX, cy + offsetY);
+            canvas.Scale(scaleX, scaleY);
+
+            if (alpha < 255)
+            {
+                using SKPaint layerPaint = new() { Color = SKColors.White.WithAlpha(alpha) };
+                canvas.SaveLayer(layerPaint);
+                canvas.DrawPicture(svg.Picture);
+                canvas.Restore();
+            }
+            else
+            {
+                canvas.DrawPicture(svg.Picture);
+            }
+
+            canvas.Restore();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+        finally
+        {
+            svgStream?.Dispose();
+        }
+    }
+
+    static bool TryRenderBitmapLogo(string source, SKCanvas canvas, float cx, float cy, float targetWidth, float targetHeight, float anchorX, float anchorY, byte alpha)
+    {
+        SKBitmap? bitmap = null;
+        try
+        {
+            string bitmapSource = source;
+            if (Uri.TryCreate(source, UriKind.Absolute, out Uri? uri))
+            {
+                if (!uri.IsFile)
+                    return false;
+                bitmapSource = uri.LocalPath;
+            }
+
+            bitmap = SKBitmap.Decode(bitmapSource);
+            if (bitmap is null) return false;
+
+            (float renderW, float renderH, float scaleX, float scaleY, float offsetX, float offsetY) =
+                ComputeRender(targetWidth, targetHeight, bitmap.Width, bitmap.Height, anchorX, anchorY);
+
+            SKRect destRect = SKRect.Create(cx + offsetX, cy + offsetY, renderW, renderH);
+            using SKPaint paint = new() { IsAntialias = true };
+            paint.Color = paint.Color.WithAlpha(alpha);
+            canvas.DrawBitmap(bitmap, destRect, SKSamplingOptions.Default, paint);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+        finally
+        {
+            bitmap?.Dispose();
+        }
+    }
+
+    static void RenderDefaultSvgLogo(SKCanvas canvas, float cx, float cy, float targetWidth, float targetHeight, float anchorX, float anchorY, byte alpha, bool useDarkTheme)
+    {
+        using Stream svgStream = OpenEmbeddedDefaultLogoStream();
+        SKSvg svg = new();
+        svg.Load(svgStream);
+        if (svg.Picture is null)
+            throw new InvalidOperationException("Embedded default logo SVG failed to load.");
+
+        SKRect svgBounds = svg.Picture.CullRect;
+        if (svgBounds.Width <= 0 || svgBounds.Height <= 0)
+            throw new InvalidOperationException("Embedded default logo SVG has zero-size bounds.");
+
+        (float renderW, float renderH, float scaleX, float scaleY, float offsetX, float offsetY) =
+            ComputeRender(targetWidth, targetHeight, svgBounds.Width, svgBounds.Height, anchorX, anchorY);
+
+        canvas.Save();
+        canvas.Translate(offsetX, offsetY);
+        canvas.Scale(scaleX, scaleY);
+
+        if (alpha < 255)
+        {
+            using SKPaint layerPaint = new() { Color = SKColors.White.WithAlpha(alpha) };
+            canvas.SaveLayer(layerPaint);
+            canvas.DrawPicture(svg.Picture);
+            canvas.Restore();
+        }
+        else
+        {
+            canvas.DrawPicture(svg.Picture);
+        }
+
+        canvas.Restore();
+    }
+
+    /// <summary>
+    /// Computes render dimensions and transforms.
+    /// - If both targetWidth and targetHeight are set (>0): best-fit inside the rectangle.
+    /// - If only one is set: the other is computed from the source's natural aspect ratio.
+    /// - If neither is set: source renders at its natural pixel size.
+    /// </summary>
+    static (float renderW, float renderH, float scaleX, float scaleY, float offsetX, float offsetY)
+        ComputeRender(float targetWidth, float targetHeight, float naturalW, float naturalH, float anchorX, float anchorY)
+    {
+        float scaleX, scaleY, renderW, renderH;
+
+        if (targetWidth > 0 && targetHeight > 0)
+        {
+            // Both set: best-fit inside the rectangle
+            float scale = MathF.Min(targetWidth / naturalW, targetHeight / naturalH);
+            scaleX = scale;
+            scaleY = scale;
+            renderW = naturalW * scale;
+            renderH = naturalH * scale;
+        }
+        else if (targetWidth > 0)
+        {
+            // Width only: scale proportionally
+            scaleX = targetWidth / naturalW;
+            scaleY = scaleX;
+            renderW = targetWidth;
+            renderH = naturalH * scaleY;
+        }
+        else if (targetHeight > 0)
+        {
+            // Height only: scale proportionally
+            scaleY = targetHeight / naturalH;
+            scaleX = scaleY;
+            renderW = naturalW * scaleX;
+            renderH = targetHeight;
+        }
+        else
+        {
+            // Neither set: natural size
+            scaleX = 1f;
+            scaleY = 1f;
+            renderW = naturalW;
+            renderH = naturalH;
+        }
+
+        // Position anchored rect
+        float offsetX = -(renderW * anchorX);
+        float offsetY = -(renderH * anchorY);
+
+        return (renderW, renderH, scaleX, scaleY, offsetX, offsetY);
+    }
 
     internal static bool IsDarkBackground(SKColor color)
     {
@@ -57,38 +221,10 @@ sealed class LogoLayer : ILayer
         return relativeLuminance < 0.5f;
     }
 
-    static bool TryRenderSvgLogo(string source, SKCanvas canvas, SKRect fitRect, byte alpha, bool useDarkTheme)
-    {
-        Stream? svgStream = null;
-        try
-        {
-            if (!TryOpenSvgLogoStream(source, out svgStream) || svgStream is null)
-                return false;
-
-            return SvgRenderer.TryRender(svgStream, canvas, fitRect, alpha, useDarkTheme);
-        }
-        catch
-        {
-            return false;
-        }
-        finally
-        {
-            svgStream?.Dispose();
-        }
-    }
-
-    static void RenderDefaultSvgLogo(SKCanvas canvas, SKRect fitRect, byte alpha, bool useDarkTheme)
-    {
-        using Stream svgStream = OpenEmbeddedDefaultLogoStream();
-        if (!SvgRenderer.TryRender(svgStream, canvas, fitRect, alpha, useDarkTheme))
-            throw new InvalidOperationException("Embedded default logo SVG failed to render.");
-    }
-
     static bool TryOpenSvgLogoStream(string source, out Stream? svgStream)
     {
         svgStream = null;
 
-        // Handle pack URIs: extract the resource path and load via assembly
         if (source.StartsWith("pack://application:,,,/", StringComparison.OrdinalIgnoreCase))
         {
             string resourcePath = ExtractPackUriResourcePath(source);
@@ -106,7 +242,6 @@ sealed class LogoLayer : ILayer
             return false;
         }
 
-        // Handle file paths
         if (!TryResolveSvgPath(source, out string? svgPath) || svgPath is null)
             return false;
 
@@ -116,14 +251,11 @@ sealed class LogoLayer : ILayer
 
     static string ExtractPackUriResourcePath(string packUri)
     {
-        // Format: pack://application:,,,/AssemblyName;component/path/to/resource
         int componentIndex = packUri.IndexOf(";component/", StringComparison.OrdinalIgnoreCase);
         if (componentIndex < 0)
             return string.Empty;
 
         string resourcePath = packUri[(componentIndex + ";component/".Length)..];
-        // Convert forward slashes to dots for manifest resource name matching,
-        // but drop any leading segments — we'll match by suffix.
         int lastSlash = resourcePath.LastIndexOf('/');
         return lastSlash >= 0 ? resourcePath[(lastSlash + 1)..] : resourcePath;
     }
@@ -173,49 +305,4 @@ sealed class LogoLayer : ILayer
         Stream? resourceStream = assembly.GetManifestResourceStream(resourceName);
         return resourceStream ?? throw new InvalidOperationException($"Embedded default logo resource '{resourceName}' could not be opened.");
     }
-
-    static bool TryRenderBitmapLogo(string source, SKCanvas canvas, SKRect fitRect, byte alpha)
-    {
-        SKBitmap? bitmap = null;
-        try
-        {
-            string bitmapSource = source;
-            if (Uri.TryCreate(source, UriKind.Absolute, out Uri? uri))
-            {
-                if (!uri.IsFile)
-                    return false;
-
-                bitmapSource = uri.LocalPath;
-            }
-
-            bitmap = SKBitmap.Decode(bitmapSource);
-            if (bitmap is null)
-                return false;
-
-            DrawBestFit(canvas, bitmap, fitRect, alpha);
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
-        finally
-        {
-            bitmap?.Dispose();
-        }
-    }
-
-    static void DrawBestFit(SKCanvas canvas, SKBitmap bitmap, SKRect fitRect, byte alpha)
-    {
-        float scale = MathF.Min(fitRect.Width / bitmap.Width, fitRect.Height / bitmap.Height);
-        float dw = bitmap.Width * scale;
-        float dh = bitmap.Height * scale;
-        float dx = fitRect.Left + (fitRect.Width - dw) / 2f;
-        float dy = fitRect.Top + (fitRect.Height - dh) / 2f;
-
-        using SKPaint paint = new() { IsAntialias = true };
-        paint.Color = paint.Color.WithAlpha(alpha);
-        canvas.DrawBitmap(bitmap, SKRect.Create(dx, dy, dw, dh), SKSamplingOptions.Default, paint);
-    }
-
 }

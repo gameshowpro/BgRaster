@@ -42,6 +42,7 @@ use_directory_urls: true
 edit_uri: edit/main/docs/
 exclude_docs: |
   plan.md
+  generated/*.md
 not_in_nav: |
   generated/**
 
