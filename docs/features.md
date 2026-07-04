@@ -145,9 +145,9 @@ These examples are automatically generated from sample config files at during th
 <details>
 <summary>View sample TOML</summary>
 
-`	oml
+```toml
 --8<-- "sample-config/network-integrated.toml"
-`
+```
 </details>
 
 ![Network integrated sample](generated/network-integrated_0.png)
@@ -160,9 +160,9 @@ These examples are automatically generated from sample config files at during th
 <details>
 <summary>View sample TOML</summary>
 
-`	oml
+```toml
 --8<-- "sample-config/network-separate.toml"
-`
+```
 </details>
 
 ![Network separate sample](generated/network-separate_0.png)
