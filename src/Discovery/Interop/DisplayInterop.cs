@@ -6,14 +6,14 @@ namespace GameshowPro.BgRaster.Discovery.Interop;
 internal static partial class DisplayInterop
 {
     [LibraryImport("user32.dll", EntryPoint = "EnumDisplayDevicesW",
-        SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
+        StringMarshalling = StringMarshalling.Utf16)]
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static partial bool EnumDisplayDevices(
         string? lpDevice, uint iDevNum,
         ref DISPLAY_DEVICE lpDisplayDevice, uint dwFlags);
 
     [LibraryImport("user32.dll", EntryPoint = "EnumDisplaySettingsExW",
-        SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
+        StringMarshalling = StringMarshalling.Utf16)]
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static partial bool EnumDisplaySettingsEx(
         string lpszDeviceName, uint iModeNum,

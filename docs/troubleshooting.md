@@ -96,7 +96,7 @@ The orange diagonal cross is the ultimate fallback. If you're seeing it instead 
 
 ## Stale files accumulating in the output directory
 
-`StaleFileCleaner.RecycleFiles` is currently a stub: it identifies stale BgRaster PNGs but does not yet move them to the recycle bin (see [deferred task 7](developer/future-plans.md)). They remain on disk and are reported as `unrecycledFiles` in `lastRun.toml`. You can safely delete them manually.
+BgRaster automatically sends older wallpaper PNGs to the Windows Recycle Bin after a successful run. Files that cannot be recycled (locked by another process, permission denied) are left in place and recorded as `unrecycledFiles` in `lastRun.toml` — they will be retried on the next run. You can also safely delete them manually.
 
 The "stale file" heuristic only matches files whose names follow the BgRaster timestamp pattern (`yyyy-MM-ddTHH-mm-ss.fffffffZ_<id>.png`); other files in the output directory are left alone.
 
