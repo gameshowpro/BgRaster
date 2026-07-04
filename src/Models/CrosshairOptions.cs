@@ -5,9 +5,9 @@ namespace GameshowPro.BgRaster.Models;
 
 record CrosshairOptions
 {
-    internal ImmutableArray<string> X { get; init; } = ["50vw"];
-    internal ImmutableArray<string> Y { get; init; } = ["50vh"];
-    internal ImmutableArray<string> Length { get; init; } = ["5vmin"];
-    internal ImmutableArray<string> Color { get; init; } = ["#ffffff80"];
-    internal ImmutableArray<string> Stroke { get; init; } = ["1px"];
+    internal ImmutableArray<string> X { get; init; } = Configuration.CrosshairDefaults.X;
+    internal ImmutableArray<string> Y { get; init; } = Configuration.CrosshairDefaults.Y;
+    internal ImmutableArray<string> Length { get; init; } = Configuration.CrosshairDefaults.Length;
+    internal ImmutableArray<string> Color { get; init; } = Configuration.CrosshairDefaults.Color;
+    internal ImmutableArray<string> Stroke { get; init; } = Configuration.CrosshairDefaults.Stroke;
 }

@@ -5,11 +5,11 @@ namespace GameshowPro.BgRaster.Models;
 
 record GridOptions
 {
-    internal ImmutableArray<string> Size { get; init; } = ["100px"];
-    internal ImmutableArray<string> OddColor { get; init; } = ["#00000080"];
-    internal ImmutableArray<string> EvenColor { get; init; } = ["transparent"];
-    internal ImmutableArray<string> Stroke { get; init; } = ["0"];
-    internal ImmutableArray<string> OffsetX { get; init; } = ["0"];
-    internal ImmutableArray<string> OffsetY { get; init; } = ["0"];
-    internal ImmutableArray<bool> Coordinates { get; init; } = [false];
+    internal ImmutableArray<string> Size { get; init; } = Configuration.GridDefaults.Size;
+    internal ImmutableArray<string> OddColor { get; init; } = Configuration.GridDefaults.OddColor;
+    internal ImmutableArray<string> EvenColor { get; init; } = Configuration.GridDefaults.EvenColor;
+    internal ImmutableArray<string> Stroke { get; init; } = Configuration.GridDefaults.Stroke;
+    internal ImmutableArray<string> OffsetX { get; init; } = Configuration.GridDefaults.OffsetX;
+    internal ImmutableArray<string> OffsetY { get; init; } = Configuration.GridDefaults.OffsetY;
+    internal ImmutableArray<bool> Coordinates { get; init; } = Configuration.GridDefaults.Coordinates;
 }

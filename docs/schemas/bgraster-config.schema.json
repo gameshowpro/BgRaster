@@ -5,11 +5,6 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
-    "machine-name": {
-      "type": "string",
-      "default": "",
-      "description": "Override the framework-supplied host name used by ${MachineName} substitutions. Empty uses Environment.MachineName."
-    },
     "text": {
       "$ref": "./bgraster-common.schema.json#/definitions/textTable"
     },
@@ -36,6 +31,9 @@
     },
     "output": {
       "$ref": "./bgraster-common.schema.json#/definitions/outputList"
+    },
+    "network": {
+      "$ref": "./bgraster-common.schema.json#/definitions/networkTable"
     }
   },
   "x-bgraster": {
@@ -48,23 +46,23 @@
         "valueSyntax": "<name>",
         "typeName": "string",
         "parseKind": "string",
-        "tomlEquivalent": "machine-name",
-        "tomlPath": "machine-name",
+        "tomlEquivalent": "[render].machine-name",
+        "tomlPath": "[render].machine-name",
         "surface": "both",
         "description": "Override the framework-supplied host name used by ${MachineName} substitutions.",
         "defaultResolution": "if omitted, searches for config.toml in this order: next to the executable, %ProgramData%\\BgRaster, %LocalAppData%\\BgRaster, %AppData%\\BgRaster; if none exist, starts from built-in defaults."
       },
       {
-        "key": "text",
-        "alias": "--text",
+        "key": "text-format",
+        "alias": "--text-format",
         "valueSyntax": "<s|[\"s1\",\"s2\"]>",
         "typeName": "string",
         "parseKind": "string",
-        "tomlEquivalent": "[text].text",
-        "tomlPath": "[text].text",
+        "tomlEquivalent": "[text].format",
+        "tomlPath": "[text].format",
         "surface": "both",
         "description": "Text line(s); accepts a single string or a TOML string array literal.",
-        "defaultResolution": "if omitted, defers to config.toml [text].text; if missing there, uses [\"${MachineName} output ${OutputIndexPlusOne}\", \"slice ${SliceLetter}\", \"${SliceWidth}x${SliceHeight}\"]."
+        "defaultResolution": "if omitted, defers to config.toml [text].format; if missing there, uses [\"${MachineName} output ${OutputIndexPlusOne}\", \"slice ${SliceLetter}\", \"${SliceWidth}x${SliceHeight}\"]."
       },
       {
         "key": "text-size",
@@ -427,6 +425,30 @@
         "defaultResolution": "if omitted, defers to config.toml [logo].y; if missing there, uses [\"15vh\"]."
       },
       {
+        "key": "logo-anchor-x",
+        "alias": "--logo-anchor-x",
+        "valueSyntax": "<string>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[logo].anchor-x",
+        "tomlPath": "[logo].anchor-x",
+        "surface": "both",
+        "description": "Anchor X.",
+        "defaultResolution": "if omitted, defers to config.toml [logo].anchor-x; if missing there, uses [\"center\"]."
+      },
+      {
+        "key": "logo-anchor-y",
+        "alias": "--logo-anchor-y",
+        "valueSyntax": "<string>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[logo].anchor-y",
+        "tomlPath": "[logo].anchor-y",
+        "surface": "both",
+        "description": "Anchor Y.",
+        "defaultResolution": "if omitted, defers to config.toml [logo].anchor-y; if missing there, uses [\"center\"]."
+      },
+      {
         "key": "logo-width",
         "alias": "--logo-width",
         "valueSyntax": "<dim>",
@@ -507,7 +529,7 @@
         "tomlEquivalent": "[render].output",
         "tomlPath": "[render].output",
         "surface": "both",
-        "description": "Output path template (directory + filename stem) for generated PNGs. Supports {now}, {index}, {friendlyName} tokens. Relative CLI paths resolve against the current working directory.",
+        "description": "Output path template (directory + filename stem) for generated PNGs. `${ }` field substitution tokens and `{now}`, `{index}`, `{friendlyName}` file-naming tokens are both supported. Relative CLI paths resolve against the current working directory.",
         "defaultResolution": "if omitted, defers to config.toml [render].output; if missing there, defaults to %TEMP%/BgRaster/{now}_{index}."
       },
       {
@@ -533,6 +555,126 @@
         "surface": "both",
         "description": "Logging verbosity: quiet, normal, verbose.",
         "defaultResolution": "if omitted, defers to config.toml [render].verbosity; if missing there, uses \"normal\"."
+      },
+      {
+        "key": "network-render",
+        "alias": "--network-render",
+        "valueSyntax": "<bool>",
+        "typeName": "bool",
+        "parseKind": "nullable-bool",
+        "tomlEquivalent": "[network].render",
+        "tomlPath": "[network].render",
+        "surface": "both",
+        "description": "Set to true to enable the dedicated network block.",
+        "defaultResolution": "if omitted, defers to config.toml [network].render; if missing there, uses false."
+      },
+      {
+        "key": "network-require-adapter-type",
+        "alias": "--network-require-adapter-type",
+        "valueSyntax": "<s|[\"s1\",\"s2\"]>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[network].require_adapter_type",
+        "tomlPath": "[network].require_adapter_type",
+        "surface": "both",
+        "description": "Adapter types to include. Accepts a single string or a TOML string array literal.",
+        "defaultResolution": "if omitted, defers to config.toml [network].require_adapter_type; if missing there, uses [\"Wireless80211\", \"Ethernet\"]."
+      },
+      {
+        "key": "network-require-up",
+        "alias": "--network-require-up",
+        "valueSyntax": "<bool>",
+        "typeName": "bool",
+        "parseKind": "nullable-bool",
+        "tomlEquivalent": "[network].require_up",
+        "tomlPath": "[network].require_up",
+        "surface": "both",
+        "description": "If true, interfaces that are down will be dropped.",
+        "defaultResolution": "if omitted, defers to config.toml [network].require_up; if missing there, uses true."
+      },
+      {
+        "key": "network-require-family",
+        "alias": "--network-require-family",
+        "valueSyntax": "<family>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[network].require_family",
+        "tomlPath": "[network].require_family",
+        "surface": "both",
+        "description": "IP address family filter: IPv4, IPv6, or empty for both.",
+        "defaultResolution": "if omitted, defers to config.toml [network].require_family; if missing there, uses \"IPv4\"."
+      },
+      {
+        "key": "network-adapter-format",
+        "alias": "--network-adapter-format",
+        "valueSyntax": "<format>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[network].adapter_format",
+        "tomlPath": "[network].adapter_format",
+        "surface": "both",
+        "description": "Format string for each network adapter entry.",
+        "defaultResolution": "if omitted, defers to config.toml [network].adapter_format; if missing there, uses ${Name}<br>${MacAddress}<br>${Speed}<br>${IpAddresses}<br><br>."
+      },
+      {
+        "key": "network-ip-address-format",
+        "alias": "--network-ip-address-format",
+        "valueSyntax": "<format>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[network].ip_address_format",
+        "tomlPath": "[network].ip_address_format",
+        "surface": "both",
+        "description": "Format string for each IP address entry.",
+        "defaultResolution": "if omitted, defers to config.toml [network].ip_address_format; if missing there, uses ' ${Address}/${CidrBits} (${Origin})\\n'."
+      },
+      {
+        "key": "network-x",
+        "alias": "--network-x",
+        "valueSyntax": "<unit>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[network].x",
+        "tomlPath": "[network].x",
+        "surface": "both",
+        "description": "X position of the network block.",
+        "defaultResolution": "if omitted, defers to config.toml [network].x"
+      },
+      {
+        "key": "network-y",
+        "alias": "--network-y",
+        "valueSyntax": "<unit>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[network].y",
+        "tomlPath": "[network].y",
+        "surface": "both",
+        "description": "Y position of the network block.",
+        "defaultResolution": "if omitted, defers to config.toml [network].y"
+      },
+      {
+        "key": "network-size",
+        "alias": "--network-size",
+        "valueSyntax": "<unit>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[network].size",
+        "tomlPath": "[network].size",
+        "surface": "both",
+        "description": "Text sizes for the network block.",
+        "defaultResolution": "if omitted, defers to config.toml [network].size"
+      },
+      {
+        "key": "network-color",
+        "alias": "--network-color",
+        "valueSyntax": "<color>",
+        "typeName": "string",
+        "parseKind": "string",
+        "tomlEquivalent": "[network].color",
+        "tomlPath": "[network].color",
+        "surface": "both",
+        "description": "Text colors for the network block.",
+        "defaultResolution": "if omitted, defers to config.toml [network].color"
       }
     ],
     "cliOnlyOptions": [
@@ -552,27 +694,63 @@
     "tomlReference": {
       "appendix": {
         "units": [
-          { "suffix": "px", "meaning": "Pixels (literal)." },
-          { "suffix": "vw", "meaning": "1 % of viewport width." },
-          { "suffix": "vh", "meaning": "1 % of viewport height." },
-          { "suffix": "vmin", "meaning": "1 % of min(width, height)." },
-          { "suffix": "vmax", "meaning": "1 % of max(width, height)." }
+          {
+            "suffix": "px",
+            "meaning": "Pixels (literal)."
+          },
+          {
+            "suffix": "vw",
+            "meaning": "1 % of viewport width."
+          },
+          {
+            "suffix": "vh",
+            "meaning": "1 % of viewport height."
+          },
+          {
+            "suffix": "vmin",
+            "meaning": "1 % of min(width, height)."
+          },
+          {
+            "suffix": "vmax",
+            "meaning": "1 % of max(width, height)."
+          }
         ],
         "colors": [
-          { "format": "6-digit hex", "example": "#FF8800" },
-          { "format": "8-digit hex with alpha", "example": "#FF8800CC" },
-          { "format": "rgb(r, g, b)", "example": "rgb(255, 136, 0)" },
-          { "format": "rgba(r, g, b, a)", "example": "rgba(255, 136, 0, 0.8)" },
-          { "format": "hsl(h, s%, l%)", "example": "hsl(30, 100%, 50%)" },
-          { "format": "hsla(h, s%, l%, a)", "example": "hsla(30, 100%, 50%, 0.8)" },
-          { "format": "keyword", "example": "transparent" }
+          {
+            "format": "6-digit hex",
+            "example": "#FF8800"
+          },
+          {
+            "format": "8-digit hex with alpha",
+            "example": "#FF8800CC"
+          },
+          {
+            "format": "rgb(r, g, b)",
+            "example": "rgb(255, 136, 0)"
+          },
+          {
+            "format": "rgba(r, g, b, a)",
+            "example": "rgba(255, 136, 0, 0.8)"
+          },
+          {
+            "format": "hsl(h, s%, l%)",
+            "example": "hsl(30, 100%, 50%)"
+          },
+          {
+            "format": "hsla(h, s%, l%, a)",
+            "example": "hsla(30, 100%, 50%, 0.8)"
+          },
+          {
+            "format": "keyword",
+            "example": "transparent"
+          }
         ],
         "substitutionTokens": [
           {
             "machineScoped": "${MachineName}",
             "outputScoped": "${OutputName}",
             "sliceScoped": "",
-            "description": "Configured machine name when set, otherwise Environment.MachineName."
+            "description": "Machine-level: configured machine name (Environment.MachineName fallback). Output-level: friendly output name from display discovery or `hardware_output.friendlyName`."
           },
           {
             "machineScoped": "",
@@ -609,6 +787,12 @@
             "outputScoped": "${OutputLetterMinusOne}",
             "sliceScoped": "${SliceLetterMinusOne}",
             "description": "Alphabetic index with the first position rendered as #."
+          },
+          {
+            "machineScoped": "${Network}",
+            "outputScoped": "",
+            "sliceScoped": "",
+            "description": "Network adapter information -- IPs, MACs, speeds, names. Configurable via [network] section."
           }
         ]
       }

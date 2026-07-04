@@ -378,15 +378,9 @@ public sealed class CliMetadataGenerator : IIncrementalGenerator
             && typeNode.ValueKind == JsonValueKind.String
             && string.Equals(typeNode.GetString(), "array", StringComparison.Ordinal)
             && node.TryGetProperty("items", out JsonElement itemsNode)
-            && itemsNode.ValueKind == JsonValueKind.Object
-            && itemsNode.TryGetProperty("enum", out JsonElement itemEnum)
-            && itemEnum.ValueKind == JsonValueKind.Array)
+            && itemsNode.ValueKind == JsonValueKind.Object)
         {
-            foreach (JsonElement value in itemEnum.EnumerateArray())
-            {
-                values.Add(GetEnumValueText(value));
-            }
-
+            values.AddRange(GetEnumValues(itemsNode));
             return values;
         }
 
@@ -394,14 +388,20 @@ public sealed class CliMetadataGenerator : IIncrementalGenerator
         {
             foreach (JsonElement candidate in oneOfNode.EnumerateArray())
             {
-                if (candidate.ValueKind == JsonValueKind.Object
-                    && candidate.TryGetProperty("enum", out JsonElement candidateEnum)
-                    && candidateEnum.ValueKind == JsonValueKind.Array)
+                if (candidate.ValueKind == JsonValueKind.Object)
                 {
-                    foreach (JsonElement value in candidateEnum.EnumerateArray())
-                    {
-                        values.Add(GetEnumValueText(value));
-                    }
+                    values.AddRange(GetEnumValues(candidate));
+                }
+            }
+        }
+        
+        if (node.TryGetProperty("anyOf", out JsonElement anyOfNode) && anyOfNode.ValueKind == JsonValueKind.Array)
+        {
+            foreach (JsonElement candidate in anyOfNode.EnumerateArray())
+            {
+                if (candidate.ValueKind == JsonValueKind.Object)
+                {
+                    values.AddRange(GetEnumValues(candidate));
                 }
             }
         }

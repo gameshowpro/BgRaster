@@ -40,7 +40,8 @@ static class FieldSubstitutor
             .Replace("${SliceIndex}", sliceIndex)
             .Replace("${SliceLetter}", sliceLetter)
             .Replace("${SliceLetterMinusOne}", sliceLetterMinusOne)
-            .Replace("${OutputName}", ctx.OutputName);
+            .Replace("${OutputName}", ctx.OutputName)
+            .Replace("${Network}", "\0NETWORK\0");
 
         return result;
     }

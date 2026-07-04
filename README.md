@@ -135,4 +135,4 @@ Hi, I'm Hamish Barjonas. I provide custom solutions for the broadcast producion,
 
 ## License
 
-[MIT](./LICENSE).
+This project is licensed under the [MIT License](./LICENSE).

@@ -15,38 +15,75 @@ sealed class TextLayer : ILayer
 
         float cx = context.CanvasOffsetX + context.Options.TextXPx;
         float cy = context.CanvasOffsetY + context.Options.TextYPx;
+        SKTextAlign align = ParseTextAlign(context.Options.TextTextAlign);
+        float anchorX = ParseAnchorX(context.Options.TextAnchorX);
+        float anchorY = ParseAnchorY(context.Options.TextAnchorY);
 
-        ImmutableArray<(string Text, float SizePx, SKColor Color)> lines =
-        [
-            .. context.Options.TextLines
-                .Select((line, index) => (
-                    Text: line,
-                    SizePx: context.Options.TextSizesPx[index % context.Options.TextSizesPx.Length],
-                    Color: context.Options.TextColors[index % context.Options.TextColors.Length]))
-                .Where(line => !string.IsNullOrWhiteSpace(line.Text) && line.SizePx > 0f)
-        ];
+        const string networkMarker = "\0NETWORK\0";
+
+        ImmutableArray<(string Text, float SizePx, SKColor Color)>.Builder linesBuilder = 
+            ImmutableArray.CreateBuilder<(string Text, float SizePx, SKColor Color)>();
+
+        int networkLineIndex = 0;
+
+        for (int i = 0; i < context.Options.TextLines.Length; i++)
+        {
+            string originalLine = context.Options.TextLines[i];
+            float size = context.Options.TextSizesPx[i % context.Options.TextSizesPx.Length];
+            SKColor color = context.Options.TextColors[i % context.Options.TextColors.Length];
+
+            if (size > 0f)
+            {
+                string[] subLines = originalLine.Split(new[] { "\n", "<br>" }, StringSplitOptions.None);
+                for (int j = 0; j < subLines.Length; j++)
+                {
+                    string subLine = subLines[j];
+                    // Don't add the trailing empty string if the original text ends with a newline
+                    if (j == subLines.Length - 1 && string.IsNullOrEmpty(subLine) && j > 0)
+                        continue;
+
+                    if (subLine.Contains(networkMarker))
+                    {
+                        string[] parts = subLine.Split(new[] { networkMarker }, 2, StringSplitOptions.None);
+                        if (!string.IsNullOrEmpty(parts[0]))
+                            linesBuilder.Add((parts[0], size, color));
+
+                        NetworkLayer.BuildNetworkLines(context.Options, ref networkLineIndex, linesBuilder);
+
+                        if (parts.Length > 1 && !string.IsNullOrEmpty(parts[1]))
+                            linesBuilder.Add((parts[1], size, color));
+                    }
+                    else
+                    {
+                        linesBuilder.Add((subLine, size, color));
+                    }
+                }
+            }
+        }
+        
+        ImmutableArray<(string Text, float SizePx, SKColor Color)> lines = linesBuilder.ToImmutable();
 
         if (lines.Length == 0)
             return;
 
-        ImmutableArray<(string Text, float SizePx, SKColor Color, float AscentPx, float DescentPx)>.Builder metricsBuilder =
-            ImmutableArray.CreateBuilder<(string Text, float SizePx, SKColor Color, float AscentPx, float DescentPx)>(lines.Length);
+        ImmutableArray<(string Text, float SizePx, SKColor Color, float AscentPx, float DescentPx, float WidthPx)>.Builder metricsBuilder =
+            ImmutableArray.CreateBuilder<(string Text, float SizePx, SKColor Color, float AscentPx, float DescentPx, float WidthPx)>(lines.Length);
         foreach ((string text, float sizePx, SKColor color) in lines)
         {
             using SKFont metricsFont = new(FontManager.Typeface, sizePx);
             SKFontMetrics metrics = metricsFont.Metrics;
-            metricsBuilder.Add((text, sizePx, color, metrics.Ascent, metrics.Descent));
+            metricsBuilder.Add((text, sizePx, color, metrics.Ascent, metrics.Descent, metricsFont.MeasureText(text)));
         }
 
-        ImmutableArray<(string Text, float SizePx, SKColor Color, float AscentPx, float DescentPx)> measuredLines =
+        ImmutableArray<(string Text, float SizePx, SKColor Color, float AscentPx, float DescentPx, float WidthPx)> measuredLines =
             metricsBuilder.ToImmutable();
 
         ImmutableArray<float>.Builder baselineOffsetsBuilder = ImmutableArray.CreateBuilder<float>(measuredLines.Length);
         baselineOffsetsBuilder.Add(0f);
         for (int index = 1; index < measuredLines.Length; index++)
         {
-            (string _, float topSizePx, SKColor _, float _, float topDescentPx) = measuredLines[index - 1];
-            (string _, float bottomSizePx, SKColor _, float bottomAscentPx, float _) = measuredLines[index];
+            (string _, float topSizePx, SKColor _, float _, float topDescentPx, float _) = measuredLines[index - 1];
+            (string _, float bottomSizePx, SKColor _, float bottomAscentPx, float _, float _) = measuredLines[index];
 
             float advance = ComputeBaselineAdvance(
                 topSizePx,
@@ -62,20 +99,33 @@ sealed class TextLayer : ILayer
 
         float blockTop = float.PositiveInfinity;
         float blockBottom = float.NegativeInfinity;
+        float blockWidth = 0f;
         for (int index = 0; index < measuredLines.Length; index++)
         {
-            (string _, float _, SKColor _, float ascentPx, float descentPx) = measuredLines[index];
+            (string _, float _, SKColor _, float ascentPx, float descentPx, float widthPx) = measuredLines[index];
             float baseline = baselineOffsets[index];
 
             blockTop = Math.Min(blockTop, baseline + ascentPx);
             blockBottom = Math.Max(blockBottom, baseline + descentPx);
+            blockWidth = Math.Max(blockWidth, widthPx);
         }
 
-        float baselineShift = cy - ((blockTop + blockBottom) / 2f);
+        float blockHeight = blockBottom - blockTop;
+        float anchorPointOffset = blockTop + (blockHeight * anchorY);
+        float baselineShift = cy - anchorPointOffset;
+
+        float blockLeft = cx - (blockWidth * anchorX);
+        float drawX = align switch
+        {
+            SKTextAlign.Left => blockLeft,
+            SKTextAlign.Center => blockLeft + (blockWidth / 2f),
+            SKTextAlign.Right => blockLeft + blockWidth,
+            _ => blockLeft
+        };
 
         for (int index = 0; index < measuredLines.Length; index++)
         {
-            (string text, float sizePx, SKColor color, float _, float _) = measuredLines[index];
+            (string text, float sizePx, SKColor color, float _, float _, float _) = measuredLines[index];
             float y = baselineOffsets[index] + baselineShift;
 
             using SKFont font = new(FontManager.Typeface, sizePx);
@@ -85,7 +135,7 @@ sealed class TextLayer : ILayer
                 IsAntialias = true,
             };
 
-            canvas.DrawText(text, cx, y, SKTextAlign.Center, font, paint);
+            canvas.DrawText(text, drawX, y, align, font, paint);
         }
     }
 
@@ -101,4 +151,27 @@ sealed class TextLayer : ILayer
         float collisionAdvance = topDescentPx + (-bottomAscentPx) + collisionGapPx;
         return Math.Max(opticalAdvance, collisionAdvance);
     }
+
+    internal static SKTextAlign ParseTextAlign(string justify) => justify?.ToLowerInvariant() switch
+    {
+        "left" or "start" => SKTextAlign.Left,
+        "right" or "end" => SKTextAlign.Right,
+        _ => SKTextAlign.Center,
+    };
+
+    internal static float ParseAnchorX(string anchor) => anchor?.ToLowerInvariant() switch
+    {
+        "left" or "start" => 0.0f,
+        "right" or "end" => 1.0f,
+        "center" => 0.5f,
+        _ => float.TryParse(anchor, out float f) ? f : 0.5f,
+    };
+
+    internal static float ParseAnchorY(string anchor) => anchor?.ToLowerInvariant() switch
+    {
+        "top" or "start" => 0.0f,
+        "bottom" or "end" or "middle" => 1.0f,
+        "center" => 0.5f,
+        _ => float.TryParse(anchor, out float f) ? f : 0.5f,
+    };
 }

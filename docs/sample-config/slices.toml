@@ -1,8 +1,7 @@
-﻿# $schema: https://raw.githubusercontent.com/gameshowpro/BgRaster/refs/heads/main/docs/schemas/bgraster-config.schema.json
-machine-name = "SAMPLE_MACHINE"
+# $schema: https://raw.githubusercontent.com/gameshowpro/BgRaster/refs/heads/main/docs/schemas/bgraster-config.schema.json
 
 [text]
-text = ["${MachineName} output ${OutputIndexPlusOne}", "slice ${SliceLetterMinusOne}", "${SliceWidth}x${SliceHeight}"]
+format = ["${MachineName} output ${OutputIndexPlusOne}", "slice ${SliceLetterMinusOne}", "${SliceWidth}x${SliceHeight}"]
 size = ["16px", "12px", "14px"]
 x = ["50vw"]
 y = ["50vh"]
@@ -20,10 +19,15 @@ y = "50vh"
 width = "40vw"
 height = "50vh"
 
+########### Everything from here ownwards is for sample-building purposes. 
+########### Remove this is you're copying this sample to a production-ready config file.
 [render]
+machine-name = "SAMPLE_MACHINE"
 force = true
 verbosity = "verbose"
 
+########### Everything from here ownwards is for sample-building purposes. 
+########### Remove this is you're copying this sample to a production-ready config file.
 [[output]]
 target = 0
 

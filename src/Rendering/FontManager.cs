@@ -26,7 +26,11 @@ static partial class FontManager
             ?? throw new InvalidOperationException(
                 $"Embedded font resource '{resourceName}' could not be opened.");
 
-        return SKTypeface.FromStream(stream)
+        byte[] fontBytes = new byte[stream.Length];
+        stream.ReadExactly(fontBytes);
+
+        using SKData data = SKData.CreateCopy(fontBytes);
+        return SKTypeface.FromData(data)
             ?? throw new InvalidOperationException(
                 $"Embedded font resource '{resourceName}' could not be loaded as a typeface.");
     }

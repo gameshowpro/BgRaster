@@ -27,8 +27,9 @@ static class ConfiguredPathResolver
             return value ?? string.Empty;
 
         string substituted = substitutionContext is null
-            ? value
-            : FieldSubstitutor.Substitute(value, substitutionContext);
+                    ? value
+                    : FieldSubstitutor.Substitute(value, substitutionContext)
+                        .Replace("\0NETWORK\0", "");
 
         return NormalizeExpandedPath(substituted, baseDirectory);
     }

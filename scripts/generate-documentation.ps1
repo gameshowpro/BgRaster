@@ -116,6 +116,9 @@ try {
                 $pathNode = Resolve-TomlPathSchemaNode -TomlPath $tomlPath -ConfigSchema $Schema -CommonSchema $CommonSchema
                 $enumSuffix = Get-EnumDescriptionSuffix -PrimaryNode $pathNode -ResolvedNode $pathNode
                 if (-not [string]::IsNullOrWhiteSpace($enumSuffix)) {
+                    if (-not $description.EndsWith('.', [StringComparison]::Ordinal)) {
+                        $description += '.'
+                    }
                     $description = ('{0}{1}' -f $description, $enumSuffix)
                 }
             }
@@ -123,31 +126,6 @@ try {
             $defaultResolution = if ([string]::IsNullOrWhiteSpace([string]$option.defaultResolution)) { '-' } else { [string]$option.defaultResolution }
 
             $lines += ('| `{0}` | `{1}` | `{2}` | {3} | {4} |' -f $optionSyntax, $typeName, $tomlEquivalent, $description, $defaultResolution)
-        }
-
-        return $lines -join "`n"
-    }
-
-    function ConvertTo-TomlRootScalarsTable {
-        param([object]$Schema)
-
-        $lines = @(
-            '| Key | Type | Default | Description |',
-            '|---|---|---|---|'
-        )
-
-        foreach ($entry in $Schema.properties.PSObject.Properties) {
-            $value = $entry.Value
-            if ($value.PSObject.Properties.Name -contains '$ref') {
-                continue
-            }
-
-            if ($value.type -in @('object', 'array')) {
-                continue
-            }
-
-            $defaultValue = ($value.default | ConvertTo-Json -Compress)
-            $lines += ('| `{0}` | `{1}` | `{2}` | {3} |' -f $entry.Name, ($value.type ?? '-'), $defaultValue, $value.description)
         }
 
         return $lines -join "`n"
@@ -277,22 +255,25 @@ try {
 
         if ($Node.PSObject.Properties.Name -contains 'type' -and $Node.type -eq 'array') {
             $itemsNode = Get-OptionalPropertyValue -Node $Node -PropertyName 'items'
-            if ($null -ne $itemsNode -and $itemsNode.PSObject.Properties.Name -contains 'enum' -and $null -ne $itemsNode.enum) {
-                return @($itemsNode.enum)
+            if ($null -ne $itemsNode) {
+                return @(Get-EnumValues -Node $itemsNode)
             }
         }
 
-        if ($Node.PSObject.Properties.Name -contains 'oneOf' -and $null -ne $Node.oneOf) {
+        if ($Node.PSObject.Properties.Name -contains 'oneOf') {
             $values = @()
-            foreach ($candidate in $Node.oneOf) {
-                if ($candidate.PSObject.Properties.Name -contains 'enum' -and $null -ne $candidate.enum) {
-                    $values += @($candidate.enum)
-                }
+            foreach ($item in $Node.oneOf) {
+                $values += @(Get-EnumValues -Node $item)
             }
+            return $values
+        }
 
-            if ($values.Count -gt 0) {
-                return $values
+        if ($Node.PSObject.Properties.Name -contains 'anyOf') {
+            $values = @()
+            foreach ($item in $Node.anyOf) {
+                $values += @(Get-EnumValues -Node $item)
             }
+            return $values
         }
 
         return @()
@@ -336,7 +317,7 @@ try {
             $formattedValues += (ConvertTo-EnumLiteral -Value $enumValue)
         }
 
-        return (' Allowed values: {0}.' -f ($formattedValues -join ', '))
+        return (' Allowed enum values: {0}.' -f ($formattedValues -join ', '))
     }
 
     function Get-SchemaTypeName {
@@ -348,7 +329,11 @@ try {
             $types = @()
             foreach ($item in $Node.oneOf) {
                 if ($item.PSObject.Properties.Name -contains 'type') {
-                    $types += [string]$item.type
+                    $typeName = [string]$item.type
+                    if ($item.PSObject.Properties.Name -contains 'enum') {
+                        $typeName = 'enum'
+                    }
+                    $types += $typeName
                 }
                 elseif ($item.PSObject.Properties.Name -contains '$ref') {
                     $types += 'object'
@@ -356,7 +341,36 @@ try {
             }
 
             if ($types.Count -eq 0) { return 'oneOf' }
-            return (($types | Select-Object -Unique) -join '|')
+            return (($types | Select-Object -Unique) -join '` or `')
+        }
+
+        if ($Node.PSObject.Properties.Name -contains 'anyOf') {
+            $types = @()
+            foreach ($item in $Node.anyOf) {
+                if ($item.PSObject.Properties.Name -contains 'type') {
+                    if ($item.type -is [array]) {
+                        foreach ($t in $item.type) { 
+                            $typeName = [string]$t
+                            if ($item.PSObject.Properties.Name -contains 'enum') {
+                                $typeName = 'enum'
+                            }
+                            $types += $typeName 
+                        }
+                    } else {
+                        $typeName = [string]$item.type
+                        if ($item.PSObject.Properties.Name -contains 'enum') {
+                            $typeName = 'enum'
+                        }
+                        $types += $typeName
+                    }
+                }
+                elseif ($item.PSObject.Properties.Name -contains '$ref') {
+                    $types += 'object'
+                }
+            }
+
+            if ($types.Count -eq 0) { return 'anyOf' }
+            return (($types | Select-Object -Unique) -join '` or `')
         }
 
         if (($Node.PSObject.Properties.Name -contains 'type') -and $Node.type -eq 'array') {
@@ -367,10 +381,16 @@ try {
                 'object'
             }
 
+            if ($itemType -match '` or `') {
+                return "($itemType)[]"
+            }
             return "${itemType}[]"
         }
 
         if ($Node.PSObject.Properties.Name -contains 'type') {
+            if ($Node.PSObject.Properties.Name -contains 'enum') {
+                return 'enum'
+            }
             return [string]$Node.type
         }
 
@@ -382,11 +402,49 @@ try {
     }
 
     function Get-DefaultLiteral {
-        param([object]$Value)
+            param([object]$Value)
 
-        if ($null -eq $Value) { return '-' }
-        return ($Value | ConvertTo-Json -Compress)
-    }
+            if ($null -eq $Value) { return '-' }
+            if ($Value -is [System.Collections.IList] -and $Value.Count -eq 0) { return '[]' }
+            return (ConvertTo-Json -InputObject $Value -Compress)
+        }
+
+        function Get-RefLinkHeading {
+            param([string]$DefinitionName, [object]$CommonSchema)
+
+            # If the definition itself has x-bgraster-doc, use its heading
+            $def = $CommonSchema.definitions.PSObject.Properties[$DefinitionName]
+            if ($def) {
+                $docMeta = Get-OptionalPropertyValue -Node $def.Value -PropertyName 'x-bgraster-doc'
+                if ($docMeta) {
+                    return [string]$docMeta.heading
+                }
+            }
+
+            # For override types, link to the corresponding main table
+            if ($DefinitionName -match '^(.+)Override$') {
+                $baseName = $Matches[1]
+                $tableName = "${baseName}Table"
+                $tableDef = $CommonSchema.definitions.PSObject.Properties[$tableName]
+                if ($tableDef) {
+                    $docMeta = Get-OptionalPropertyValue -Node $tableDef.Value -PropertyName 'x-bgraster-doc'
+                    if ($docMeta) {
+                        return [string]$docMeta.heading
+                    }
+                }
+            }
+
+            return $null
+        }
+
+        function Get-HeadingAnchor {
+            param([string]$Heading)
+            # Strip backticks, brackets, parens. Lowercase. Non-alnum → hyphen. Collapse hyphens.
+            $slug = $Heading -replace '[`\[\]()]', ''
+            $slug = $slug.ToLowerInvariant() -replace '[^a-z0-9]+', '-'
+            $slug = $slug.Trim('-')
+            return $slug
+        }
 
     function Escape-MarkdownCell {
         param([string]$Value)
@@ -482,25 +540,51 @@ try {
             }
 
             foreach ($entry in $sectionNode.properties.PSObject.Properties) {
-                $propertyName = [string]$entry.Name
-                $propertySchema = $entry.Value
-                $resolved = $propertySchema
-                if ($propertySchema.PSObject.Properties.Name -contains '$ref') {
-                    $resolved = Resolve-SchemaRefNode -Ref ([string]$propertySchema.'$ref') -ConfigSchema $ConfigSchema -CommonSchema $CommonSchema
-                }
+                            $propertyName = [string]$entry.Name
+                            $propertySchema = $entry.Value
+                            $resolved = $propertySchema
 
-                $typeName = Escape-MarkdownCell (Get-SchemaTypeName -Node $propertySchema)
-                $description = [string](Get-OptionalPropertyValue -Node $propertySchema -PropertyName 'description')
-                if ([string]::IsNullOrWhiteSpace($description)) {
-                    $description = [string](Get-OptionalPropertyValue -Node $resolved -PropertyName 'description')
-                }
+                            $typeName = Escape-MarkdownCell (Get-SchemaTypeName -Node $propertySchema)
+                            $description = [string](Get-OptionalPropertyValue -Node $propertySchema -PropertyName 'description')
+                            if ([string]::IsNullOrWhiteSpace($description)) {
+                                $description = [string](Get-OptionalPropertyValue -Node $resolved -PropertyName 'description')
+                            }
 
-                $description = ('{0}{1}' -f $description, (Get-EnumDescriptionSuffix -PrimaryNode $propertySchema -ResolvedNode $resolved))
+                            if ($propertySchema.PSObject.Properties.Name -contains '$ref') {
+                                $resolved = Resolve-SchemaRefNode -Ref ([string]$propertySchema.'$ref') -ConfigSchema $ConfigSchema -CommonSchema $CommonSchema
+
+                                # Fall back to resolved definition description if property has none
+                                if ([string]::IsNullOrWhiteSpace($description)) {
+                                    $description = [string](Get-OptionalPropertyValue -Node $resolved -PropertyName 'description')
+                                }
+
+                                # Append a link to the main definition section
+                                $refDefName = [string]$propertySchema.'$ref'
+                                $refDefName = $refDefName -replace '^#/definitions/', ''
+                                $linkHeading = Get-RefLinkHeading -DefinitionName $refDefName -CommonSchema $CommonSchema
+                                if ($linkHeading) {
+                                    $anchor = Get-HeadingAnchor -Heading $linkHeading
+                                    $linkSuffix = " See [$linkHeading](#$anchor)."
+                                    $description = if ([string]::IsNullOrWhiteSpace($description)) { $linkSuffix.TrimStart() } else { "$description$linkSuffix" }
+                                }
+                            }
+
+                $enumSuffix = Get-EnumDescriptionSuffix -PrimaryNode $propertySchema -ResolvedNode $resolved
+                if (-not [string]::IsNullOrWhiteSpace($enumSuffix)) {
+                    if (-not $description.EndsWith('.', [StringComparison]::Ordinal)) {
+                        $description += '.'
+                    }
+                    $description = ('{0}{1}' -f $description, $enumSuffix)
+                }
 
                 $description = Escape-MarkdownCell $description
 
                 if ($showDefaults) {
-                    $defaultSource = if ($propertySchema.PSObject.Properties.Name -contains 'default') { $propertySchema.default } else { $resolved.default }
+                    if ($propertySchema.PSObject.Properties.Name -contains 'default') {
+                        $defaultSource = $propertySchema.default
+                    } else {
+                        $defaultSource = $resolved.default
+                    }
                     $defaultValue = Escape-MarkdownCell (Get-DefaultLiteral -Value $defaultSource)
                     $lines += ('| `{0}` | `{1}` | `{2}` | {3} |' -f $propertyName, $typeName, $defaultValue, $description)
                 }
@@ -548,16 +632,117 @@ try {
             $lines += '| Token (machine scoped) | Token (output scoped) | Token (slice scoped) | Description |'
             $lines += '|---|---|---|---|'
             foreach ($row in $appendix.substitutionTokens) {
-                $lines += ('| `{0}` | `{1}` | `{2}` | {3} |' -f $row.machineScoped, $row.outputScoped, $row.sliceScoped, (Escape-MarkdownCell -Value ([string]$row.description)))
+                $m = if ([string]::IsNullOrEmpty($row.machineScoped)) { "" } else { ('`{0}`' -f $row.machineScoped) }
+                $o = if ([string]::IsNullOrEmpty($row.outputScoped)) { "" } else { ('`{0}`' -f $row.outputScoped) }
+                $s = if ([string]::IsNullOrEmpty($row.sliceScoped)) { "" } else { ('`{0}`' -f $row.sliceScoped) }
+                $lines += ('| {0} | {1} | {2} | {3} |' -f $m, $o, $s, (Escape-MarkdownCell -Value ([string]$row.description)))
             }
         }
 
         return $lines -join "`n"
     }
 
+    function ConvertTo-NetworkSectionsMarkdown {
+        param(
+            [object]$ConfigSchema,
+            [object]$CommonSchema
+        )
+
+        $networkDef = $CommonSchema.definitions.PSObject.Properties['networkTable']
+        if ($null -eq $networkDef) {
+            throw "networkTable definition not found in common schema."
+        }
+
+        $definition = $networkDef.Value
+        $docMetadata = Get-OptionalPropertyValue -Node $definition -PropertyName 'x-bgraster-doc'
+        if ($null -eq $docMetadata) {
+            throw "networkTable definition missing x-bgraster-doc metadata."
+        }
+
+        $sectionNode = $definition
+        $section = $docMetadata
+
+        $lines = @()
+
+        $sectionIntro = [string](Get-OptionalPropertyValue -Node $section -PropertyName 'intro')
+        $sectionDescription = [string](Get-OptionalPropertyValue -Node $sectionNode -PropertyName 'description')
+        $intro = if ([string]::IsNullOrWhiteSpace($sectionIntro)) { $sectionDescription } else { $sectionIntro }
+        if (-not [string]::IsNullOrWhiteSpace($intro)) {
+            $lines += $intro
+            $lines += ''
+        }
+
+        # Filters sub-table (first 8 properties)
+        $lines += '### Filters'
+        $lines += ''
+        $lines += '| Key | Type | Default | Description |'
+        $lines += '|---|---|---|---|'
+
+        $filterKeys = @('require_adapter_types', 'exclude_adapter_types', 'require_up', 'require_family',
+                        'require_mac_addresses', 'include_subnets', 'include_names', 'include_descriptions')
+
+        foreach ($key in $filterKeys) {
+            $entry = $sectionNode.properties.PSObject.Properties[$key]
+            if ($null -eq $entry) { continue }
+            $propertySchema = $entry.Value
+            $resolved = $propertySchema
+            if ($propertySchema.PSObject.Properties.Name -contains '$ref') {
+                $resolved = Resolve-SchemaRefNode -Ref ([string]$propertySchema.'$ref') -ConfigSchema $ConfigSchema -CommonSchema $CommonSchema
+            }
+            $typeName = Escape-MarkdownCell (Get-SchemaTypeName -Node $propertySchema)
+            $desc = [string](Get-OptionalPropertyValue -Node $propertySchema -PropertyName 'description')
+            if ([string]::IsNullOrWhiteSpace($desc)) {
+                $desc = [string](Get-OptionalPropertyValue -Node $resolved -PropertyName 'description')
+            }
+            $desc = Escape-MarkdownCell $desc
+            if ($propertySchema.PSObject.Properties.Name -contains 'default') {
+                $defaultSource = $propertySchema.default
+            } else {
+                $defaultSource = $resolved.default
+            }
+            $defaultValue = Escape-MarkdownCell (Get-DefaultLiteral -Value $defaultSource)
+            $lines += ('| `{0}` | `{1}` | `{2}` | {3} |' -f $key, $typeName, $defaultValue, $desc)
+        }
+
+        # Settings sub-table (last 2 properties)
+        $lines += ''
+        $lines += '### Settings'
+        $lines += ''
+        $lines += '| Key | Type | Default | Description |'
+        $lines += '|---|---|---|---|'
+
+        $settingKeys = @('ip_address_format', 'adapter_format')
+
+        foreach ($key in $settingKeys) {
+            $entry = $sectionNode.properties.PSObject.Properties[$key]
+            if ($null -eq $entry) { continue }
+            $propertySchema = $entry.Value
+            $resolved = $propertySchema
+            if ($propertySchema.PSObject.Properties.Name -contains '$ref') {
+                $resolved = Resolve-SchemaRefNode -Ref ([string]$propertySchema.'$ref') -ConfigSchema $ConfigSchema -CommonSchema $CommonSchema
+            }
+            $typeName = Escape-MarkdownCell (Get-SchemaTypeName -Node $propertySchema)
+            $desc = [string](Get-OptionalPropertyValue -Node $propertySchema -PropertyName 'description')
+            if ([string]::IsNullOrWhiteSpace($desc)) {
+                $desc = [string](Get-OptionalPropertyValue -Node $resolved -PropertyName 'description')
+            }
+            $desc = Escape-MarkdownCell $desc
+            if ($propertySchema.PSObject.Properties.Name -contains 'default') {
+                $defaultSource = $propertySchema.default
+            } else {
+                $defaultSource = $resolved.default
+            }
+            $defaultValue = Escape-MarkdownCell (Get-DefaultLiteral -Value $defaultSource)
+            $lines += ('| `{0}` | `{1}` | `{2}` | {3} |' -f $key, $typeName, $defaultValue, $desc)
+        }
+
+
+        return $lines -join "`n"
+    }
+
     Write-GeneratedMarkdownFile -FileName "cli-schema.md" -Content (ConvertTo-CliOptionsTable -Schema $schema -CommonSchema $commonSchema)
-    Write-GeneratedMarkdownFile -FileName "toml-root-scalars.md" -Content (ConvertTo-TomlRootScalarsTable -Schema $schema)
     Write-GeneratedMarkdownFile -FileName "toml-schema-sections.md" -Content (ConvertTo-TomlSectionsMarkdown -ConfigSchema $schema -CommonSchema $commonSchema)
+    Write-GeneratedMarkdownFile -FileName "network-sections.md" -Content (ConvertTo-NetworkSectionsMarkdown -ConfigSchema $schema -CommonSchema $commonSchema)
     Sync-BrandingAssets
 
     # Generate docs/index.md from README.md, rewriting repo-root-relative paths to docs/-relative paths.

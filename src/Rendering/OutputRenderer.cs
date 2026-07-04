@@ -19,6 +19,7 @@ sealed class OutputRenderer
     readonly LabeledEdgesLayer _labeledEdges = new();
     readonly LogoLayer _logo = new();
     readonly TextLayer _text = new();
+    readonly NetworkLayer _network = new();
 
     internal async Task<RenderOutcome> RenderOutputAsync(
         OutputRecord output, OutputOptions? outputConfig,
@@ -76,6 +77,7 @@ sealed class OutputRenderer
         _labeledEdges.Render(ctx, canvas);
         _logo.Render(ctx, canvas);
         _text.Render(ctx, canvas);
+        _network.Render(ctx, canvas);
     }
 
     static bool TryResolveSliceGeometry(OutputRecord output, SliceOptions slice,

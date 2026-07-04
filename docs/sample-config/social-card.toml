@@ -1,7 +1,7 @@
-﻿# $schema: https://raw.githubusercontent.com/gameshowpro/BgRaster/refs/heads/main/docs/schemas/bgraster-config.schema.json
+# $schema: https://raw.githubusercontent.com/gameshowpro/BgRaster/refs/heads/main/docs/schemas/bgraster-config.schema.json
 # This sample is used to generate the background for the social card during the build process. It's not really part of the documentation.
 [text]
-text = ["BgRaster", "Desktop generator for", "display mapping"]
+format = ["BgRaster", "Desktop generator for", "display mapping"]
 size = ["15vh", "10vh", "10vh"]
 color = ["#FFFFFF"]
 x = ["50vw"]
@@ -27,11 +27,15 @@ stroke = ["2"]
 [crosshair]
 stroke = ["0"]
 
+########### Everything from here ownwards is for sample-building purposes. 
+########### Remove this is you're copying this sample to a production-ready config file.
 [render]
 no-assignment = true
 no-discovery = true
 output = "{index}"
 
+########### Everything from here ownwards is for sample-building purposes. 
+########### Remove this is you're copying this sample to a production-ready config file.
 [[output]]
 
 [output.hardware_output]

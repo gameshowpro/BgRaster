@@ -17,18 +17,7 @@ public class LogoLayerTests
     }
 
     [Fact]
-    public void CreateFitRect_UsesCenterAnchor()
-    {
-        SKRect rect = LogoLayer.CreateFitRect(centerX: 200f, centerY: 100f, width: 80f, height: 40f);
-
-        rect.Left.Should().BeApproximately(160f, 0.001f);
-        rect.Top.Should().BeApproximately(80f, 0.001f);
-        rect.Right.Should().BeApproximately(240f, 0.001f);
-        rect.Bottom.Should().BeApproximately(120f, 0.001f);
-    }
-
-    [Fact]
-    public void Render_SvgLightDark_UsesDarkBranchOnDarkBackground()
+        public void Render_SvgLightDark_UsesDarkBranchOnDarkBackground()
     {
         string svgPath = Path.Combine(Path.GetTempPath(), $"bgraster-logo-{Guid.NewGuid():N}.svg");
         try

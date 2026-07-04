@@ -27,4 +27,5 @@ global using GameshowPro.BgRaster.FileLifecycle;
 global using GameshowPro.BgRaster.StateCache;
 global using GameshowPro.BgRaster.Discovery;
 global using GameshowPro.BgRaster.Wallpaper;
+global using GameshowPro.BgRaster.Network;
 global using GameshowPro.BgRaster.Logging;

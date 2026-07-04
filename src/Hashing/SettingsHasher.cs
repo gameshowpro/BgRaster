@@ -24,7 +24,7 @@ static class SettingsHasher
 
     static void WriteTextOptions(StringBuilder sb, TextOptions t)
     {
-        WriteStringArray(sb, "text.text", t.Text);
+        WriteStringArray(sb, "text.format", t.Format);
         WriteStringArray(sb, "text.size", t.Size);
         WriteStringArray(sb, "text.color", t.Color);
         WriteStringArray(sb, "text.x", t.X);
@@ -107,7 +107,7 @@ static class SettingsHasher
 
             if (o.Text is TextOverride text)
             {
-                WriteNullableArray(sb, $"{prefix}.text.text", text.Text);
+                WriteNullableArray(sb, $"{prefix}.text.format", text.Format);
                 WriteNullableArray(sb, $"{prefix}.text.size", text.Size);
                 WriteNullableArray(sb, $"{prefix}.text.color", text.Color);
                 WriteNullable(sb, $"{prefix}.text.x", text.X);

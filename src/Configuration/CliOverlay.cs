@@ -6,7 +6,7 @@ namespace GameshowPro.BgRaster.Configuration;
 record CliOverlay
 {
     internal string? MachineName { get; init; }
-    internal string? Text { get; init; }
+    internal string? TextFormat { get; init; }
     internal string? TextSize { get; init; }
     internal string? TextColor { get; init; }
     internal string? TextX { get; init; }
@@ -37,6 +37,8 @@ record CliOverlay
     internal string? LogoSource { get; init; }
     internal string? LogoX { get; init; }
     internal string? LogoY { get; init; }
+    internal string? LogoAnchorX { get; init; }
+    internal string? LogoAnchorY { get; init; }
     internal string? LogoWidth { get; init; }
     internal string? LogoHeight { get; init; }
     internal string? LogoOpacity { get; init; }
@@ -46,4 +48,14 @@ record CliOverlay
     internal string? RenderOutput { get; init; }
     internal string? RenderVerbosity { get; init; }
     internal bool? RenderContinueAfterUnchanged { get; init; }
+    internal string? NetworkRequireAdapterType { get; init; }
+    internal bool? NetworkRequireUp { get; init; }
+    internal string? NetworkRequireFamily { get; init; }
+    internal string? NetworkAdapterFormat { get; init; }
+    internal string? NetworkIpAddressFormat { get; init; }
+    internal string? NetworkX { get; init; }
+    internal string? NetworkY { get; init; }
+    internal string? NetworkSize { get; init; }
+    internal string? NetworkColor { get; init; }
+    internal bool? NetworkRender { get; init; }
 }

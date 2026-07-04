@@ -17,7 +17,13 @@ static class OptionsResolver
         int idx = output.Index;
         float vw = output.WidthPx;
         float vh = output.HeightPx;
-        string machineName = ResolveMachineName(global.MachineName);
+        string machineName = ResolveMachineName(global.Render.MachineName);
+        NetworkOptions network = MergeNetwork(global.Network, outputConfig?.Network);
+        ImmutableArray<AdapterInfo> networkAdapters = Network.NetworkFilter.Apply(
+            global.Render.SimulateNetwork
+                ? Network.NetworkSimulator.GetAdapters()
+                : Network.NetworkCollector.Collect(),
+            network);
 
         SubstitutionContext ctx = new(
             MachineName: machineName,
@@ -29,7 +35,7 @@ static class OptionsResolver
             SliceHeight: output.HeightPx);
         string currentDirectory = Directory.GetCurrentDirectory();
 
-        ImmutableArray<string> textLines = ResolveTextArray(global.Text.Text, outputConfig?.Text?.Text)
+        ImmutableArray<string> textLines = ResolveTextArray(global.Text.Format, outputConfig?.Text?.Format)
             .Select(line => Substitute(line, ctx))
             .ToImmutableArray();
         ImmutableArray<float> textSizesPx = ResolveTextSizes(
@@ -42,6 +48,9 @@ static class OptionsResolver
             global.Text.Color,
             outputConfig?.Text?.Color,
             textLines.Length);
+        string textTextAlign = outputConfig?.Text?.TextAlign ?? global.Text.TextAlign;
+        string textAnchorX = outputConfig?.Text?.AnchorX ?? global.Text.AnchorX;
+        string textAnchorY = outputConfig?.Text?.AnchorY ?? global.Text.AnchorY;
         float textXPx = ParseUnit(ResolveString(global.Text.X, idx, outputConfig?.Text?.X), vw, vh);
         float textYPx = ParseUnit(ResolveString(global.Text.Y, idx, outputConfig?.Text?.Y), vw, vh);
 
@@ -87,6 +96,8 @@ static class OptionsResolver
             ResolveString(global.Logo.Source, idx, outputConfig?.Logo?.Source),
             currentDirectory,
             ctx);
+        string logoAnchorX = outputConfig?.Logo?.AnchorX ?? global.Logo.AnchorX;
+        string logoAnchorY = outputConfig?.Logo?.AnchorY ?? global.Logo.AnchorY;
         float logoXPx = ParseUnit(ResolveString(global.Logo.X, idx, outputConfig?.Logo?.X), vw, vh);
         float logoYPx = ParseUnit(ResolveString(global.Logo.Y, idx, outputConfig?.Logo?.Y), vw, vh);
         float logoWidthPx = ParseUnit(ResolveString(global.Logo.Width, idx, outputConfig?.Logo?.Width), vw, vh);
@@ -98,6 +109,9 @@ static class OptionsResolver
             TextLines = textLines,
             TextSizesPx = textSizesPx,
             TextColors = textColors,
+            TextTextAlign = textTextAlign,
+            TextAnchorX = textAnchorX,
+            TextAnchorY = textAnchorY,
             TextXPx = textXPx,
             TextYPx = textYPx,
             BackgroundColor = bgColor,
@@ -132,11 +146,22 @@ static class OptionsResolver
             LabeledEdgesScopeHeightPx = scopeHeightPx,
             LabeledEdgesSides = labeledEdgesSides,
             LogoSource = logoSource,
+            LogoAnchorX = logoAnchorX,
+            LogoAnchorY = logoAnchorY,
             LogoXPx = logoXPx,
             LogoYPx = logoYPx,
             LogoWidthPx = logoWidthPx,
             LogoHeightPx = logoHeightPx,
             LogoOpacity = logoOpacity,
+            NetworkAdapters = networkAdapters,
+            NetworkOptions = network,
+            NetworkSizesPx = ResolveSizedLines(network.Size, network.Size.Length, vw, vh),
+            NetworkColors = ResolveColorLines(network.Color, network.Color.Length),
+            NetworkTextAlign = network.TextAlign,
+            NetworkAnchorX = network.AnchorX,
+            NetworkAnchorY = network.AnchorY,
+            NetworkXPx = ParseUnit(ResolveString(network.X, idx, null), vw, vh),
+            NetworkYPx = ParseUnit(ResolveString(network.Y, idx, null), vw, vh),
         };
     }
 
@@ -149,7 +174,13 @@ static class OptionsResolver
         int cycleIndex = sequenceIndex ?? idx;
         float vw = sliceWidth;
         float vh = sliceHeight;
-        string machineName = ResolveMachineName(global.MachineName);
+        string machineName = ResolveMachineName(global.Render.MachineName);
+        NetworkOptions network = MergeNetwork(global.Network, outputConfig?.Network, slice.Network);
+        ImmutableArray<AdapterInfo> networkAdapters = Network.NetworkFilter.Apply(
+            global.Render.SimulateNetwork
+                ? Network.NetworkSimulator.GetAdapters()
+                : Network.NetworkCollector.Collect(),
+            network);
 
         SubstitutionContext ctx = new(
             MachineName: machineName,
@@ -163,9 +194,9 @@ static class OptionsResolver
         string currentDirectory = Directory.GetCurrentDirectory();
 
         ImmutableArray<string> textLines = ResolveSliceTextArray(
-                global.Text.Text,
-                outputConfig?.Text?.Text,
-                slice.Text?.Text,
+                global.Text.Format,
+                outputConfig?.Text?.Format,
+                slice.Text?.Format,
                 isImplicitSlice)
             .Select(line => Substitute(line, ctx))
             .ToImmutableArray();
@@ -181,6 +212,9 @@ static class OptionsResolver
             outputConfig?.Text?.Color,
             slice.Text?.Color,
             textLines.Length);
+        string textTextAlign = slice.Text?.TextAlign ?? outputConfig?.Text?.TextAlign ?? global.Text.TextAlign;
+        string textAnchorX = slice.Text?.AnchorX ?? outputConfig?.Text?.AnchorX ?? global.Text.AnchorX;
+        string textAnchorY = slice.Text?.AnchorY ?? outputConfig?.Text?.AnchorY ?? global.Text.AnchorY;
         float textXPx = ParseUnit(ResolveSliceString(global.Text.X, cycleIndex, outputConfig?.Text?.X, slice.Text?.X), vw, vh);
         float textYPx = ParseUnit(ResolveSliceString(global.Text.Y, cycleIndex, outputConfig?.Text?.Y, slice.Text?.Y), vw, vh);
 
@@ -226,6 +260,8 @@ static class OptionsResolver
             ResolveSliceString(global.Logo.Source, cycleIndex, outputConfig?.Logo?.Source, slice.Logo?.Source),
             currentDirectory,
             ctx);
+        string logoAnchorX = slice.Logo?.AnchorX ?? outputConfig?.Logo?.AnchorX ?? global.Logo.AnchorX;
+        string logoAnchorY = slice.Logo?.AnchorY ?? outputConfig?.Logo?.AnchorY ?? global.Logo.AnchorY;
         float logoXPx = ParseUnit(ResolveSliceString(global.Logo.X, cycleIndex, outputConfig?.Logo?.X, slice.Logo?.X), vw, vh);
         float logoYPx = ParseUnit(ResolveSliceString(global.Logo.Y, cycleIndex, outputConfig?.Logo?.Y, slice.Logo?.Y), vw, vh);
         float logoWidthPx = ParseUnit(ResolveSliceString(global.Logo.Width, cycleIndex, outputConfig?.Logo?.Width, slice.Logo?.Width), vw, vh);
@@ -237,6 +273,9 @@ static class OptionsResolver
             TextLines = textLines,
             TextSizesPx = textSizesPx,
             TextColors = textColors,
+            TextTextAlign = textTextAlign,
+            TextAnchorX = textAnchorX,
+            TextAnchorY = textAnchorY,
             TextXPx = textXPx,
             TextYPx = textYPx,
             BackgroundColor = bgColor,
@@ -271,28 +310,57 @@ static class OptionsResolver
             LabeledEdgesScopeHeightPx = scopeHeightPx,
             LabeledEdgesSides = labeledEdgesSides,
             LogoSource = logoSource,
+            LogoAnchorX = logoAnchorX,
+            LogoAnchorY = logoAnchorY,
             LogoXPx = logoXPx,
             LogoYPx = logoYPx,
             LogoWidthPx = logoWidthPx,
             LogoHeightPx = logoHeightPx,
             LogoOpacity = logoOpacity,
+            NetworkAdapters = networkAdapters,
+            NetworkOptions = network,
+            NetworkSizesPx = ResolveSizedLines(network.Size, network.Size.Length, vw, vh),
+            NetworkColors = ResolveColorLines(network.Color, network.Color.Length),
+            NetworkTextAlign = network.TextAlign,
+            NetworkAnchorX = network.AnchorX,
+            NetworkAnchorY = network.AnchorY,
+            NetworkXPx = ParseUnit(ResolveSliceString(network.X, cycleIndex, null, null), vw, vh),
+            NetworkYPx = ParseUnit(ResolveSliceString(network.Y, cycleIndex, null, null), vw, vh),
         };
     }
 
-    static string ResolveString(ImmutableArray<string> global, int index, string? outputOverride) =>
-        outputOverride ?? global[index % global.Length];
+    static string ResolveString(ImmutableArray<string> global, int index, string? outputOverride)
+    {
+        if (outputOverride is not null) return outputOverride;
+        if (global.IsDefaultOrEmpty) return "";
+        return global[index % global.Length];
+    }
 
     static string ResolveMachineName(string configuredMachineName) =>
         string.IsNullOrWhiteSpace(configuredMachineName) ? Environment.MachineName : configuredMachineName;
 
-    static string ResolveSliceString(ImmutableArray<string> global, int index, string? outputOverride, string? sliceOverride) =>
-        sliceOverride ?? outputOverride ?? global[index % global.Length];
+    static string ResolveSliceString(ImmutableArray<string> global, int index, string? outputOverride, string? sliceOverride)
+    {
+        if (sliceOverride is not null) return sliceOverride;
+        if (outputOverride is not null) return outputOverride;
+        if (global.IsDefaultOrEmpty) return "";
+        return global[index % global.Length];
+    }
 
-    static float ResolveFloat(ImmutableArray<float> global, int index, float? outputOverride) =>
-        outputOverride ?? global[index % global.Length];
+    static float ResolveFloat(ImmutableArray<float> global, int index, float? outputOverride)
+    {
+        if (outputOverride is not null) return outputOverride.Value;
+        if (global.IsDefaultOrEmpty) return 0f;
+        return global[index % global.Length];
+    }
 
-    static float ResolveSliceFloat(ImmutableArray<float> global, int index, float? outputOverride, float? sliceOverride) =>
-        sliceOverride ?? outputOverride ?? global[index % global.Length];
+    static float ResolveSliceFloat(ImmutableArray<float> global, int index, float? outputOverride, float? sliceOverride)
+    {
+        if (sliceOverride is not null) return sliceOverride.Value;
+        if (outputOverride is not null) return outputOverride.Value;
+        if (global.IsDefaultOrEmpty) return 0f;
+        return global[index % global.Length];
+    }
 
     static LabeledEdgesScope ResolveLabeledEdgesScope(ImmutableArray<LabeledEdgesScope> global, int index, string? outputOverride)
     {
@@ -370,7 +438,7 @@ static class OptionsResolver
     }
 
     static bool IsDefaultSliceText(ImmutableArray<string> textValues) =>
-        textValues.SequenceEqual(new TextOptions().Text);
+        textValues.SequenceEqual(new TextOptions().Format);
 
     static ImmutableArray<float> ResolveTextSizes(
         ImmutableArray<string> global,
@@ -474,4 +542,38 @@ static class OptionsResolver
 
     static string Substitute(string template, SubstitutionContext ctx) =>
         FieldSubstitutor.Substitute(template, ctx);
+
+    static NetworkOptions MergeNetwork(NetworkOptions global, NetworkOverride? outputOverride, NetworkOverride? sliceOverride = null)
+    {
+        NetworkOptions result = global;
+        if (outputOverride is not null)
+            result = MergeOne(result, outputOverride);
+        if (sliceOverride is not null)
+            result = MergeOne(result, sliceOverride);
+        return result;
+    }
+
+    static NetworkOptions MergeOne(NetworkOptions base_, NetworkOverride override_) =>
+        base_ with
+        {
+            RequireAdapterType = override_.RequireAdapterType ?? base_.RequireAdapterType,
+            ExcludeAdapterType = override_.ExcludeAdapterType ?? base_.ExcludeAdapterType,
+            RequireUp = override_.RequireUp ?? base_.RequireUp,
+            RequireFamily = override_.RequireFamily ?? base_.RequireFamily,
+            RequireMacAddress = override_.RequireMacAddress ?? base_.RequireMacAddress,
+            RequireSubnet = override_.RequireSubnet ?? base_.RequireSubnet,
+            MinimumAddressCount = override_.MinimumAddressCount ?? base_.MinimumAddressCount,
+            RequireName = override_.RequireName ?? base_.RequireName,
+            RequireDescription = override_.RequireDescription ?? base_.RequireDescription,
+            IpAddressFormat = override_.IpAddressFormat ?? base_.IpAddressFormat,
+            AdapterFormat = override_.AdapterFormat ?? base_.AdapterFormat,
+            TextAlign = override_.TextAlign ?? base_.TextAlign,
+            AnchorX = override_.AnchorX ?? base_.AnchorX,
+            AnchorY = override_.AnchorY ?? base_.AnchorY,
+            X = override_.X ?? base_.X,
+            Y = override_.Y ?? base_.Y,
+            Size = override_.Size ?? base_.Size,
+            Color = override_.Color ?? base_.Color,
+            Render = override_.Render ?? base_.Render,
+        };
 }

@@ -16,4 +16,5 @@ record SliceOptions
     internal CrosshairOverride? Crosshair { get; init; }
     internal LabeledEdgesOverride? LabeledEdges { get; init; }
     internal LogoOverride? Logo { get; init; }
+    internal NetworkOverride? Network { get; init; }
 }

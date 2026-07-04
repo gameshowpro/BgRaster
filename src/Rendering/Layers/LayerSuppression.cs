@@ -16,10 +16,9 @@ static class LayerSuppression
         || IsTransparent(options.CrosshairColor);
 
     internal static bool ShouldSuppressLogo(ResolvedOptions options) =>
-        string.IsNullOrWhiteSpace(options.LogoSource)
-        || options.LogoWidthPx <= 0f
-        || options.LogoHeightPx <= 0f
-        || options.LogoOpacity <= 0f;
+            string.IsNullOrWhiteSpace(options.LogoSource)
+            || (options.LogoWidthPx <= 0f && options.LogoHeightPx <= 0f)
+            || options.LogoOpacity <= 0f;
 
     static bool IsTransparent(SKColor color) => color.Alpha == 0;
 }
