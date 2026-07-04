@@ -3,6 +3,8 @@
 
 namespace GameshowPro.BgRaster.FileLifecycle;
 
+using GameshowPro.BgRaster.FileLifecycle.Interop;
+
 class StaleFileCleaner
 {
     internal ImmutableArray<string> FindStaleFiles(string directory, IReadOnlySet<string> currentRunFiles)
@@ -17,10 +19,42 @@ class StaleFileCleaner
 
     internal ImmutableArray<string> RecycleFiles(ImmutableArray<string> filePaths)
     {
-        // TODO: implement IFileOperation Windows shell recycle bin
-        // Until then, log intent and return all paths as unrecycled so they are retried next run.
-        if (!filePaths.IsEmpty)
-            Console.WriteLine($"StaleFileCleaner: {filePaths.Length} stale file(s) pending recycle (shell recycle not yet implemented).");
-        return filePaths;
+        if (filePaths.IsEmpty)
+            return [];
+
+        // Build double-null-terminated file list for SHFileOperation
+        string fileList = string.Join("\0", filePaths) + "\0\0";
+        IntPtr pFrom = IntPtr.Zero;
+        try
+        {
+            pFrom = Marshal.StringToCoTaskMemUni(fileList);
+
+            SHFILEOPSTRUCTW fileOp = new()
+            {
+                hwnd = IntPtr.Zero,
+                wFunc = NativeMethods.FO_DELETE,
+                pFrom = pFrom,
+                pTo = IntPtr.Zero,
+                fFlags = NativeMethods.FOF_ALLOWUNDO | NativeMethods.FOF_NOCONFIRMATION | NativeMethods.FOF_NOERRORUI | NativeMethods.FOF_SILENT,
+                fAnyOperationsAborted = 0,
+                hNameMappings = IntPtr.Zero,
+                lpszProgressTitle = IntPtr.Zero,
+            };
+
+            int result = NativeMethods.SHFileOperation(ref fileOp);
+            if (result == 0 && fileOp.fAnyOperationsAborted == 0)
+            {
+                Console.WriteLine($"StaleFileCleaner: {filePaths.Length} stale file(s) recycled.");
+                return [];
+            }
+
+            Console.WriteLine($"StaleFileCleaner: recycle failed (hr=0x{result:x8}, aborted={fileOp.fAnyOperationsAborted}), {filePaths.Length} file(s) retained for retry.");
+            return filePaths;
+        }
+        finally
+        {
+            if (pFrom != IntPtr.Zero)
+                Marshal.FreeCoTaskMem(pFrom);
+        }
     }
 }

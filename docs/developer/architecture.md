@@ -94,7 +94,7 @@ The bitmap is encoded to PNG (`SKEncodedImageFormat.Png`, quality 100) and writt
 
 ### 9. Stale-file cleanup (`src/FileLifecycle/StaleFileCleaner.cs`)
 - **`FindStaleFiles`** scans the output directory for files whose names match the BgRaster timestamp pattern but are not in the current run's assigned set.
-- **`RecycleFiles`** is a pending implementation; currently it returns the input as the "unrecycled" list. See [deferred task 7](future-plans.md).
+- **`RecycleFiles`** sends stale PNGs to the Windows Recycle Bin via `SHFileOperationW` with `FO_DELETE | FOF_ALLOWUNDO`. Files that fail to recycle (locked, permission denied) are returned for retry on the next run.
 
 ### 10. State persistence (`src/StateCache/`)
 - **`LastRunWriter.Write`** hand-emits TOML (Tomlyn's comment API on `[[array_of_tables]]` headers is fragile in 0.17.x). It writes to `<path>.tmp`, parses it back via `LastRunReader.Read`, and only `File.Move`'s into place if the round-trip matches the in-memory state field-by-field. On mismatch it deletes the temp and preserves the previous file — diagnostic, not a hard failure.

@@ -2,17 +2,6 @@
 
 This page records deveopment work that is planned or under consideration.
 
-## Recycle Bin support for stale outputs
-
-Done:
-- Stale `.png` files are detected with `StaleFileCleaner.FindStaleFiles`.
-- Stale file intent is logged so the retry path remains visible.
-
-Not done:
-- The Windows shell recycle-bin integration is still stubbed.
-- `IFileOperation` / COM-backed recycle behavior is not implemented yet.
-- Stale files are returned to the caller for retry on the next run.
-
 ## Golden image regression coverage
 
 Done:
