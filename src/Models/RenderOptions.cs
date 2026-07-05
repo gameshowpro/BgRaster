@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright © 2026 Barjonas LLC
 
-using Microsoft.Extensions.Logging;
-
 namespace GameshowPro.BgRaster.Models;
 
 record RenderOptions

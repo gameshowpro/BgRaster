@@ -3,9 +3,6 @@
 
 namespace GameshowPro.BgRaster.Rendering;
 
-using GameshowPro.BgRaster.Rendering.Layers;
-using GameshowPro.BgRaster.Resolution;
-
 sealed class OutputRenderer
 {
     int _sliceSequence;

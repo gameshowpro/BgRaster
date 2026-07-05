@@ -3,9 +3,6 @@
 
 namespace GameshowPro.BgRaster.Rendering;
 
-using SkiaSharp;
-using Svg.Skia;
-
 static class SvgRenderer
 {
     internal static bool TryRender(Stream svgStream, SKCanvas canvas, SKRect fitRect, byte alpha, bool useDarkTheme)

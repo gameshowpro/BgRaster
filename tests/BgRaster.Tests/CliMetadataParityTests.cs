@@ -2,7 +2,6 @@
 // Copyright © 2026 Barjonas LLC
 
 using System.CommandLine;
-using System.Text.Json;
 
 namespace GameshowPro.BgRaster.Tests;
 

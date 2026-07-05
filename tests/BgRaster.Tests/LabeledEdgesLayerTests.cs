@@ -3,9 +3,6 @@
 
 namespace GameshowPro.BgRaster.Tests;
 
-using GameshowPro.BgRaster.Rendering;
-using GameshowPro.BgRaster.Rendering.Layers;
-
 public class LabeledEdgesLayerTests
 {
     [Fact]

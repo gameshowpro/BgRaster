@@ -1,14 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright © 2026 Barjonas LLC
 
-using System;
-using System.Collections.Immutable;
-using System.Linq;
-using Microsoft.Extensions.Logging;
-using SkiaSharp;
-using GameshowPro.BgRaster.Models;
-using GameshowPro.BgRaster.Network;
-
 namespace GameshowPro.BgRaster.Rendering.Layers;
 
 sealed class NetworkLayer : ILayer

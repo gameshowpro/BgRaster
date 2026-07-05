@@ -3,9 +3,6 @@
 
 namespace GameshowPro.BgRaster.Rendering.Layers;
 
-using System.Globalization;
-using GameshowPro.BgRaster.Rendering;
-
 sealed class LabeledEdgesLayer : ILayer
 {
     // Temporary anchor debug overlay. Keep for future geometry tuning sessions.
