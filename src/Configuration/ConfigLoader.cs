@@ -7,6 +7,11 @@ static class ConfigLoader
 {
     internal static GlobalOptions Load(string path, List<string>? warnings = null)
     {
+        return Load(path, out _, warnings);
+    }
+
+    internal static GlobalOptions Load(string path, out HashSet<string> tomlPaths, List<string>? warnings = null)
+    {
         string toml = File.ReadAllText(path);
         string configDirectory = Path.GetDirectoryName(Path.GetFullPath(path)) ?? Directory.GetCurrentDirectory();
         TomlTable table;
@@ -19,11 +24,18 @@ static class ConfigLoader
             throw new FormatException($"Failed to parse TOML config '{path}': {ex.Message}", ex);
         }
 
+        tomlPaths = TomlKeyCollector.Collect(table);
         return ParseGlobalOptions(table, warnings, configDirectory);
     }
 
     internal static GlobalOptions ApplyCliOverlay(GlobalOptions options, CliOverlay overlay, List<string>? warnings = null)
     {
+        return ApplyCliOverlay(options, overlay, out _, warnings);
+    }
+
+    internal static GlobalOptions ApplyCliOverlay(GlobalOptions options, CliOverlay overlay, out HashSet<string> cliPaths, List<string>? warnings = null)
+    {
+        cliPaths = new HashSet<string>(StringComparer.Ordinal);
         string currentDirectory = Directory.GetCurrentDirectory();
 
         TextOptions text = options.Text;
@@ -35,99 +47,105 @@ static class ConfigLoader
         RenderOptions render = options.Render;
 
         if (overlay.MachineName is not null)
-            render = render with { MachineName = overlay.MachineName };
+        { render = render with { MachineName = overlay.MachineName }; cliPaths.Add("render.machine-name"); }
 
         if (overlay.TextFormat is not null)
-            text = text with { Format = ParseCliStringOrArray(overlay.TextFormat, "cli --text-format", warnings) };
+        { text = text with { Format = ParseCliStringOrArray(overlay.TextFormat, "cli --text-format", warnings) }; cliPaths.Add("text.format"); }
         if (overlay.TextSize is not null)
-            text = text with { Size = ParseCliStringOrArray(overlay.TextSize, "cli --text-size", warnings) };
+        { text = text with { Size = ParseCliStringOrArray(overlay.TextSize, "cli --text-size", warnings) }; cliPaths.Add("text.size"); }
         if (overlay.TextColor is not null)
-            text = text with { Color = ParseCliStringOrArray(overlay.TextColor, "cli --text-color", warnings) };
+        { text = text with { Color = ParseCliStringOrArray(overlay.TextColor, "cli --text-color", warnings) }; cliPaths.Add("text.color"); }
         if (overlay.TextX is not null)
-            text = text with { X = ParseCliStringOrArray(overlay.TextX, "cli --text-x", warnings) };
+        { text = text with { X = ParseCliStringOrArray(overlay.TextX, "cli --text-x", warnings) }; cliPaths.Add("text.x"); }
         if (overlay.TextY is not null)
-            text = text with { Y = ParseCliStringOrArray(overlay.TextY, "cli --text-y", warnings) };
+        { text = text with { Y = ParseCliStringOrArray(overlay.TextY, "cli --text-y", warnings) }; cliPaths.Add("text.y"); }
 
         if (overlay.BackgroundColor is not null)
-            bg = bg with { Color = ParseCliStringOrArray(overlay.BackgroundColor, "cli --background-color", warnings) };
+        { bg = bg with { Color = ParseCliStringOrArray(overlay.BackgroundColor, "cli --background-color", warnings) }; cliPaths.Add("background.color"); }
         if (overlay.BackgroundImage is not null)
+        {
             bg = bg with
             {
                 Image = ResolveCliPathArray(
                     ParseCliStringOrArray(overlay.BackgroundImage, "cli --background-image", warnings),
                     currentDirectory),
             };
+            cliPaths.Add("background.image");
+        }
         if (overlay.BackgroundFit is not null)
-            bg = bg with { Fit = ParseCliStringOrArray(overlay.BackgroundFit, "cli --background-fit", warnings) };
-        if (overlay.BackgroundAlternating is not null) bg = bg with { Alternating = [overlay.BackgroundAlternating.Value] };
-        if (overlay.BackgroundBorder is not null) bg = bg with { Border = [overlay.BackgroundBorder.Value] };
+        { bg = bg with { Fit = ParseCliStringOrArray(overlay.BackgroundFit, "cli --background-fit", warnings) }; cliPaths.Add("background.fit"); }
+        if (overlay.BackgroundAlternating is not null) { bg = bg with { Alternating = [overlay.BackgroundAlternating.Value] }; cliPaths.Add("background.alternating"); }
+        if (overlay.BackgroundBorder is not null) { bg = bg with { Border = [overlay.BackgroundBorder.Value] }; cliPaths.Add("background.border"); }
         if (overlay.BackgroundBorderColor is not null)
-            bg = bg with { BorderColor = ParseCliStringOrArray(overlay.BackgroundBorderColor, "cli --background-border-color", warnings) };
+        { bg = bg with { BorderColor = ParseCliStringOrArray(overlay.BackgroundBorderColor, "cli --background-border-color", warnings) }; cliPaths.Add("background.border-color"); }
 
         if (overlay.GridSize is not null)
-            grid = grid with { Size = ParseCliStringOrArray(overlay.GridSize, "cli --grid-size", warnings) };
+        { grid = grid with { Size = ParseCliStringOrArray(overlay.GridSize, "cli --grid-size", warnings) }; cliPaths.Add("grid.size"); }
         if (overlay.GridOddColor is not null)
-            grid = grid with { OddColor = ParseCliStringOrArray(overlay.GridOddColor, "cli --grid-odd-color", warnings) };
+        { grid = grid with { OddColor = ParseCliStringOrArray(overlay.GridOddColor, "cli --grid-odd-color", warnings) }; cliPaths.Add("grid.odd-color"); }
         if (overlay.GridEvenColor is not null)
-            grid = grid with { EvenColor = ParseCliStringOrArray(overlay.GridEvenColor, "cli --grid-even-color", warnings) };
+        { grid = grid with { EvenColor = ParseCliStringOrArray(overlay.GridEvenColor, "cli --grid-even-color", warnings) }; cliPaths.Add("grid.even-color"); }
         if (overlay.GridStroke is not null)
-            grid = grid with { Stroke = ParseCliStringOrArray(overlay.GridStroke, "cli --grid-stroke", warnings) };
+        { grid = grid with { Stroke = ParseCliStringOrArray(overlay.GridStroke, "cli --grid-stroke", warnings) }; cliPaths.Add("grid.stroke"); }
         if (overlay.GridOffsetX is not null)
-            grid = grid with { OffsetX = ParseCliStringOrArray(overlay.GridOffsetX, "cli --grid-offset-x", warnings) };
+        { grid = grid with { OffsetX = ParseCliStringOrArray(overlay.GridOffsetX, "cli --grid-offset-x", warnings) }; cliPaths.Add("grid.offset-x"); }
         if (overlay.GridOffsetY is not null)
-            grid = grid with { OffsetY = ParseCliStringOrArray(overlay.GridOffsetY, "cli --grid-offset-y", warnings) };
-        if (overlay.GridCoordinates is not null) grid = grid with { Coordinates = [overlay.GridCoordinates.Value] };
+        { grid = grid with { OffsetY = ParseCliStringOrArray(overlay.GridOffsetY, "cli --grid-offset-y", warnings) }; cliPaths.Add("grid.offset-y"); }
+        if (overlay.GridCoordinates is not null) { grid = grid with { Coordinates = [overlay.GridCoordinates.Value] }; cliPaths.Add("grid.coordinates"); }
 
         if (overlay.CircleSize is not null)
-            circle = circle with { Size = ParseCliStringOrArray(overlay.CircleSize, "cli --circle-size", warnings) };
+        { circle = circle with { Size = ParseCliStringOrArray(overlay.CircleSize, "cli --circle-size", warnings) }; cliPaths.Add("circle.size"); }
         if (overlay.CircleX is not null)
-            circle = circle with { X = ParseCliStringOrArray(overlay.CircleX, "cli --circle-x", warnings) };
+        { circle = circle with { X = ParseCliStringOrArray(overlay.CircleX, "cli --circle-x", warnings) }; cliPaths.Add("circle.x"); }
         if (overlay.CircleY is not null)
-            circle = circle with { Y = ParseCliStringOrArray(overlay.CircleY, "cli --circle-y", warnings) };
+        { circle = circle with { Y = ParseCliStringOrArray(overlay.CircleY, "cli --circle-y", warnings) }; cliPaths.Add("circle.y"); }
         if (overlay.CircleColor is not null)
-            circle = circle with { Color = ParseCliStringOrArray(overlay.CircleColor, "cli --circle-color", warnings) };
+        { circle = circle with { Color = ParseCliStringOrArray(overlay.CircleColor, "cli --circle-color", warnings) }; cliPaths.Add("circle.color"); }
         if (overlay.CircleStroke is not null)
-            circle = circle with { Stroke = ParseCliStringOrArray(overlay.CircleStroke, "cli --circle-stroke", warnings) };
+        { circle = circle with { Stroke = ParseCliStringOrArray(overlay.CircleStroke, "cli --circle-stroke", warnings) }; cliPaths.Add("circle.stroke"); }
 
         if (overlay.CrosshairLength is not null)
-            crosshair = crosshair with { Length = ParseCliStringOrArray(overlay.CrosshairLength, "cli --crosshair-length", warnings) };
+        { crosshair = crosshair with { Length = ParseCliStringOrArray(overlay.CrosshairLength, "cli --crosshair-length", warnings) }; cliPaths.Add("crosshair.length"); }
         if (overlay.CrosshairX is not null)
-            crosshair = crosshair with { X = ParseCliStringOrArray(overlay.CrosshairX, "cli --crosshair-x", warnings) };
+        { crosshair = crosshair with { X = ParseCliStringOrArray(overlay.CrosshairX, "cli --crosshair-x", warnings) }; cliPaths.Add("crosshair.x"); }
         if (overlay.CrosshairY is not null)
-            crosshair = crosshair with { Y = ParseCliStringOrArray(overlay.CrosshairY, "cli --crosshair-y", warnings) };
+        { crosshair = crosshair with { Y = ParseCliStringOrArray(overlay.CrosshairY, "cli --crosshair-y", warnings) }; cliPaths.Add("crosshair.y"); }
         if (overlay.CrosshairColor is not null)
-            crosshair = crosshair with { Color = ParseCliStringOrArray(overlay.CrosshairColor, "cli --crosshair-color", warnings) };
+        { crosshair = crosshair with { Color = ParseCliStringOrArray(overlay.CrosshairColor, "cli --crosshair-color", warnings) }; cliPaths.Add("crosshair.color"); }
         if (overlay.CrosshairStroke is not null)
-            crosshair = crosshair with { Stroke = ParseCliStringOrArray(overlay.CrosshairStroke, "cli --crosshair-stroke", warnings) };
+        { crosshair = crosshair with { Stroke = ParseCliStringOrArray(overlay.CrosshairStroke, "cli --crosshair-stroke", warnings) }; cliPaths.Add("crosshair.stroke"); }
 
         if (overlay.LogoSource is not null)
+        {
             logo = logo with
             {
                 Source = ResolveCliPathArray(
                     ParseCliStringOrArray(overlay.LogoSource, "cli --logo-source", warnings),
                     currentDirectory),
             };
+            cliPaths.Add("logo.source");
+        }
         if (overlay.LogoX is not null)
-            logo = logo with { X = ParseCliStringOrArray(overlay.LogoX, "cli --logo-x", warnings) };
+        { logo = logo with { X = ParseCliStringOrArray(overlay.LogoX, "cli --logo-x", warnings) }; cliPaths.Add("logo.x"); }
         if (overlay.LogoY is not null)
-            logo = logo with { Y = ParseCliStringOrArray(overlay.LogoY, "cli --logo-y", warnings) };
+        { logo = logo with { Y = ParseCliStringOrArray(overlay.LogoY, "cli --logo-y", warnings) }; cliPaths.Add("logo.y"); }
         if (overlay.LogoAnchorX is not null)
-            logo = logo with { AnchorX = overlay.LogoAnchorX };
+        { logo = logo with { AnchorX = overlay.LogoAnchorX }; cliPaths.Add("logo.anchor-x"); }
         if (overlay.LogoAnchorY is not null)
-            logo = logo with { AnchorY = overlay.LogoAnchorY };
+        { logo = logo with { AnchorY = overlay.LogoAnchorY }; cliPaths.Add("logo.anchor-y"); }
         if (overlay.LogoWidth is not null)
-            logo = logo with { Width = ParseCliStringOrArray(overlay.LogoWidth, "cli --logo-width", warnings) };
+        { logo = logo with { Width = ParseCliStringOrArray(overlay.LogoWidth, "cli --logo-width", warnings) }; cliPaths.Add("logo.width"); }
         if (overlay.LogoHeight is not null)
-            logo = logo with { Height = ParseCliStringOrArray(overlay.LogoHeight, "cli --logo-height", warnings) };
+        { logo = logo with { Height = ParseCliStringOrArray(overlay.LogoHeight, "cli --logo-height", warnings) }; cliPaths.Add("logo.height"); }
         if (overlay.LogoOpacity is not null)
-            logo = logo with { Opacity = ParseCliFloatOrArray(overlay.LogoOpacity, "cli --logo-opacity") };
+        { logo = logo with { Opacity = ParseCliFloatOrArray(overlay.LogoOpacity, "cli --logo-opacity") }; cliPaths.Add("logo.opacity"); }
 
-        if (overlay.RenderDryRun is not null) render = render with { DryRun = overlay.RenderDryRun.Value };
-        if (overlay.RenderNoDiscovery is not null) render = render with { NoDiscovery = overlay.RenderNoDiscovery.Value };
+        if (overlay.RenderDryRun is not null) { render = render with { DryRun = overlay.RenderDryRun.Value }; cliPaths.Add("render.no-assignment"); }
+        if (overlay.RenderNoDiscovery is not null) { render = render with { NoDiscovery = overlay.RenderNoDiscovery.Value }; cliPaths.Add("render.no-discovery"); }
         if (overlay.RenderOutputsSkipUnspecified is not null)
-            render = render with { OutputsSkipUnspecified = overlay.RenderOutputsSkipUnspecified.Value };
+        { render = render with { OutputsSkipUnspecified = overlay.RenderOutputsSkipUnspecified.Value }; cliPaths.Add("render.outputs-skip-unspecified"); }
         if (overlay.RenderOutput is not null)
-            render = render with { Output = ResolveCliPath(overlay.RenderOutput, currentDirectory) };
+        { render = render with { Output = ResolveCliPath(overlay.RenderOutput, currentDirectory) }; cliPaths.Add("render.output"); }
         if (overlay.RenderVerbosity is not null)
         {
             render = render with
@@ -137,22 +155,23 @@ static class ConfigLoader
                     "cli --verbosity",
                     warnings),
             };
+            cliPaths.Add("render.verbosity");
         }
         NetworkOptions network = options.Network;
         if (overlay.NetworkRequireAdapterType is not null)
-            network = network with { RequireAdapterType = ParseCliStringOrArray(overlay.NetworkRequireAdapterType, "cli --network-require-adapter-type", warnings) };
-        if (overlay.NetworkRequireUp is not null) network = network with { RequireUp = overlay.NetworkRequireUp.Value };
-        if (overlay.NetworkRequireFamily is not null) network = network with { RequireFamily = overlay.NetworkRequireFamily };
-        if (overlay.NetworkAdapterFormat is not null) network = network with { AdapterFormat = overlay.NetworkAdapterFormat };
-        if (overlay.NetworkIpAddressFormat is not null) network = network with { IpAddressFormat = overlay.NetworkIpAddressFormat };
-        if (overlay.NetworkX is not null) network = network with { X = ParseCliStringOrArray(overlay.NetworkX, "cli --network-x", warnings) };
-        if (overlay.NetworkY is not null) network = network with { Y = ParseCliStringOrArray(overlay.NetworkY, "cli --network-y", warnings) };
-        if (overlay.NetworkSize is not null) network = network with { Size = ParseCliStringOrArray(overlay.NetworkSize, "cli --network-size", warnings) };
-        if (overlay.NetworkColor is not null) network = network with { Color = ParseCliStringOrArray(overlay.NetworkColor, "cli --network-color", warnings) };
-        if (overlay.NetworkRender is not null) network = network with { Render = overlay.NetworkRender.Value };
+        { network = network with { RequireAdapterType = ParseCliStringOrArray(overlay.NetworkRequireAdapterType, "cli --network-require-adapter-type", warnings) }; cliPaths.Add("network.require-adapter-type"); }
+        if (overlay.NetworkRequireUp is not null) { network = network with { RequireUp = overlay.NetworkRequireUp.Value }; cliPaths.Add("network.require-up"); }
+        if (overlay.NetworkRequireFamily is not null) { network = network with { RequireFamily = overlay.NetworkRequireFamily }; cliPaths.Add("network.require-family"); }
+        if (overlay.NetworkAdapterFormat is not null) { network = network with { AdapterFormat = overlay.NetworkAdapterFormat }; cliPaths.Add("network.adapter-format"); }
+        if (overlay.NetworkIpAddressFormat is not null) { network = network with { IpAddressFormat = overlay.NetworkIpAddressFormat }; cliPaths.Add("network.ip-address-format"); }
+        if (overlay.NetworkX is not null) { network = network with { X = ParseCliStringOrArray(overlay.NetworkX, "cli --network-x", warnings) }; cliPaths.Add("network.x"); }
+        if (overlay.NetworkY is not null) { network = network with { Y = ParseCliStringOrArray(overlay.NetworkY, "cli --network-y", warnings) }; cliPaths.Add("network.y"); }
+        if (overlay.NetworkSize is not null) { network = network with { Size = ParseCliStringOrArray(overlay.NetworkSize, "cli --network-size", warnings) }; cliPaths.Add("network.size"); }
+        if (overlay.NetworkColor is not null) { network = network with { Color = ParseCliStringOrArray(overlay.NetworkColor, "cli --network-color", warnings) }; cliPaths.Add("network.color"); }
+        if (overlay.NetworkRender is not null) { network = network with { Render = overlay.NetworkRender.Value }; cliPaths.Add("network.render"); }
 
         if (overlay.RenderContinueAfterUnchanged is not null)
-            render = render with { ContinueAfterUnchanged = overlay.RenderContinueAfterUnchanged.Value };
+        { render = render with { ContinueAfterUnchanged = overlay.RenderContinueAfterUnchanged.Value }; cliPaths.Add("render.force"); }
 
         return options with
         {

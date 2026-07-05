@@ -26,7 +26,7 @@ internal static partial class BgRasterLog
     [LoggerMessage(EventId = 8, Level = LogLevel.Debug, Message = "# bg-raster: status=matching-start configuredOutputs={configuredOutputs}")]
     internal static partial void MatchingStart(this ILogger logger, int configuredOutputs);
 
-    [LoggerMessage(EventId = 9, Level = LogLevel.Debug, Message = "# bg-raster: status=matching-finished results={results} matchedOutputs={matchedOutputs}")]
+    [LoggerMessage(EventId = 9, Level = LogLevel.Trace, Message = "# bg-raster: status=matching-finished results={results} matchedOutputs={matchedOutputs}")]
     internal static partial void MatchingFinished(this ILogger logger, int results, int matchedOutputs);
 
     [LoggerMessage(EventId = 18, Level = LogLevel.Warning, Message = "# bg-raster: status=no-configured-outputs reason=effective-config-has-zero-output-blocks")]
@@ -35,40 +35,49 @@ internal static partial class BgRasterLog
     [LoggerMessage(EventId = 19, Level = LogLevel.Warning, Message = "# bg-raster: status=no-rendered-files reason=zero-matched-outputs")]
     internal static partial void NoRenderedFiles(this ILogger logger);
 
-    [LoggerMessage(EventId = 13, Level = LogLevel.Debug, Message = "# bg-raster: status=render-start id=\"{outputId}\" target={target}")]
+    [LoggerMessage(EventId = 13, Level = LogLevel.Trace, Message = "# bg-raster: status=render-start id=\"{outputId}\" target={target}")]
     internal static partial void RenderStart(this ILogger logger, string outputId, string target);
 
-    [LoggerMessage(EventId = 14, Level = LogLevel.Debug, Message = "# bg-raster: status=assign-start fileCount={fileCount}")]
+    [LoggerMessage(EventId = 14, Level = LogLevel.Trace, Message = "# bg-raster: status=assign-start fileCount={fileCount}")]
     internal static partial void AssignStart(this ILogger logger, int fileCount);
 
     [LoggerMessage(EventId = 15, Level = LogLevel.Debug, Message = "# bg-raster: status=assign-result success={success} fileCount={fileCount}")]
     internal static partial void AssignResult(this ILogger logger, bool success, int fileCount);
 
-    [LoggerMessage(EventId = 16, Level = LogLevel.Debug, Message = "# bg-raster: status=stale-scan staleCount={staleCount} recycledCount={recycledCount}")]
-    internal static partial void StaleScan(this ILogger logger, int staleCount, int recycledCount);
+    [LoggerMessage(EventId = 16, Level = LogLevel.Debug, Message = "# bg-raster: status=stale-scan staleCount={staleCount} unrecycledCount={unrecycledCount}")]
+    internal static partial void StaleScan(this ILogger logger, int staleCount, int unrecycledCount);
 
     [LoggerMessage(EventId = 17, Level = LogLevel.Debug, Message = "# bg-raster: status=last-run-write path=\"{path}\" assignedCount={assignedCount} unrecycledCount={unrecycledCount}")]
     internal static partial void LastRunWrite(this ILogger logger, string path, int assignedCount, int unrecycledCount);
 
-    // ── Configuration warnings ────────────────────────────────────────────────
+    // ?? Configuration warnings ????????????????????????????????????????????????
 
     [LoggerMessage(EventId = 1, Level = LogLevel.Warning, Message = "{warning}")]
     internal static partial void ConfigurationWarning(this ILogger logger, string warning);
 
-    // ── Effective-config dump ─────────────────────────────────────────────────
+    // ?? Run lifecycle ?????????????????????????????????????????????????????????
 
-    [LoggerMessage(EventId = 10, Level = LogLevel.Debug, Message = "# bg-raster: status=effective-config-begin")]
-    internal static partial void EffectiveConfigBegin(this ILogger logger);
+    // ══ Diagnostic blocks ══════════════════════════════════════════════════
 
-    [LoggerMessage(EventId = 11, Level = LogLevel.Debug, Message = "{line}")]
-    internal static partial void EffectiveConfigLine(this ILogger logger, string line);
+    [LoggerMessage(EventId = 50, Level = LogLevel.Debug, Message = "### BEGIN effective-config")]
+    internal static partial void BlockBeginEffectiveConfig(this ILogger logger);
 
-    [LoggerMessage(EventId = 12, Level = LogLevel.Debug, Message = "# bg-raster: status=effective-config-end")]
-    internal static partial void EffectiveConfigEnd(this ILogger logger);
+    [LoggerMessage(EventId = 51, Level = LogLevel.Debug, Message = "### END effective-config")]
+    internal static partial void BlockEndEffectiveConfig(this ILogger logger);
 
-    // ── Run lifecycle ─────────────────────────────────────────────────────────
+    [LoggerMessage(EventId = 52, Level = LogLevel.Debug, Message = "### BEGIN display-info")]
+    internal static partial void BlockBeginDisplayInfo(this ILogger logger);
 
-    [LoggerMessage(EventId = 20, Level = LogLevel.Information, Message = "# bg-raster: status=run-skipped-unchanged")]
+    [LoggerMessage(EventId = 53, Level = LogLevel.Debug, Message = "### END display-info")]
+    internal static partial void BlockEndDisplayInfo(this ILogger logger);
+
+    [LoggerMessage(EventId = 54, Level = LogLevel.Debug, Message = "### BEGIN network-info")]
+    internal static partial void BlockBeginNetworkInfo(this ILogger logger);
+
+    [LoggerMessage(EventId = 55, Level = LogLevel.Debug, Message = "### END network-info")]
+    internal static partial void BlockEndNetworkInfo(this ILogger logger);
+
+    [LoggerMessage(EventId = 20, Level = LogLevel.Trace, Message = "# bg-raster: status=run-skipped-unchanged")]
     internal static partial void RunSkippedUnchanged(this ILogger logger);
 
     [LoggerMessage(EventId = 21, Level = LogLevel.Information, Message = "# bg-raster: status=output-rendered id=\"{outputId}\" file=\"{filePath}\"")]
@@ -92,7 +101,7 @@ internal static partial class BgRasterLog
     [LoggerMessage(EventId = 27, Level = LogLevel.Debug, Message = "# bg-raster: status=skip-because-unchanged")]
     internal static partial void SkipBecauseUnchanged(this ILogger logger);
 
-    [LoggerMessage(EventId = 28, Level = LogLevel.Debug, Message = "# bg-raster: status=continue-after-unchanged reason=force")]
+    [LoggerMessage(EventId = 28, Level = LogLevel.Trace, Message = "# bg-raster: status=continue-after-unchanged reason=force")]
     internal static partial void ContinueAfterUnchanged(this ILogger logger);
 
     [LoggerMessage(EventId = 29, Level = LogLevel.Debug, Message = "# bg-raster: status=assignment-skipped reason=no-rendered-files")]
@@ -101,7 +110,7 @@ internal static partial class BgRasterLog
     [LoggerMessage(EventId = 30, Level = LogLevel.Information, Message = "# bg-raster: status=execution-time elapsedMs={elapsedMs} elapsed={elapsed} exitCode={exitCode}")]
     internal static partial void ExecutionTime(this ILogger logger, long elapsedMs, string elapsed, int exitCode);
 
-    // ── LastRunWriter diagnostics ─────────────────────────────────────────────
+    // ?? LastRunWriter diagnostics ?????????????????????????????????????????????
 
     [LoggerMessage(EventId = 40, Level = LogLevel.Warning, Message = "LastRunWriter: round-trip verification failed for '{path}'; previous file kept.")]
     internal static partial void RoundTripFailed(this ILogger logger, string path);
