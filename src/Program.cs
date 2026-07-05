@@ -3,20 +3,7 @@
 
 namespace GameshowPro.BgRaster;
 
-using System.CommandLine;
 using System.Diagnostics;
-using System.Reflection;
-using GameshowPro.BgRaster.Configuration;
-using GameshowPro.BgRaster.Discovery;
-using GameshowPro.BgRaster.FileLifecycle;
-using GameshowPro.BgRaster.Hashing;
-using GameshowPro.BgRaster.Models;
-using GameshowPro.BgRaster.Rendering;
-using GameshowPro.BgRaster.Resolution;
-using GameshowPro.BgRaster.StateCache;
-using GameshowPro.BgRaster.Wallpaper;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging.Console;
 
 static class Program
 {
@@ -590,7 +577,6 @@ static class Program
         int maxY = hardware.Outputs.Max(output => output.DesktopY + output.HeightPx);
         return (maxX - minX, maxY - minY);
     }
-
 
 
     static ImmutableArray<(OutputRecord Output, OutputOptions Config)> BuildNoDiscoveryMappings(

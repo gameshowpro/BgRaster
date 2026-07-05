@@ -3,7 +3,6 @@
 
 namespace GameshowPro.BgRaster.Tests;
 
-using GameshowPro.BgRaster.Rendering;
 using System.Text;
 
 public class SvgRendererTests

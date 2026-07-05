@@ -3,9 +3,7 @@
 
 namespace GameshowPro.BgRaster.Logging;
 
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Logging.Console;
 
 /// <summary>
 /// Compact console formatter that outputs "{level} {eventId}: {message}"

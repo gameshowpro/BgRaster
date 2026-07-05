@@ -3,8 +3,6 @@
 
 namespace GameshowPro.BgRaster.Tests;
 
-using GameshowPro.BgRaster.Rendering.Layers;
-
 public class TextLayerLayoutTests
 {
     [Fact]

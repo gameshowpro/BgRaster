@@ -3,8 +3,6 @@
 
 namespace GameshowPro.BgRaster.Tests;
 
-using GameshowPro.BgRaster.Rendering;
-using GameshowPro.BgRaster.Rendering.Layers;
 using System.IO;
 
 public class LogoLayerTests

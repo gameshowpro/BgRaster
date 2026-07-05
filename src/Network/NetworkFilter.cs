@@ -2,7 +2,6 @@
 // Copyright © 2026 Barjonas LLC
 
 using System.IO.Enumeration;
-using System.Net;
 
 namespace GameshowPro.BgRaster.Network;
 

@@ -3,8 +3,6 @@
 
 namespace GameshowPro.BgRaster.Logging;
 
-using Tomlyn.Model;
-
 static class TomlKeyCollector
 {
     internal static HashSet<string> Collect(TomlTable root)

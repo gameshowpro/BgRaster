@@ -12,4 +12,6 @@ global using GameshowPro.BgRaster.FileLifecycle;
 global using GameshowPro.BgRaster.Hashing;
 global using GameshowPro.BgRaster.Models;
 global using GameshowPro.BgRaster.Parsing;
-global using GameshowPro.BgRaster.Resolution;
+global using System.Text.Json;
+global using GameshowPro.BgRaster.Rendering;
+global using GameshowPro.BgRaster.Rendering.Layers;global using GameshowPro.BgRaster.Resolution;

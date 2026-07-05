@@ -3,9 +3,6 @@
 
 namespace GameshowPro.BgRaster.Tests;
 
-using GameshowPro.BgRaster.Configuration;
-using GameshowPro.BgRaster.Resolution;
-
 public class ConfiguredPathResolverTests
 {
     [Fact]

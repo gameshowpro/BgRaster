@@ -3,8 +3,6 @@
 
 namespace GameshowPro.BgRaster.Rendering.Layers;
 
-using System.Globalization;
-
 sealed class GridLayer : ILayer
 {
     public void Render(RenderContext context, SKCanvas canvas)

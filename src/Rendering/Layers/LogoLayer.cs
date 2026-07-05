@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright © 2026 Barjonas LLC
 
-using Svg.Skia;
-
 namespace GameshowPro.BgRaster.Rendering.Layers;
 
 sealed class LogoLayer : ILayer
