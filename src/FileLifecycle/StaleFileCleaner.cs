@@ -44,11 +44,8 @@ class StaleFileCleaner
             int result = NativeMethods.SHFileOperation(ref fileOp);
             if (result == 0 && fileOp.fAnyOperationsAborted == 0)
             {
-                Console.WriteLine($"StaleFileCleaner: {filePaths.Length} stale file(s) recycled.");
                 return [];
             }
-
-            Console.WriteLine($"StaleFileCleaner: recycle failed (hr=0x{result:x8}, aborted={fileOp.fAnyOperationsAborted}), {filePaths.Length} file(s) retained for retry.");
             return filePaths;
         }
         finally

@@ -15,6 +15,8 @@ using GameshowPro.BgRaster.Rendering;
 using GameshowPro.BgRaster.Resolution;
 using GameshowPro.BgRaster.StateCache;
 using GameshowPro.BgRaster.Wallpaper;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Console;
 
 static class Program
 {
@@ -55,13 +57,26 @@ static class Program
         }
 
         GlobalOptions options;
+        GlobalOptions optionsFromToml;
+        GlobalOptions optionsDefaults;
+        HashSet<string> tomlPaths;
+        HashSet<string> cliPaths;
         try
         {
-            options = configExists
-                ? ConfigLoader.Load(resolvedConfigPath, configurationWarnings)
-                : new GlobalOptions();
+            if (configExists)
+            {
+                options = ConfigLoader.Load(resolvedConfigPath, out tomlPaths, configurationWarnings);
+            }
+            else
+            {
+                options = new GlobalOptions();
+                tomlPaths = new HashSet<string>(StringComparer.Ordinal);
+            }
 
-            options = ConfigLoader.ApplyCliOverlay(options, cliOverlay, configurationWarnings);
+            optionsFromToml = options;  // snapshot after TOML parse, before CLI overlay
+            optionsDefaults = new GlobalOptions();  // pure schema defaults
+
+            options = ConfigLoader.ApplyCliOverlay(options, cliOverlay, out cliPaths, configurationWarnings);
 
             if (options.Render.NoDiscovery && !options.Render.DryRun)
             {
@@ -78,7 +93,10 @@ static class Program
         using ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
         {
             builder.ClearProviders();
-            builder.AddConsole();
+#pragma warning disable IL2026, IL3050 // AOT: generic formatter overload
+            builder.AddConsoleFormatter<BgRasterConsoleFormatter, ConsoleFormatterOptions>();
+#pragma warning restore IL2026, IL3050
+            builder.AddConsole(o => o.FormatterName = "BgRaster");
             builder.SetMinimumLevel(options.Render.MinimumLogLevel);
         });
         ILogger logger = loggerFactory.CreateLogger("bg-raster");
@@ -104,10 +122,14 @@ static class Program
         foreach (string warning in configurationWarnings)
             logger.ConfigurationWarning(warning);
 
-        logger.EffectiveConfigBegin();
-        foreach (string line in EnumerateLines(LastRunWriter.BuildEffectiveConfigToml(options)))
-            logger.EffectiveConfigLine(line);
-        logger.EffectiveConfigEnd();
+        if (logger.IsEnabled(LogLevel.Debug))
+        {
+            string effectiveToml = LastRunWriter.BuildEffectiveConfigToml(options);
+            string colorized = TomlColorizer.ColorizeProvenance(effectiveToml, tomlPaths, cliPaths);
+            logger.BlockBeginEffectiveConfig();
+            Console.WriteLine(colorized);
+            logger.BlockEndEffectiveConfig();
+        }
 
         string settingsHash = SettingsHasher.Compute(options);
         logger.SettingsHashComputed(settingsHash);
@@ -134,19 +156,66 @@ static class Program
         }
 
         (int systemWidthPx, int systemHeightPx) = GetSystemDimensions(hardware);
-        logger.HardwareDiscovered(hardware.Outputs.Length);
-        foreach (OutputRecord output in hardware.Outputs)
+        if (!noDiscovery && logger.IsEnabled(LogLevel.Debug))
         {
-            logger.HardwareOutput(
-                output.Id,
-                output.Index,
-                output.DesktopX,
-                output.DesktopY,
-                output.WidthPx,
-                output.HeightPx,
-                output.Rotation,
-                output.DpiX,
-                output.DpiY);
+            const string D = "\x1b[2m";
+            const string G = "\x1b[32m";
+            const string C = "\x1b[36m";
+            const string R = "\x1b[0m";
+            Console.WriteLine();
+            logger.BlockBeginDisplayInfo();
+            Console.WriteLine($"{D}count{R}={C}{hardware.Outputs.Length}{R}");
+            foreach (OutputRecord output in hardware.Outputs)
+            {
+                Console.WriteLine($"  {D}id{R}={G}\"{EscapeTomlString(output.Id)}\"{R}");
+                Console.WriteLine($"  {D}index{R}={C}{output.Index}{R}");
+                Console.WriteLine($"  {D}position{R}={C}{output.DesktopX},{output.DesktopY}{R}");
+                Console.WriteLine($"  {D}resolution{R}={C}{output.WidthPx}x{output.HeightPx}{R}");
+                Console.WriteLine($"  {D}rotation{R}={C}{output.Rotation}{R}");
+                Console.WriteLine($"  {D}dpi{R}={C}{output.DpiX}x{output.DpiY}{R}");
+                Console.WriteLine($"  {D}adapter{R}={G}\"{EscapeTomlString(output.AdapterName)}\"{R}");
+                Console.WriteLine($"  {D}friendlyName{R}={G}\"{EscapeTomlString(output.FriendlyName)}\"{R}");
+                Console.WriteLine("  ---");
+            }
+            logger.BlockEndDisplayInfo();
+        }
+
+        if (!noDiscovery && logger.IsEnabled(LogLevel.Debug))
+        {
+            const string D = "\x1b[2m";
+            const string G = "\x1b[32m";
+            const string C = "\x1b[36m";
+            const string R = "\x1b[0m";
+
+            ImmutableArray<AdapterInfo> networkAdapters = options.Render.SimulateNetwork
+                ? NetworkSimulator.GetAdapters()
+                : NetworkCollector.Collect();
+
+            Console.WriteLine();
+            logger.BlockBeginNetworkInfo();
+            Console.WriteLine($"{D}count{R}={C}{networkAdapters.Length}{R}");
+            foreach (AdapterInfo adapter in networkAdapters)
+            {
+                Console.WriteLine($"  {D}name{R}={G}\"{EscapeTomlString(adapter.Name)}\"{R}");
+                Console.WriteLine($"  {D}description{R}={G}\"{EscapeTomlString(adapter.Description)}\"{R}");
+                Console.WriteLine($"  {D}id{R}={G}\"{EscapeTomlString(adapter.Id)}\"{R}");
+                string typeLine = $"  {D}type{R}={G}\"{EscapeTomlString(adapter.Type)}\"{R}";
+                if (!string.Equals(adapter.Type, adapter.TypeLong, StringComparison.Ordinal))
+                    typeLine += $"{D} ({EscapeTomlString(adapter.TypeLong)}){R}";
+                Console.WriteLine(typeLine);
+                string statusColor = adapter.Status == "Up" ? G : R;
+                Console.WriteLine($"  {D}status{R}={statusColor}\"{EscapeTomlString(adapter.Status)}\"{R}");
+                Console.WriteLine($"  {D}speed{R}={G}\"{EscapeTomlString(adapter.Speed)}\"{R}");
+                Console.WriteLine($"  {D}mac{R}={G}\"{EscapeTomlString(adapter.MacAddress)}\"{R}");
+                Console.WriteLine($"  {D}ips{R}={C}{adapter.IpAddresses.Length}{R}");
+                foreach (AdapterIpAddress ip in adapter.IpAddresses)
+                {
+                    string cidr = ip.CidrBits > 0 ? $"/{ip.CidrBits}" : "";
+                    Console.WriteLine($"    {C}{ip.Address}{cidr}{R} {D}origin{R}={ip.Origin}");
+                }
+                Console.WriteLine("  ---");
+            }
+            logger.BlockEndNetworkInfo();
         }
 
         bool isDryRun = options.Render.DryRun;
@@ -523,13 +592,6 @@ static class Program
     }
 
 
-
-    static IEnumerable<string> EnumerateLines(string text)
-    {
-        using StringReader reader = new(text);
-        while (reader.ReadLine() is string line)
-            yield return line;
-    }
 
     static ImmutableArray<(OutputRecord Output, OutputOptions Config)> BuildNoDiscoveryMappings(
         ImmutableArray<OutputOptions> configuredOutputs,
