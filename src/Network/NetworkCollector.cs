@@ -6,7 +6,7 @@ namespace GameshowPro.BgRaster.Network;
 static class NetworkCollector
 {
     /// <summary>IANA IF Type integer → (shortName, longName).</summary>
-    internal static readonly FrozenDictionary<int, (string Short, string Long)> IanaIfTypes = new Dictionary<int, (string, string)>
+    internal static readonly FrozenDictionary<int, (string Short, string Long)> s_ianaIfTypes = new Dictionary<int, (string, string)>
     {
         [1]  = ("other", "other"),
         [6]  = ("ethernetCsmacd", "ethernetCsmacd"),
@@ -29,7 +29,7 @@ static class NetworkCollector
     }.ToFrozenDictionary();
 
     /// <summary>.NET NetworkInterfaceType enum name → IANA integer.</summary>
-    internal static readonly FrozenDictionary<string, int> DotNetTypeToIana = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+    internal static readonly FrozenDictionary<string, int> s_dotNetTypeToIana = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
     {
         ["Ethernet"]       = 6,
         ["TokenRing"]      = 9,
@@ -49,7 +49,7 @@ static class NetworkCollector
     }.ToFrozenDictionary();
 
     /// <summary>IANA short name → integer.</summary>
-    internal static readonly FrozenDictionary<string, int> IanaShortToId = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+    internal static readonly FrozenDictionary<string, int> s_ianaShortToId = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
     {
         ["other"] = 1,
         ["ethernetCsmacd"] = 6,
@@ -73,11 +73,11 @@ static class NetworkCollector
     /// <summary>Parse an adapter type value (enum name, IANA short, or integer) to its IANA type ID.</summary>
     internal static bool TryParseAdapterType(string value, out int ianaId)
     {
-        if (int.TryParse(value, out ianaId) && IanaIfTypes.ContainsKey(ianaId))
+        if (int.TryParse(value, out ianaId) && s_ianaIfTypes.ContainsKey(ianaId))
             return true;
-        if (DotNetTypeToIana.TryGetValue(value, out ianaId))
+        if (s_dotNetTypeToIana.TryGetValue(value, out ianaId))
             return true;
-        if (IanaShortToId.TryGetValue(value, out ianaId))
+        if (s_ianaShortToId.TryGetValue(value, out ianaId))
             return true;
         return false;
     }
@@ -124,14 +124,14 @@ static class NetworkCollector
 
     static string GetIanaTypeString(int ifType)
     {
-        if (IanaIfTypes.TryGetValue(ifType, out var names))
+        if (s_ianaIfTypes.TryGetValue(ifType, out (string Short, string Long) names))
             return names.Short;
         return ifType.ToString(System.Globalization.CultureInfo.InvariantCulture);
     }
 
     static string GetIanaTypeLong(int ifType)
     {
-        if (IanaIfTypes.TryGetValue(ifType, out var names))
+        if (s_ianaIfTypes.TryGetValue(ifType, out (string Short, string Long) names))
             return names.Long;
         return ifType.ToString(System.Globalization.CultureInfo.InvariantCulture);
     }
@@ -184,7 +184,7 @@ static class NetworkCollector
     }
 
     static int GetInterfaceTypeNumber(NetworkInterfaceType type) =>
-        DotNetTypeToIana.TryGetValue(type.ToString(), out int id) ? id : (int)type;
+        s_dotNetTypeToIana.TryGetValue(type.ToString(), out int id) ? id : (int)type;
 
     static int CountBits(IPAddress mask)
     {

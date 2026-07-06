@@ -16,7 +16,7 @@ public class SvgRendererTests
         using SKSurface surface = SKSurface.Create(new SKImageInfo(32, 32));
         surface.Canvas.Clear(SKColors.Transparent);
 
-        bool rendered = SvgRenderer.TryRender(stream, surface.Canvas, SKRect.Create(0, 0, 32, 32), alpha: 255, useDarkTheme: false);
+        bool rendered = SvgRenderer.TryRender(stream, surface.Canvas, SKRect.Create(0, 0, 32, 32), alpha: 255, false);
 
         rendered.Should().BeTrue();
 
@@ -33,7 +33,7 @@ public class SvgRendererTests
         using SKSurface surface = SKSurface.Create(new SKImageInfo(32, 32));
         surface.Canvas.Clear(SKColors.Transparent);
 
-        bool rendered = SvgRenderer.TryRender(stream, surface.Canvas, SKRect.Create(0, 0, 32, 32), alpha: 255, useDarkTheme);
+        bool rendered = SvgRenderer.TryRender(stream, surface.Canvas, SKRect.Create(0, 0, 32, 32), 255, useDarkTheme);
         rendered.Should().BeTrue();
 
         using SKImage image = surface.Snapshot();

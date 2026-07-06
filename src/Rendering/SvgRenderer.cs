@@ -5,7 +5,7 @@ namespace GameshowPro.BgRaster.Rendering;
 
 static class SvgRenderer
 {
-    internal static bool TryRender(Stream svgStream, SKCanvas canvas, SKRect fitRect, byte alpha, bool useDarkTheme)
+    internal static bool TryRender(Stream svgStream, SKCanvas canvas, SKRect fitRect, byte alpha, bool _)
     {
         SKSvg? svg;
         try

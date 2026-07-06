@@ -15,7 +15,7 @@ static class LastRunWriter
     internal static void Write(
         string path,
         LastRunState state,
-        string schemaVersion,
+        string _,
         RunStatus? runStatus = null,
         ILogger? logger = null)
     {

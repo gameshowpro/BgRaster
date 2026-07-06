@@ -129,7 +129,7 @@ sealed class NetworkLayer : ILayer
         foreach (AdapterInfo adapter in options.NetworkAdapters)
         {
             string formattedAdapter = NetworkFormatter.FormatAdapter(adapter, adapterFormat);
-            string[] adapterLines = formattedAdapter.Split(new[] { "\n", "<br>" }, StringSplitOptions.None);
+            string[] adapterLines = formattedAdapter.Split(["\n", "<br>"], StringSplitOptions.None);
 
             for (int adapterLineIdx = 0; adapterLineIdx < adapterLines.Length; adapterLineIdx++)
             {
@@ -150,7 +150,7 @@ sealed class NetworkLayer : ILayer
 
                 if (line.Contains(ipMarker))
                 {
-                    string[] parts = line.Split(new[] { ipMarker }, StringSplitOptions.None);
+                    string[] parts = line.Split([ipMarker], StringSplitOptions.None);
                     string prefix = parts[0];
                     string suffix = parts.Length > 1 ? parts[1] : "";
 
@@ -163,7 +163,7 @@ sealed class NetworkLayer : ILayer
                         foreach (AdapterIpAddress ip in adapter.IpAddresses)
                         {
                             string formattedIp = NetworkFormatter.FormatIpAddress(ip, options.NetworkOptions.IpAddressFormat);
-                            string[] ipLines = formattedIp.Split(new[] { "\n", "<br>" }, StringSplitOptions.None);
+                            string[] ipLines = formattedIp.Split(["\n", "<br>"], StringSplitOptions.None);
 
                             for (int i = 0; i < ipLines.Length; i++)
                             {

@@ -174,8 +174,8 @@ static class NetworkSimulatorData
             }
         );
 
-    private static string GetType(int ianaId) => NetworkCollector.IanaIfTypes.TryGetValue(ianaId, out var names) ? names.Short : ianaId.ToString();
-    private static string GetTypeLong(int ianaId) => NetworkCollector.IanaIfTypes.TryGetValue(ianaId, out var names) ? names.Long : ianaId.ToString();
+    private static string GetType(int ianaId) => NetworkCollector.s_ianaIfTypes.TryGetValue(ianaId, out var names) ? names.Short : ianaId.ToString();
+    private static string GetTypeLong(int ianaId) => NetworkCollector.s_ianaIfTypes.TryGetValue(ianaId, out var names) ? names.Long : ianaId.ToString();
     private static string FormatSpeed(long bitsPerSecond)
     {
         if (bitsPerSecond <= 0) return "N/A";

@@ -456,7 +456,7 @@ static class ConfigLoader
         if (title is null && subtitle is null)
             return null;
 
-        string[] defaults = new TextOptions().Format.ToArray();
+        string[] defaults = [.. new TextOptions().Format];
         defaults[0] = title is { Length: > 0 } ? title.Value[0] : defaults[0];
         defaults[2] = subtitle is { Length: > 0 } ? subtitle.Value[0] : defaults[2];
         return [.. defaults];
@@ -465,7 +465,7 @@ static class ConfigLoader
     static ImmutableArray<string> ParseCliStringOrArray(string raw, string source, List<string>? warnings)
     {
         string trimmed = raw.Trim();
-        if (!trimmed.StartsWith("[", StringComparison.Ordinal))
+        if (!trimmed.StartsWith('['))
             return [raw];
 
         try
@@ -502,7 +502,7 @@ static class ConfigLoader
     static ImmutableArray<float> ParseCliFloatOrArray(string raw, string source)
     {
         string trimmed = raw.Trim();
-        if (!trimmed.StartsWith("[", StringComparison.Ordinal))
+        if (!trimmed.StartsWith('['))
         {
             if (!float.TryParse(trimmed, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float singleValue))
                 throw new FormatException($"Invalid numeric value '{raw}' from {source}; expected a float or TOML float array literal.");
@@ -844,7 +844,7 @@ static class ConfigLoader
     {
         if (!t.TryGetValue(key, out object? obj)) return null;
         if (obj is TomlArray arr)
-            return [.. arr.Select(item => item is bool b ? b : false)];
+            return [.. arr.Select(item => item is bool b && b)];
         if (obj is bool b2) return [b2];
         return null;
     }

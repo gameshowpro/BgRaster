@@ -91,9 +91,7 @@ static class ColorParser
 
     static bool TryParseShorthandHexByte(char hex, out byte value)
     {
-        Span<char> expanded = stackalloc char[2];
-        expanded[0] = hex;
-        expanded[1] = hex;
+        Span<char> expanded = [hex, hex];
         return TryParseHexByte(expanded, out value);
     }
 

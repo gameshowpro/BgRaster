@@ -55,8 +55,8 @@ sealed class WallpaperAssigner : IWallpaperAssigner
 
         try
         {
-            Guid clsid = WallpaperInterop.ClsidDesktopWallpaper;
-            Guid iid = WallpaperInterop.IidIDesktopWallpaper;
+            Guid clsid = WallpaperInterop.s_clsidDesktopWallpaper;
+            Guid iid = WallpaperInterop.s_iidIDesktopWallpaper;
             int hr = Ole32.CoCreateInstance(&clsid, 0, WallpaperInterop.CLSCTX_LOCAL_SERVER, &iid, out nint instance);
             if (hr != WallpaperInterop.S_OK || instance == 0)
             {

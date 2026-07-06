@@ -3,14 +3,13 @@
 
 namespace GameshowPro.BgRaster.FileLifecycle;
 
-static class FileNamer
+static partial class FileNamer
 {
     private static readonly System.Text.RegularExpressions.Regex s_bgRasterPattern =
-        new(@"^\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}\.\d{2}_.+\.png$",
-            System.Text.RegularExpressions.RegexOptions.Compiled);
+        MyRegex();
 
     private static readonly System.Text.RegularExpressions.Regex s_tokenPattern =
-        new(@"\{([^{}]+)\}", System.Text.RegularExpressions.RegexOptions.Compiled);
+        TokenPattern();
 
     private static readonly FrozenSet<char> s_invalidFileNameChars =
         Path.GetInvalidFileNameChars().ToFrozenSet();
@@ -39,7 +38,7 @@ static class FileNamer
     }
 
     internal static bool ContainsToken(string outputTemplate, string token) =>
-        outputTemplate.IndexOf($"{{{token}}}", StringComparison.OrdinalIgnoreCase) >= 0;
+        outputTemplate.Contains($"{{{token}}}", StringComparison.OrdinalIgnoreCase);
 
     internal static RenderOutputPathResult ResolveRenderOutputPath(string outputTemplate, OutputRecord output, string? configuredMachineName = null)
     {
@@ -114,4 +113,10 @@ static class FileNamer
 
         return new string(buffer[..len]);
     }
+
+    [System.Text.RegularExpressions.GeneratedRegex(@"\{([^{}]+)\}", System.Text.RegularExpressions.RegexOptions.Compiled)]
+    private static partial System.Text.RegularExpressions.Regex TokenPattern();
+
+    [System.Text.RegularExpressions.GeneratedRegex(@"^\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}\.\d{2}_.+\.png$", System.Text.RegularExpressions.RegexOptions.Compiled)]
+    private static partial System.Text.RegularExpressions.Regex MyRegex();
 }
