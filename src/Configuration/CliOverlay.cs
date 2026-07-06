@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Configuration;
 
-record CliOverlay
+internal record CliOverlay
 {
     internal string? MachineName { get; init; }
     internal string? TextFormat { get; init; }

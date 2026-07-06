@@ -5,7 +5,7 @@ namespace GameshowPro.BgRaster.Tests;
 
 public class TargetMatcherTests
 {
-    static HardwareProfile MakeProfile(params (string Id, int Index)[] outputs) =>
+    private static HardwareProfile MakeProfile(params (string Id, int Index)[] outputs) =>
         new([.. outputs.Select(o => new OutputRecord { Id = o.Id, Index = o.Index })]);
 
     [Fact]
@@ -19,8 +19,8 @@ public class TargetMatcherTests
 
         ImmutableArray<MatchResult> results = TargetMatcher.Match(profile, configs);
 
-        results.Should().HaveCount(1);
-        results[0].Should().BeOfType<MatchResult.Matched>()
+        _ = results.Should().HaveCount(1);
+        _ = results[0].Should().BeOfType<MatchResult.Matched>()
             .Which.Output.Id.Should().Be("id1");
     }
 
@@ -35,7 +35,7 @@ public class TargetMatcherTests
 
         ImmutableArray<MatchResult> results = TargetMatcher.Match(profile, configs);
 
-        results[0].Should().BeOfType<MatchResult.Matched>();
+        _ = results[0].Should().BeOfType<MatchResult.Matched>();
     }
 
     [Fact]
@@ -49,7 +49,7 @@ public class TargetMatcherTests
 
         ImmutableArray<MatchResult> results = TargetMatcher.Match(profile, configs);
 
-        results[0].Should().BeOfType<MatchResult.NotFound>();
+        _ = results[0].Should().BeOfType<MatchResult.NotFound>();
     }
 
     [Fact]
@@ -64,9 +64,9 @@ public class TargetMatcherTests
 
         ImmutableArray<MatchResult> results = TargetMatcher.Match(profile, configs);
 
-        results.Should().HaveCount(2);
-        results[0].Should().BeOfType<MatchResult.Matched>();
-        results[1].Should().BeOfType<MatchResult.Duplicate>();
+        _ = results.Should().HaveCount(2);
+        _ = results[0].Should().BeOfType<MatchResult.Matched>();
+        _ = results[1].Should().BeOfType<MatchResult.Duplicate>();
     }
 
     [Fact]
@@ -80,7 +80,7 @@ public class TargetMatcherTests
 
         ImmutableArray<MatchResult> results = TargetMatcher.Match(profile, configs);
 
-        results[0].Should().BeOfType<MatchResult.NotFound>();
+        _ = results[0].Should().BeOfType<MatchResult.NotFound>();
     }
 
     [Fact]
@@ -93,8 +93,8 @@ public class TargetMatcherTests
             [],
             skipUnspecifiedOutputs: false);
 
-        results.Should().HaveCount(2);
-        results.Should().AllSatisfy(r => r.Should().BeOfType<MatchResult.Matched>());
+        _ = results.Should().HaveCount(2);
+        _ = results.Should().AllSatisfy(r => r.Should().BeOfType<MatchResult.Matched>());
     }
 
     [Fact]
@@ -111,9 +111,9 @@ public class TargetMatcherTests
             configs,
             skipUnspecifiedOutputs: false);
 
-        results.Should().HaveCount(2);
-        results.Should().AllSatisfy(r => r.Should().BeOfType<MatchResult.Matched>());
-        results.OfType<MatchResult.Matched>().Select(m => m.Output.Id).Should().BeEquivalentTo(["id0", "id1"]);
+        _ = results.Should().HaveCount(2);
+        _ = results.Should().AllSatisfy(r => r.Should().BeOfType<MatchResult.Matched>());
+        _ = results.OfType<MatchResult.Matched>().Select(m => m.Output.Id).Should().BeEquivalentTo(["id0", "id1"]);
     }
 
     [Fact]
@@ -130,8 +130,8 @@ public class TargetMatcherTests
             configs,
             skipUnspecifiedOutputs: true);
 
-        results.Should().HaveCount(1);
-        results[0].Should().BeOfType<MatchResult.Matched>();
-        results.OfType<MatchResult.Matched>().Single().Output.Id.Should().Be("id0");
+        _ = results.Should().HaveCount(1);
+        _ = results[0].Should().BeOfType<MatchResult.Matched>();
+        _ = results.OfType<MatchResult.Matched>().Single().Output.Id.Should().Be("id0");
     }
 }

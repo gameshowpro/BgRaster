@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Parsing;
 
-enum FitMode
+internal enum FitMode
 {
     CropTL,
     CropTR,
@@ -14,7 +14,7 @@ enum FitMode
     CropToFill,
 }
 
-static class FitModeParser
+internal static class FitModeParser
 {
     internal static FitMode Parse(string input) =>
         input.Trim() switch

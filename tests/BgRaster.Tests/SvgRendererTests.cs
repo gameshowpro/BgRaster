@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 // Copyright © 2026 Barjonas LLC
 
-namespace GameshowPro.BgRaster.Tests;
 
 using System.Text;
+
+namespace GameshowPro.BgRaster.Tests;
 
 public class SvgRendererTests
 {
@@ -18,26 +19,12 @@ public class SvgRendererTests
 
         bool rendered = SvgRenderer.TryRender(stream, surface.Canvas, SKRect.Create(0, 0, 32, 32), alpha: 255, false);
 
-        rendered.Should().BeTrue();
+        _ = rendered.Should().BeTrue();
 
         using SKImage image = surface.Snapshot();
         using SKBitmap bitmap = SKBitmap.FromImage(image);
         SKColor pixel = bitmap.GetPixel(16, 22);
-        pixel.Alpha.Should().BeGreaterThan((byte)0);
-        pixel.Red.Should().BeGreaterThan((byte)0);
-    }
-
-    static SKColor RenderAndSampleCenter(string svg, bool useDarkTheme)
-    {
-        using MemoryStream stream = new(Encoding.UTF8.GetBytes(svg));
-        using SKSurface surface = SKSurface.Create(new SKImageInfo(32, 32));
-        surface.Canvas.Clear(SKColors.Transparent);
-
-        bool rendered = SvgRenderer.TryRender(stream, surface.Canvas, SKRect.Create(0, 0, 32, 32), 255, useDarkTheme);
-        rendered.Should().BeTrue();
-
-        using SKImage image = surface.Snapshot();
-        using SKBitmap bitmap = SKBitmap.FromImage(image);
-        return bitmap.GetPixel(16, 16);
+        _ = pixel.Alpha.Should().BeGreaterThan((byte)0);
+        _ = pixel.Red.Should().BeGreaterThan((byte)0);
     }
 }

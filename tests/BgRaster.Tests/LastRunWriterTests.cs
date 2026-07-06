@@ -20,15 +20,15 @@ public class LastRunWriterTests
             },
         };
 
-        string toml = GameshowPro.BgRaster.StateCache.LastRunWriter.BuildEffectiveConfigToml(options);
+        string toml = StateCache.LastRunWriter.BuildEffectiveConfigToml(options);
 
-        toml.Should().Contain("[render]");
-        toml.Should().Contain("no-assignment = true");
-        toml.Should().Contain("no-discovery = true");
-        toml.Should().Contain("outputs-skip-unspecified = false");
-        toml.Should().Contain("output = \"C:/temp/out\"");
-        toml.Should().Contain("force = true");
-        toml.Should().Contain("verbosity = \"verbose\"");
+        _ = toml.Should().Contain("[render]");
+        _ = toml.Should().Contain("no-assignment = true");
+        _ = toml.Should().Contain("no-discovery = true");
+        _ = toml.Should().Contain("outputs-skip-unspecified = false");
+        _ = toml.Should().Contain("output = \"C:/temp/out\"");
+        _ = toml.Should().Contain("force = true");
+        _ = toml.Should().Contain("verbosity = \"verbose\"");
     }
 
     [Fact]
@@ -72,21 +72,25 @@ public class LastRunWriterTests
                 },
             };
 
-            GameshowPro.BgRaster.StateCache.LastRunWriter.Write(path, state, "1.0.0");
+            StateCache.LastRunWriter.Write(path, state, "1.0.0");
 
             string toml = File.ReadAllText(path);
-            toml.Should().Contain("[output.slice.text]");
-            toml.Should().Contain("[output.slice.circle]");
-            GameshowPro.BgRaster.StateCache.LastRunReader.Read(path).Should().NotBeNull();
+            _ = toml.Should().Contain("[output.slice.text]");
+            _ = toml.Should().Contain("[output.slice.circle]");
+            _ = StateCache.LastRunReader.Read(path).Should().NotBeNull();
         }
         finally
         {
             if (File.Exists(path))
+            {
                 File.Delete(path);
+            }
 
             string tempPath = path + ".tmp";
             if (File.Exists(tempPath))
+            {
                 File.Delete(tempPath);
+            }
         }
     }
 
@@ -98,14 +102,16 @@ public class LastRunWriterTests
         {
             File.WriteAllText(path, "[text]\nvalue = 1\n[text]\nvalue = 2\n");
 
-            GameshowPro.BgRaster.StateCache.LastRunReader.Read(path).Should().BeNull();
+            _ = StateCache.LastRunReader.Read(path).Should().BeNull();
 
-            File.Exists(path).Should().BeFalse();
+            _ = File.Exists(path).Should().BeFalse();
         }
         finally
         {
             if (File.Exists(path))
+            {
                 File.Delete(path);
+            }
         }
     }
 }

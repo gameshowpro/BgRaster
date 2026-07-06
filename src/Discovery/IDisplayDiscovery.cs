@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Discovery;
 
-interface IDisplayDiscovery
+internal interface IDisplayDiscovery
 {
     HardwareProfile Discover();
 }

@@ -3,20 +3,20 @@
 
 namespace GameshowPro.BgRaster.Rendering;
 
-sealed class OutputRenderer
+internal sealed class OutputRenderer
 {
-    int _sliceSequence;
+    private int _sliceSequence;
 
-    readonly BackgroundLayer _background = new();
-    readonly GridLayer _grid = new();
-    readonly AlternatingLayer _alternating = new();
-    readonly BorderLayer _border = new();
-    readonly CircleLayer _circle = new();
-    readonly CrosshairLayer _crosshair = new();
-    readonly LabeledEdgesLayer _labeledEdges = new();
-    readonly LogoLayer _logo = new();
-    readonly TextLayer _text = new();
-    readonly NetworkLayer _network = new();
+    private readonly BackgroundLayer _background = new();
+    private readonly GridLayer _grid = new();
+    private readonly AlternatingLayer _alternating = new();
+    private readonly BorderLayer _border = new();
+    private readonly CircleLayer _circle = new();
+    private readonly CrosshairLayer _crosshair = new();
+    private readonly LabeledEdgesLayer _labeledEdges = new();
+    private readonly LogoLayer _logo = new();
+    private readonly TextLayer _text = new();
+    private readonly NetworkLayer _network = new();
 
     internal async Task<RenderOutcome> RenderOutputAsync(
         OutputRecord output, OutputOptions? outputConfig,
@@ -48,7 +48,7 @@ sealed class OutputRenderer
                 globalOptions, output, outputConfig, slice, sw, sh, sequenceIndex, sliceIndex, isImplicitSliceSet, systemWidthPx, systemHeightPx);
             RenderContext ctx = new(output, options, sw, sh, sx, sy);
 
-            canvas.Save();
+            _ = canvas.Save();
             canvas.ClipRect(SKRect.Create(sx, sy, sw, sh));
             RenderLayers(ctx, canvas);
             canvas.Restore();
@@ -63,7 +63,7 @@ sealed class OutputRenderer
         return new RenderOutcome(outputFilePath, sliceStatuses.ToImmutable());
     }
 
-    void RenderLayers(RenderContext ctx, SKCanvas canvas)
+    private void RenderLayers(RenderContext ctx, SKCanvas canvas)
     {
         _background.Render(ctx, canvas);
         _grid.Render(ctx, canvas);
@@ -77,7 +77,7 @@ sealed class OutputRenderer
         _network.Render(ctx, canvas);
     }
 
-    static bool TryResolveSliceGeometry(OutputRecord output, SliceOptions slice,
+    private static bool TryResolveSliceGeometry(OutputRecord output, SliceOptions slice,
         out int sx, out int sy, out int sw, out int sh, out string? outOfBoundsReason)
     {
         outOfBoundsReason = null;
@@ -110,13 +110,15 @@ sealed class OutputRenderer
         return true;
     }
 
-    static ImmutableArray<SliceOptions> GetEffectiveSlices(OutputOptions? outputConfig)
+    private static ImmutableArray<SliceOptions> GetEffectiveSlices(OutputOptions? outputConfig)
     {
         if (outputConfig is null || outputConfig.Slices.IsEmpty)
+        {
             return [new SliceOptions()];
+        }
 
         return outputConfig.Slices;
     }
 }
 
-sealed record RenderOutcome(string FilePath, ImmutableArray<SliceStatus> SliceStatuses);
+internal sealed record RenderOutcome(string FilePath, ImmutableArray<SliceStatus> SliceStatuses);

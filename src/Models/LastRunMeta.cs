@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Models;
 
-record LastRunMeta
+internal record LastRunMeta
 {
     internal string Version { get; init; } = "";
     internal string SettingsHash { get; init; } = "";

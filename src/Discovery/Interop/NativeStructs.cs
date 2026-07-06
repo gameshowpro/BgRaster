@@ -4,7 +4,7 @@
 namespace GameshowPro.BgRaster.Discovery.Interop;
 
 [StructLayout(LayoutKind.Sequential)]
-unsafe struct DISPLAY_DEVICE
+internal unsafe struct DISPLAY_DEVICE
 {
     internal uint cb;
     internal fixed char DeviceName[32];
@@ -15,14 +15,14 @@ unsafe struct DISPLAY_DEVICE
 }
 
 [StructLayout(LayoutKind.Sequential)]
-struct POINT
+internal struct POINT
 {
     internal int x;
     internal int y;
 }
 
 [StructLayout(LayoutKind.Sequential)]
-struct RECT
+internal struct RECT
 {
     internal int left;
     internal int top;
@@ -31,7 +31,7 @@ struct RECT
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
-unsafe struct DEVMODE
+internal unsafe struct DEVMODE
 {
     internal fixed char dmDeviceName[32];
     internal ushort dmSpecVersion;
@@ -57,14 +57,14 @@ unsafe struct DEVMODE
 }
 
 [StructLayout(LayoutKind.Sequential)]
-struct LUID
+internal struct LUID
 {
     internal uint LowPart;
     internal int HighPart;
 }
 
 [StructLayout(LayoutKind.Sequential)]
-struct DISPLAYCONFIG_PATH_SOURCE_INFO
+internal struct DISPLAYCONFIG_PATH_SOURCE_INFO
 {
     internal LUID adapterId;
     internal uint id;
@@ -73,7 +73,7 @@ struct DISPLAYCONFIG_PATH_SOURCE_INFO
 }
 
 [StructLayout(LayoutKind.Sequential)]
-struct DISPLAYCONFIG_PATH_TARGET_INFO
+internal struct DISPLAYCONFIG_PATH_TARGET_INFO
 {
     internal LUID adapterId;
     internal uint id;
@@ -88,14 +88,14 @@ struct DISPLAYCONFIG_PATH_TARGET_INFO
 }
 
 [StructLayout(LayoutKind.Sequential)]
-struct DISPLAYCONFIG_RATIONAL
+internal struct DISPLAYCONFIG_RATIONAL
 {
     internal uint Numerator;
     internal uint Denominator;
 }
 
 [StructLayout(LayoutKind.Sequential)]
-struct DISPLAYCONFIG_PATH_INFO
+internal struct DISPLAYCONFIG_PATH_INFO
 {
     internal DISPLAYCONFIG_PATH_SOURCE_INFO sourceInfo;
     internal DISPLAYCONFIG_PATH_TARGET_INFO targetInfo;
@@ -103,14 +103,14 @@ struct DISPLAYCONFIG_PATH_INFO
 }
 
 [StructLayout(LayoutKind.Sequential)]
-struct DISPLAYCONFIG_2DREGION
+internal struct DISPLAYCONFIG_2DREGION
 {
     internal uint cx;
     internal uint cy;
 }
 
 [StructLayout(LayoutKind.Sequential)]
-struct DISPLAYCONFIG_VIDEO_SIGNAL_INFO
+internal struct DISPLAYCONFIG_VIDEO_SIGNAL_INFO
 {
     internal ulong pixelRate;
     internal DISPLAYCONFIG_RATIONAL hSyncFreq;
@@ -122,20 +122,20 @@ struct DISPLAYCONFIG_VIDEO_SIGNAL_INFO
 }
 
 [StructLayout(LayoutKind.Sequential)]
-struct DISPLAYCONFIG_TARGET_MODE
+internal struct DISPLAYCONFIG_TARGET_MODE
 {
     internal DISPLAYCONFIG_VIDEO_SIGNAL_INFO targetVideoSignalInfo;
 }
 
 [StructLayout(LayoutKind.Sequential)]
-struct POINTL
+internal struct POINTL
 {
     internal int x;
     internal int y;
 }
 
 [StructLayout(LayoutKind.Sequential)]
-struct DISPLAYCONFIG_SOURCE_MODE
+internal struct DISPLAYCONFIG_SOURCE_MODE
 {
     internal uint width;
     internal uint height;
@@ -144,7 +144,7 @@ struct DISPLAYCONFIG_SOURCE_MODE
 }
 
 [StructLayout(LayoutKind.Sequential)]
-struct DISPLAYCONFIG_DESKTOP_IMAGE_INFO
+internal struct DISPLAYCONFIG_DESKTOP_IMAGE_INFO
 {
     internal POINTL PathSourceSize;
     internal RECT DesktopImageRegion;
@@ -152,7 +152,7 @@ struct DISPLAYCONFIG_DESKTOP_IMAGE_INFO
 }
 
 [StructLayout(LayoutKind.Explicit)]
-struct DISPLAYCONFIG_MODE_INFO_UNION
+internal struct DISPLAYCONFIG_MODE_INFO_UNION
 {
     [FieldOffset(0)] internal DISPLAYCONFIG_TARGET_MODE targetMode;
     [FieldOffset(0)] internal DISPLAYCONFIG_SOURCE_MODE sourceMode;
@@ -160,7 +160,7 @@ struct DISPLAYCONFIG_MODE_INFO_UNION
 }
 
 [StructLayout(LayoutKind.Sequential)]
-struct DISPLAYCONFIG_MODE_INFO
+internal struct DISPLAYCONFIG_MODE_INFO
 {
     internal uint infoType;
     internal uint id;
@@ -169,7 +169,7 @@ struct DISPLAYCONFIG_MODE_INFO
 }
 
 [StructLayout(LayoutKind.Sequential)]
-struct DISPLAYCONFIG_DEVICE_INFO_HEADER
+internal struct DISPLAYCONFIG_DEVICE_INFO_HEADER
 {
     internal uint type;
     internal uint size;
@@ -178,7 +178,7 @@ struct DISPLAYCONFIG_DEVICE_INFO_HEADER
 }
 
 [StructLayout(LayoutKind.Sequential)]
-unsafe struct DISPLAYCONFIG_TARGET_DEVICE_NAME
+internal unsafe struct DISPLAYCONFIG_TARGET_DEVICE_NAME
 {
     internal DISPLAYCONFIG_DEVICE_INFO_HEADER header;
     internal uint flags;

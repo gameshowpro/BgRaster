@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 // Copyright (C) 2026 Barjonas LLC
 
-namespace GameshowPro.BgRaster.Logging;
 
 using Microsoft.Extensions.Logging.Abstractions;
 
+namespace GameshowPro.BgRaster.Logging;
 /// <summary>
 /// Compact console formatter that outputs "{level} {eventId}: {message}"
 /// with the level name colored (background color, black foreground).
@@ -12,18 +12,18 @@ using Microsoft.Extensions.Logging.Abstractions;
 ///   strings (quoted) = green, numbers = cyan, booleans = magenta.
 /// Multi-line messages are left-aligned (no continuation indent).
 /// </summary>
-sealed class BgRasterConsoleFormatter : ConsoleFormatter
+internal sealed class BgRasterConsoleFormatter : ConsoleFormatter
 {
-    const string Reset = "\x1b[0m";
-    const string Dim = "\x1b[2m";
-    const string BlackFg = "\x1b[30m";
-    const string RedBg = "\x1b[41m";
-    const string YellowBg = "\x1b[43m";
-    const string BlueBg = "\x1b[44m";
-    const string DarkGrayBg = "\x1b[100m";
-    const string GreenFg = "\x1b[32m";
-    const string CyanFg = "\x1b[36m";
-    const string MagentaFg = "\x1b[35m";
+    private const string Reset = "\x1b[0m";
+    private const string Dim = "\x1b[2m";
+    private const string BlackFg = "\x1b[30m";
+    private const string RedBg = "\x1b[41m";
+    private const string YellowBg = "\x1b[43m";
+    private const string BlueBg = "\x1b[44m";
+    private const string DarkGrayBg = "\x1b[100m";
+    private const string GreenFg = "\x1b[32m";
+    private const string CyanFg = "\x1b[36m";
+    private const string MagentaFg = "\x1b[35m";
 
     public BgRasterConsoleFormatter() : base("BgRaster") { }
 
@@ -50,10 +50,12 @@ sealed class BgRasterConsoleFormatter : ConsoleFormatter
                 level = "dbug";
                 color = DarkGrayBg + BlackFg;
                 break;
-            default:
-                level = "info";
-                color = BlueBg + BlackFg;
-                break;
+            case LogLevel.Information:
+                        case LogLevel.None:
+                        default:
+                            level = "info";
+                            color = BlueBg + BlackFg;
+                            break;
         }
 
         // "info 25: message" with level name colored bg + black fg
@@ -77,7 +79,7 @@ sealed class BgRasterConsoleFormatter : ConsoleFormatter
         }
     }
 
-    static void WriteColorizedKeyValues(TextWriter writer, string message)
+    private static void WriteColorizedKeyValues(TextWriter writer, string message)
     {
         // "# bg-raster:" prefix in dim
         writer.Write(Dim);
@@ -97,7 +99,10 @@ sealed class BgRasterConsoleFormatter : ConsoleFormatter
             {
                 // No '=' - write remaining text as-is
                 if (rest.Length > 0)
+                {
                     writer.Write(rest.ToString());
+                }
+
                 break;
             }
 

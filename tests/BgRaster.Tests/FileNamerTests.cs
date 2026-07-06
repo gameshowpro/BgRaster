@@ -10,8 +10,8 @@ public class FileNamerTests
     {
         string template = FileNamer.GetOutputTemplate(null);
 
-        template.Should().Contain("BgRaster");
-        template.Should().Contain("{now}_{index}");
+        _ = template.Should().Contain("BgRaster");
+        _ = template.Should().Contain("{now}_{index}");
     }
 
     [Fact]
@@ -25,8 +25,8 @@ public class FileNamerTests
 
         FileNamer.RenderOutputPathResult result = FileNamer.ResolveRenderOutputPath("C:\\out\\prefix_{index}_{friendlyName}", output);
 
-        result.FilePath.Should().EndWith("prefix_2_Main-Display.png");
-        result.Warnings.Should().BeEmpty();
+        _ = result.FilePath.Should().EndWith("prefix_2_Main-Display.png");
+        _ = result.Warnings.Should().BeEmpty();
     }
 
     [Fact]
@@ -44,10 +44,10 @@ public class FileNamerTests
             "C:\\out\\${MachineName}_${OutputName}_${OutputWidth}x${OutputHeight}_{index}",
             output);
 
-        result.FilePath.Should().Contain(Environment.MachineName);
-        result.FilePath.Should().Contain("Main Display");
-        result.FilePath.Should().Contain("1280x720_1");
-        result.Warnings.Should().BeEmpty();
+        _ = result.FilePath.Should().Contain(Environment.MachineName);
+        _ = result.FilePath.Should().Contain("Main Display");
+        _ = result.FilePath.Should().Contain("1280x720_1");
+        _ = result.Warnings.Should().BeEmpty();
     }
 
     [Fact]
@@ -66,8 +66,8 @@ public class FileNamerTests
             output,
             configuredMachineName: "ConfiguredMachine");
 
-        result.FilePath.Should().Contain("ConfiguredMachine");
-        result.Warnings.Should().BeEmpty();
+        _ = result.FilePath.Should().Contain("ConfiguredMachine");
+        _ = result.Warnings.Should().BeEmpty();
     }
 
     [Fact]
@@ -84,7 +84,7 @@ public class FileNamerTests
 
         FileNamer.RenderOutputPathResult result = FileNamer.ResolveRenderOutputPath(template, output);
 
-        result.FilePath.Should().Be(Path.Combine(currentDirectory, "out", "wall_4.png"));
+        _ = result.FilePath.Should().Be(Path.Combine(currentDirectory, "out", "wall_4.png"));
     }
 
     [Fact]
@@ -94,34 +94,34 @@ public class FileNamerTests
 
         FileNamer.RenderOutputPathResult result = FileNamer.ResolveRenderOutputPath("C:\\out\\name_{unknown}", output);
 
-        result.FilePath.Should().EndWith("name_.png");
-        result.Warnings.Should().ContainSingle();
+        _ = result.FilePath.Should().EndWith("name_.png");
+        _ = result.Warnings.Should().ContainSingle();
     }
 
     [Fact]
     public void IsBgRasterFile_DefaultPatternName_ReturnsTrue()
     {
         string name = "2026-06-03T12-45-01.25_display_0.png";
-        FileNamer.IsBgRasterFile(name).Should().BeTrue();
+        _ = FileNamer.IsBgRasterFile(name).Should().BeTrue();
     }
 
     [Fact]
     public void IsBgRasterFile_ArbitraryPng_ReturnsFalse()
     {
-        FileNamer.IsBgRasterFile("wallpaper.png").Should().BeFalse();
+        _ = FileNamer.IsBgRasterFile("wallpaper.png").Should().BeFalse();
     }
 
     [Fact]
     public void GetOutputDirectory_DefaultTemplate_ContainsBgRaster()
     {
         string dir = FileNamer.GetOutputDirectory(FileNamer.GetOutputTemplate(null));
-        dir.Should().Contain("BgRaster");
+        _ = dir.Should().Contain("BgRaster");
     }
 
     [Fact]
     public void GetOutputDirectory_TemplateWithFileStem_ReturnsParentDirectory()
     {
         string dir = FileNamer.GetOutputDirectory("C:\\custom\\path\\stem_{index}");
-        dir.Should().Be("C:\\custom\\path");
+        _ = dir.Should().Be("C:\\custom\\path");
     }
 }

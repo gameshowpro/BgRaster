@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Models;
 
-record GlobalOptions
+internal record GlobalOptions
 {
     internal TextOptions Text { get; init; } = new();
     internal BackgroundOptions Background { get; init; } = new();

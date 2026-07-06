@@ -3,12 +3,15 @@
 
 namespace GameshowPro.BgRaster.Rendering.Layers;
 
-sealed class GridLayer : ILayer
+internal sealed class GridLayer : ILayer
 {
     public void Render(RenderContext context, SKCanvas canvas)
     {
         float cellSize = context.Options.GridSizePx;
-        if (cellSize <= 0f) return;
+        if (cellSize <= 0f)
+        {
+            return;
+        }
 
         int ox = context.CanvasOffsetX;
         int oy = context.CanvasOffsetY;
@@ -108,7 +111,7 @@ sealed class GridLayer : ILayer
         }
     }
 
-    static bool IsDark(SKColor c)
+    private static bool IsDark(SKColor c)
     {
         float lum = (0.299f * c.Red + 0.587f * c.Green + 0.114f * c.Blue) / 255f;
         float effective = lum * (c.Alpha / 255f) + (1f - c.Alpha / 255f) * 0f;

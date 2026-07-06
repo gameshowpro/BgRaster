@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Models;
 
-record OutputOptions
+internal record OutputOptions
 {
     internal OutputTarget Target { get; init; } = OutputTarget.FromIndex(0);
     internal OutputRecord? HardwareOutput { get; init; }

@@ -3,14 +3,14 @@
 
 namespace GameshowPro.BgRaster.Resolution;
 
-abstract record MatchResult
+internal abstract record MatchResult
 {
     internal sealed record Matched(OutputRecord Output, OutputOptions Config) : MatchResult;
     internal sealed record NotFound(OutputOptions Config) : MatchResult;
     internal sealed record Duplicate(OutputOptions Config, OutputRecord AlreadyMatchedOutput) : MatchResult;
 }
 
-static class TargetMatcher
+internal static class TargetMatcher
 {
     internal static ImmutableArray<MatchResult> Match(
         HardwareProfile profile,
@@ -52,7 +52,9 @@ static class TargetMatcher
             foreach (OutputRecord discovered in profile.Outputs)
             {
                 if (matchedIds.Contains(discovered.Id))
+                {
                     continue;
+                }
 
                 _ = matchedIds.Add(discovered.Id);
                 results.Add(new MatchResult.Matched(

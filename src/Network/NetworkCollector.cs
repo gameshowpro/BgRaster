@@ -3,14 +3,14 @@
 
 namespace GameshowPro.BgRaster.Network;
 
-static class NetworkCollector
+internal static class NetworkCollector
 {
     /// <summary>IANA IF Type integer → (shortName, longName).</summary>
     internal static readonly FrozenDictionary<int, (string Short, string Long)> s_ianaIfTypes = new Dictionary<int, (string, string)>
     {
-        [1]  = ("other", "other"),
-        [6]  = ("ethernetCsmacd", "ethernetCsmacd"),
-        [9]  = ("iso88025TokenRing", "iso88025TokenRing"),
+        [1] = ("other", "other"),
+        [6] = ("ethernetCsmacd", "ethernetCsmacd"),
+        [9] = ("iso88025TokenRing", "iso88025TokenRing"),
         [15] = ("fddi", "fddi"),
         [23] = ("ppp", "ppp"),
         [24] = ("softwareLoopback", "softwareLoopback"),
@@ -31,21 +31,21 @@ static class NetworkCollector
     /// <summary>.NET NetworkInterfaceType enum name → IANA integer.</summary>
     internal static readonly FrozenDictionary<string, int> s_dotNetTypeToIana = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
     {
-        ["Ethernet"]       = 6,
-        ["TokenRing"]      = 9,
-        ["Fddi"]           = 15,
-        ["Ppp"]            = 23,
-        ["Loopback"]       = 24,
-        ["Slip"]           = 28,
-        ["Atm"]            = 37,
+        ["Ethernet"] = 6,
+        ["TokenRing"] = 9,
+        ["Fddi"] = 15,
+        ["Ppp"] = 23,
+        ["Loopback"] = 24,
+        ["Slip"] = 28,
+        ["Atm"] = 37,
         ["FastEthernetFx"] = 62,
-        ["FastEthernetT"]  = 62,
-        ["GigabitEthernet"]= 117,
-        ["Wireless80211"]  = 71,
-        ["Tunnel"]         = 131,
-        ["Wman"]           = 237,
-        ["Wwanpp"]         = 243,
-        ["Wwanpp2"]        = 244,
+        ["FastEthernetT"] = 62,
+        ["GigabitEthernet"] = 117,
+        ["Wireless80211"] = 71,
+        ["Tunnel"] = 131,
+        ["Wman"] = 237,
+        ["Wwanpp"] = 243,
+        ["Wwanpp2"] = 244,
     }.ToFrozenDictionary();
 
     /// <summary>IANA short name → integer.</summary>
@@ -74,15 +74,24 @@ static class NetworkCollector
     internal static bool TryParseAdapterType(string value, out int ianaId)
     {
         if (int.TryParse(value, out ianaId) && s_ianaIfTypes.ContainsKey(ianaId))
+        {
             return true;
+        }
+
         if (s_dotNetTypeToIana.TryGetValue(value, out ianaId))
+        {
             return true;
+        }
+
         if (s_ianaShortToId.TryGetValue(value, out ianaId))
+        {
             return true;
+        }
+
         return false;
     }
 
-    static string FormatOrigin(PrefixOrigin prefix, SuffixOrigin suffix)
+    private static string FormatOrigin(PrefixOrigin prefix, SuffixOrigin suffix)
     {
         string p = prefix switch
         {
@@ -102,14 +111,19 @@ static class NetworkCollector
             _ => "Unknown",
         };
         if (string.Equals(p, s, StringComparison.Ordinal))
+        {
             return p;
+        }
+
         return $"{p}-{s}";
     }
 
-    static string FormatSpeed(long bitsPerSecond)
+    private static string FormatSpeed(long bitsPerSecond)
     {
         if (bitsPerSecond <= 0)
+        {
             return "N/A";
+        }
 
         string[] units = ["b/s", "kb/s", "Mb/s", "Gb/s", "Tb/s"];
         double value = bitsPerSecond;
@@ -122,24 +136,32 @@ static class NetworkCollector
         return $"{value:0.#}{units[unitIdx]}";
     }
 
-    static string GetIanaTypeString(int ifType)
+    private static string GetIanaTypeString(int ifType)
     {
         if (s_ianaIfTypes.TryGetValue(ifType, out (string Short, string Long) names))
+        {
             return names.Short;
-        return ifType.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        return ifType.ToString(CultureInfo.InvariantCulture);
     }
 
-    static string GetIanaTypeLong(int ifType)
+    private static string GetIanaTypeLong(int ifType)
     {
         if (s_ianaIfTypes.TryGetValue(ifType, out (string Short, string Long) names))
+        {
             return names.Long;
-        return ifType.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        return ifType.ToString(CultureInfo.InvariantCulture);
     }
 
     internal static ImmutableArray<AdapterInfo> Collect()
     {
         if (!OperatingSystem.IsWindows())
+        {
             return [];
+        }
 
         ImmutableArray<AdapterInfo>.Builder adapters = ImmutableArray.CreateBuilder<AdapterInfo>();
 
@@ -183,10 +205,10 @@ static class NetworkCollector
         return adapters.ToImmutable();
     }
 
-    static int GetInterfaceTypeNumber(NetworkInterfaceType type) =>
+    private static int GetInterfaceTypeNumber(NetworkInterfaceType type) =>
         s_dotNetTypeToIana.TryGetValue(type.ToString(), out int id) ? id : (int)type;
 
-    static int CountBits(IPAddress mask)
+    private static int CountBits(IPAddress mask)
     {
         byte[] bytes = mask.GetAddressBytes();
         int bits = 0;
@@ -194,8 +216,14 @@ static class NetworkCollector
         {
             for (int i = 7; i >= 0; i--)
             {
-                if ((b & (1 << i)) != 0) bits++;
-                else return bits;
+                if ((b & (1 << i)) != 0)
+                {
+                    bits++;
+                }
+                else
+                {
+                    return bits;
+                }
             }
         }
         return bits;

@@ -5,10 +5,10 @@ namespace GameshowPro.BgRaster.Tests;
 
 public class CliSchemaDocumentationTests
 {
-    const string OptionsTableBeginMarker = "<!-- BEGIN:CLI_OPTIONS_TABLE -->";
-    const string OptionsTableEndMarker = "<!-- END:CLI_OPTIONS_TABLE -->";
-    const string TomlSchemaSectionsBeginMarker = "<!-- BEGIN:TOML_SCHEMA_SECTIONS -->";
-    const string TomlSchemaSectionsEndMarker = "<!-- END:TOML_SCHEMA_SECTIONS -->";
+    private const string OptionsTableBeginMarker = "<!-- BEGIN:CLI_OPTIONS_TABLE -->";
+    private const string OptionsTableEndMarker = "<!-- END:CLI_OPTIONS_TABLE -->";
+    private const string TomlSchemaSectionsBeginMarker = "<!-- BEGIN:TOML_SCHEMA_SECTIONS -->";
+    private const string TomlSchemaSectionsEndMarker = "<!-- END:TOML_SCHEMA_SECTIONS -->";
 
     [Fact]
     public void CliSchema_OptionsTableBlock_UsesSnippetInclude()
@@ -19,17 +19,17 @@ public class CliSchemaDocumentationTests
         int beginIndex = markdown.IndexOf(OptionsTableBeginMarker, StringComparison.Ordinal);
         int endIndex = markdown.IndexOf(OptionsTableEndMarker, StringComparison.Ordinal);
 
-        beginIndex.Should().BeGreaterOrEqualTo(0);
-        endIndex.Should().BeGreaterThan(beginIndex);
+        _ = beginIndex.Should().BeGreaterOrEqualTo(0);
+        _ = endIndex.Should().BeGreaterThan(beginIndex);
 
         int contentStart = beginIndex + OptionsTableBeginMarker.Length;
         string includeBlock = markdown[contentStart..endIndex].Trim();
 
-        includeBlock.Should().Be("--8<-- \"generated/cli-schema.md\"");
+        _ = includeBlock.Should().Be("--8<-- \"generated/cli-schema.md\"");
     }
 
     [Fact]
-        public void TomlSchema_SectionsBlock_UsesSnippetInclude()
+    public void TomlSchema_SectionsBlock_UsesSnippetInclude()
     {
         string tomlSchemaPath = FindTomlSchemaPath();
         string markdown = File.ReadAllText(tomlSchemaPath);
@@ -37,13 +37,13 @@ public class CliSchemaDocumentationTests
         int beginIndex = markdown.IndexOf(TomlSchemaSectionsBeginMarker, StringComparison.Ordinal);
         int endIndex = markdown.IndexOf(TomlSchemaSectionsEndMarker, StringComparison.Ordinal);
 
-        beginIndex.Should().BeGreaterOrEqualTo(0);
-        endIndex.Should().BeGreaterThan(beginIndex);
+        _ = beginIndex.Should().BeGreaterOrEqualTo(0);
+        _ = endIndex.Should().BeGreaterThan(beginIndex);
 
         int contentStart = beginIndex + TomlSchemaSectionsBeginMarker.Length;
         string includeBlock = markdown[contentStart..endIndex].Trim();
 
-        includeBlock.Should().Be("--8<-- \"generated/toml-schema-sections.md\"");
+        _ = includeBlock.Should().Be("--8<-- \"generated/toml-schema-sections.md\"");
     }
 
     [Fact]
@@ -54,20 +54,20 @@ public class CliSchemaDocumentationTests
         using JsonDocument document = JsonDocument.Parse(schemaJson);
         JsonElement root = document.RootElement;
 
-        root.TryGetProperty("x-bgraster", out JsonElement metadata).Should().BeTrue();
-        metadata.ValueKind.Should().Be(JsonValueKind.Object);
+        _ = root.TryGetProperty("x-bgraster", out JsonElement metadata).Should().BeTrue();
+        _ = metadata.ValueKind.Should().Be(JsonValueKind.Object);
 
-        metadata.TryGetProperty("cliOptions", out JsonElement cliOptions).Should().BeTrue();
-        cliOptions.ValueKind.Should().Be(JsonValueKind.Array);
-        cliOptions.GetArrayLength().Should().BeGreaterThan(0);
+        _ = metadata.TryGetProperty("cliOptions", out JsonElement cliOptions).Should().BeTrue();
+        _ = cliOptions.ValueKind.Should().Be(JsonValueKind.Array);
+        _ = cliOptions.GetArrayLength().Should().BeGreaterThan(0);
 
-        metadata.TryGetProperty("cliOnlyOptions", out JsonElement cliOnlyOptions).Should().BeTrue();
-        cliOnlyOptions.ValueKind.Should().Be(JsonValueKind.Array);
+        _ = metadata.TryGetProperty("cliOnlyOptions", out JsonElement cliOnlyOptions).Should().BeTrue();
+        _ = cliOnlyOptions.ValueKind.Should().Be(JsonValueKind.Array);
 
-        root.TryGetProperty("x-cli-options", out JsonElement _).Should().BeFalse();
+        _ = root.TryGetProperty("x-cli-options", out _).Should().BeFalse();
     }
 
-    static string FindCliSchemaPath()
+    private static string FindCliSchemaPath()
     {
         DirectoryInfo? current = new(AppContext.BaseDirectory);
 
@@ -75,7 +75,9 @@ public class CliSchemaDocumentationTests
         {
             string candidate = Path.Combine(current.FullName, "docs", "cli-schema.md");
             if (File.Exists(candidate))
+            {
                 return candidate;
+            }
 
             current = current.Parent;
         }
@@ -83,7 +85,7 @@ public class CliSchemaDocumentationTests
         throw new InvalidOperationException("Could not locate docs/cli-schema.md from test runtime directory.");
     }
 
-    static string FindConfigSchemaPath()
+    private static string FindConfigSchemaPath()
     {
         DirectoryInfo? current = new(AppContext.BaseDirectory);
 
@@ -91,7 +93,9 @@ public class CliSchemaDocumentationTests
         {
             string candidate = Path.Combine(current.FullName, "docs", "schemas", "bgraster-config.schema.json");
             if (File.Exists(candidate))
+            {
                 return candidate;
+            }
 
             current = current.Parent;
         }
@@ -99,7 +103,7 @@ public class CliSchemaDocumentationTests
         throw new InvalidOperationException("Could not locate docs/schemas/bgraster-config.schema.json from test runtime directory.");
     }
 
-    static string FindTomlSchemaPath()
+    private static string FindTomlSchemaPath()
     {
         DirectoryInfo? current = new(AppContext.BaseDirectory);
 
@@ -107,7 +111,9 @@ public class CliSchemaDocumentationTests
         {
             string candidate = Path.Combine(current.FullName, "docs", "toml-schema.md");
             if (File.Exists(candidate))
+            {
                 return candidate;
+            }
 
             current = current.Parent;
         }

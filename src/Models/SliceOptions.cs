@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Models;
 
-record SliceOptions
+internal record SliceOptions
 {
     internal string X { get; init; } = "0";
     internal string Y { get; init; } = "0";

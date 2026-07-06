@@ -23,13 +23,13 @@ namespace GameshowPro.BgRaster.Logging;
 ///
 /// Section headers: bold cyan. Comments: dim.
 /// </summary>
-static class TomlColorizer
+internal static class TomlColorizer
 {
-    const string Reset = "\x1b[0m";
-    const string Dim = "\x1b[2m";
-    const string Cyan = "\x1b[36m";
-    const string Yellow = "\x1b[33m";
-    const string Bold = "\x1b[1m";
+    private const string Reset = "\x1b[0m";
+    private const string Dim = "\x1b[2m";
+    private const string Cyan = "\x1b[36m";
+    private const string Yellow = "\x1b[33m";
+    private const string Bold = "\x1b[1m";
 
     /// <summary>
     /// Colorize effective TOML with provenance tracking.
@@ -49,20 +49,28 @@ static class TomlColorizer
         string subSection = "";
 
         // Header with legend
-        sb.Append(Bold);
-        sb.Append("### Effective configuration (");
-        sb.Append(Reset);
+        _ = sb.Append(Bold);
+        _ = sb.Append("### Effective configuration (");
+        _ = sb.Append(Reset);
 
-        sb.Append(Dim); sb.Append(Bold); sb.Append("Defaults"); sb.Append(Reset);
-        sb.Append(" \u2192 ");
-        sb.Append(Cyan); sb.Append("TOML"); sb.Append(Reset);
-        sb.Append(" \u2192 ");
-        sb.Append(Yellow); sb.Append(Bold); sb.Append("CLI"); sb.Append(Reset);
+        _ = sb.Append(Dim);
+        _ = sb.Append(Bold);
+        _ = sb.Append("Defaults");
+        _ = sb.Append(Reset);
+        _ = sb.Append(" \u2192 ");
+        _ = sb.Append(Cyan);
+        _ = sb.Append("TOML");
+        _ = sb.Append(Reset);
+        _ = sb.Append(" \u2192 ");
+        _ = sb.Append(Yellow);
+        _ = sb.Append(Bold);
+        _ = sb.Append("CLI");
+        _ = sb.Append(Reset);
 
-        sb.Append(Bold);
-        sb.Append(')');
-        sb.Append(Reset);
-        sb.Append('\n');
+        _ = sb.Append(Bold);
+        _ = sb.Append(')');
+        _ = sb.Append(Reset);
+        _ = sb.Append('\n');
 
         using StringReader reader = new(effectiveToml);
         while (reader.ReadLine() is string line)
@@ -72,35 +80,35 @@ static class TomlColorizer
 
             if (string.IsNullOrWhiteSpace(line))
             {
-                sb.Append('\n');
+                _ = sb.Append('\n');
                 continue;
             }
 
             if (isComment)
             {
-                sb.Append(Dim);
-                sb.Append(line);
-                sb.Append(Reset);
-                sb.Append('\n');
+                _ = sb.Append(Dim);
+                _ = sb.Append(line);
+                _ = sb.Append(Reset);
+                _ = sb.Append('\n');
                 continue;
             }
 
             if (trimmed.StartsWith('['))
             {
                 ParseHeader(trimmed, ref currentSection, ref outputIndex, ref sliceIndex, ref subSection);
-                sb.Append(Bold);
-                sb.Append(Cyan);
-                sb.Append(line);
-                sb.Append(Reset);
-                sb.Append('\n');
+                _ = sb.Append(Bold);
+                _ = sb.Append(Cyan);
+                _ = sb.Append(line);
+                _ = sb.Append(Reset);
+                _ = sb.Append('\n');
                 continue;
             }
 
             int eq = line.IndexOf('=');
             if (eq < 0)
             {
-                sb.Append(line);
-                sb.Append('\n');
+                _ = sb.Append(line);
+                _ = sb.Append('\n');
                 continue;
             }
 
@@ -114,74 +122,88 @@ static class TomlColorizer
             (string? keyColor, string? valColor) = ResolveColors(inToml, inCli);
 
             string indent = line[..(line.Length - trimmed.Length)];
-            sb.Append(indent);
+            _ = sb.Append(indent);
 
             // Field name
             if (keyColor is not null)
             {
-                sb.Append(keyColor);
-                sb.Append(Bold);
-                sb.Append(key);
-                sb.Append(Reset);
+                _ = sb.Append(keyColor);
+                _ = sb.Append(Bold);
+                _ = sb.Append(key);
+                _ = sb.Append(Reset);
             }
             else
             {
-                sb.Append(Bold);
-                sb.Append(key);
-                sb.Append(Reset);
+                _ = sb.Append(Bold);
+                _ = sb.Append(key);
+                _ = sb.Append(Reset);
             }
 
-            sb.Append(" = ");
+            _ = sb.Append(" = ");
 
             // Value
             if (valColor is not null)
             {
-                sb.Append(valColor);
-                sb.Append(value.TrimStart());
-                sb.Append(Reset);
+                _ = sb.Append(valColor);
+                _ = sb.Append(value.TrimStart());
+                _ = sb.Append(Reset);
             }
             else
             {
-                sb.Append(value.TrimStart());
+                _ = sb.Append(value.TrimStart());
             }
 
-            sb.Append('\n');
+            _ = sb.Append('\n');
         }
 
         return sb.ToString();
     }
 
-    static (string? keyColor, string? valColor) ResolveColors(bool inToml, bool inCli)
+    private static (string? keyColor, string? valColor) ResolveColors(bool inToml, bool inCli)
     {
         if (inCli && inToml)
+        {
             return (Cyan, Bold + Yellow);
+        }
+
         if (inCli)
+        {
             return (Bold + Yellow, Bold + Yellow);
+        }
+
         if (inToml)
+        {
             return (Cyan, Cyan);
+        }
 
         // Default only - both field name and value are dim
         return (Dim, Dim);
     }
 
-    static string BuildPath(string section, int outputIdx, int sliceIdx, string subSection, string key)
+    private static string BuildPath(string section, int outputIdx, int sliceIdx, string subSection, string key)
     {
         if (outputIdx >= 0)
         {
             if (sliceIdx >= 0)
             {
                 if (!string.IsNullOrEmpty(subSection))
+                {
                     return $"output[{outputIdx}].slice[{sliceIdx}].{subSection}.{key}";
+                }
+
                 return $"output[{outputIdx}].slice[{sliceIdx}].{key}";
             }
             if (!string.IsNullOrEmpty(subSection))
+            {
                 return $"output[{outputIdx}].{subSection}.{key}";
+            }
+
             return $"output[{outputIdx}].{key}";
         }
         return $"{section}.{key}";
     }
 
-    static void ParseHeader(string trimmed, ref string section, ref int outputIdx, ref int sliceIdx, ref string subSection)
+    private static void ParseHeader(string trimmed, ref string section, ref int outputIdx, ref int sliceIdx, ref string subSection)
     {
         if (trimmed.StartsWith("[["))
         {

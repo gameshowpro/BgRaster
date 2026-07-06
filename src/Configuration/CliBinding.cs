@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Configuration;
 
-static class CliBinding
+internal static class CliBinding
 {
     internal static RootCommand BuildRootCommand(Func<string?, CliOverlay, Task<int>> handler)
     {

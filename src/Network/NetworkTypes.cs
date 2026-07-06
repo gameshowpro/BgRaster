@@ -4,7 +4,7 @@
 namespace GameshowPro.BgRaster.Network;
 
 /// <summary>Collected representation of a single IP address on an adapter.</summary>
-record AdapterIpAddress
+internal record AdapterIpAddress
 {
     internal string Address { get; init; } = string.Empty;
     internal int CidrBits { get; init; }
@@ -12,7 +12,7 @@ record AdapterIpAddress
 }
 
 /// <summary>Collected representation of a network adapter.</summary>
-record AdapterInfo
+internal record AdapterInfo
 {
     internal string Name { get; init; } = string.Empty;
     internal string Description { get; init; } = string.Empty;

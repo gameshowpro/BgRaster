@@ -3,4 +3,4 @@
 
 namespace GameshowPro.BgRaster.Models;
 
-record HardwareProfile(ImmutableArray<OutputRecord> Outputs);
+internal record HardwareProfile(ImmutableArray<OutputRecord> Outputs);

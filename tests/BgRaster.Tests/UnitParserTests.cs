@@ -20,15 +20,15 @@ public class UnitParserTests
     {
         DimensionUnit expectedUnit = Enum.Parse<DimensionUnit>(expectedUnitName);
         UnitValue result = UnitParser.Parse(input);
-        result.Value.Should().BeApproximately(expectedValue, 0.001f);
-        result.Unit.Should().Be(expectedUnit);
+        _ = result.Value.Should().BeApproximately(expectedValue, 0.001f);
+        _ = result.Unit.Should().Be(expectedUnit);
     }
 
     [Fact]
     public void Parse_Invalid_ThrowsFormatException()
     {
         Action act = () => UnitParser.Parse("abc");
-        act.Should().Throw<FormatException>();
+        _ = act.Should().Throw<FormatException>();
     }
 
     [Fact]
@@ -36,7 +36,7 @@ public class UnitParserTests
     {
         UnitValue uv = UnitParser.Parse("50vh");
         float px = uv.ResolvePixels(1920f, 1080f);
-        px.Should().BeApproximately(540f, 0.1f);
+        _ = px.Should().BeApproximately(540f, 0.1f);
     }
 
     [Fact]
@@ -44,7 +44,7 @@ public class UnitParserTests
     {
         UnitValue uv = UnitParser.Parse("50vw");
         float px = uv.ResolvePixels(1920f, 1080f);
-        px.Should().BeApproximately(960f, 0.1f);
+        _ = px.Should().BeApproximately(960f, 0.1f);
     }
 
     [Fact]
@@ -52,7 +52,7 @@ public class UnitParserTests
     {
         UnitValue uv = UnitParser.Parse("5vmin");
         float px = uv.ResolvePixels(1920f, 1080f);
-        px.Should().BeApproximately(54f, 0.1f);
+        _ = px.Should().BeApproximately(54f, 0.1f);
     }
 
     [Fact]
@@ -60,7 +60,7 @@ public class UnitParserTests
     {
         UnitValue uv = UnitParser.Parse("10vmax");
         float px = uv.ResolvePixels(1920f, 1080f);
-        px.Should().BeApproximately(192f, 0.1f);
+        _ = px.Should().BeApproximately(192f, 0.1f);
     }
 
     [Fact]
@@ -68,6 +68,6 @@ public class UnitParserTests
     {
         UnitValue uv = UnitParser.Parse("128px");
         float px = uv.ResolvePixels(1920f, 1080f);
-        px.Should().BeApproximately(128f, 0.001f);
+        _ = px.Should().BeApproximately(128f, 0.001f);
     }
 }

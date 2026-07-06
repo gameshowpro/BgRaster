@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 // Copyright © 2026 Barjonas LLC
 
-namespace GameshowPro.BgRaster.Discovery;
 
 using GameshowPro.BgRaster.Discovery.Interop;
 
-sealed class DisplayDiscovery : IDisplayDiscovery
+namespace GameshowPro.BgRaster.Discovery;
+
+internal sealed class DisplayDiscovery : IDisplayDiscovery
 {
     public unsafe HardwareProfile Discover()
     {
@@ -19,9 +20,14 @@ sealed class DisplayDiscovery : IDisplayDiscovery
         {
             uint flags = adapter.StateFlags;
             if ((flags & DisplayConstants.DISPLAY_DEVICE_MIRRORING_DRIVER) != 0)
+            {
                 continue;
+            }
+
             if ((flags & DisplayConstants.DISPLAY_DEVICE_ATTACHED_TO_DESKTOP) == 0)
+            {
                 continue;
+            }
 
             string adapterDeviceName = ReadFixedChars(adapter.DeviceName, 32);
             string adapterFriendly = ReadFixedChars(adapter.DeviceString, 128);
@@ -29,7 +35,9 @@ sealed class DisplayDiscovery : IDisplayDiscovery
             DEVMODE devMode = default;
             devMode.dmSize = (ushort)sizeof(DEVMODE);
             if (!DisplayInterop.EnumDisplaySettingsEx(adapterDeviceName, DisplayConstants.ENUM_CURRENT_SETTINGS, ref devMode, 0))
+            {
                 continue;
+            }
 
             int desktopX = devMode.dmPosition.x;
             int desktopY = devMode.dmPosition.y;
@@ -54,7 +62,9 @@ sealed class DisplayDiscovery : IDisplayDiscovery
                  monitorIdx++)
             {
                 if ((monitor.StateFlags & DisplayConstants.DISPLAY_DEVICE_ACTIVE) == 0)
+                {
                     continue;
+                }
 
                 string deviceId = ReadFixedChars(monitor.DeviceID, 128);
                 string monitorString = ReadFixedChars(monitor.DeviceString, 128);
@@ -92,28 +102,38 @@ sealed class DisplayDiscovery : IDisplayDiscovery
         return new HardwareProfile([.. sorted]);
     }
 
-    static unsafe (int dpiX, int dpiY) QueryDpi(int desktopX, int desktopY)
+    private static (int dpiX, int dpiY) QueryDpi(int desktopX, int desktopY)
     {
         POINT pt = new() { x = desktopX, y = desktopY };
         nint hmon = DisplayInterop.MonitorFromPoint(pt, DisplayConstants.MONITOR_DEFAULTTONEAREST);
         if (hmon == 0)
+        {
             return (96, 96);
+        }
+
         if (DisplayInterop.GetDpiForMonitor(hmon, DisplayConstants.MDT_EFFECTIVE_DPI, out uint dx, out uint dy) != 0)
+        {
             return (96, 96);
+        }
+
         return ((int)dx, (int)dy);
     }
 
-    readonly record struct TargetName(LUID AdapterId, uint TargetId, string DevicePath, string FriendlyName);
+    private readonly record struct TargetName(LUID AdapterId, uint TargetId, string DevicePath, string FriendlyName);
 
-    static unsafe ImmutableArray<TargetName> QueryTargetNames()
+    private static unsafe ImmutableArray<TargetName> QueryTargetNames()
     {
         if (DisplayInterop.GetDisplayConfigBufferSizes(
                 DisplayConstants.QDC_ONLY_ACTIVE_PATHS,
                 out uint numPaths, out uint numModes) != 0)
+        {
             return [];
+        }
 
         if (numPaths == 0)
+        {
             return [];
+        }
 
         DISPLAYCONFIG_PATH_INFO[] paths = new DISPLAYCONFIG_PATH_INFO[numPaths];
         DISPLAYCONFIG_MODE_INFO[] modes = new DISPLAYCONFIG_MODE_INFO[numModes];
@@ -128,7 +148,9 @@ sealed class DisplayDiscovery : IDisplayDiscovery
         }
 
         if (rc != 0)
+        {
             return [];
+        }
 
         ImmutableArray<TargetName>.Builder builder = ImmutableArray.CreateBuilder<TargetName>((int)numPaths);
         for (int i = 0; i < (int)numPaths; i++)
@@ -141,7 +163,9 @@ sealed class DisplayDiscovery : IDisplayDiscovery
 
             int hr = DisplayInterop.DisplayConfigGetDeviceInfo(&req);
             if (hr != 0)
+            {
                 continue;
+            }
 
             string devicePath = ReadFixedChars(req.monitorDevicePath, 128);
             string friendly = ReadFixedChars(req.monitorFriendlyDeviceName, 64);
@@ -152,22 +176,27 @@ sealed class DisplayDiscovery : IDisplayDiscovery
         return builder.ToImmutable();
     }
 
-    static string LookupFriendlyName(ImmutableArray<TargetName> targets, string monitorDeviceId, string fallback)
+    private static string LookupFriendlyName(ImmutableArray<TargetName> targets, string monitorDeviceId, string fallback)
     {
         foreach (TargetName t in targets)
         {
             if (string.Equals(t.DevicePath, monitorDeviceId, StringComparison.OrdinalIgnoreCase)
                 && !string.IsNullOrEmpty(t.FriendlyName))
+            {
                 return t.FriendlyName;
+            }
         }
         return fallback;
     }
 
-    static unsafe string ReadFixedChars(char* p, int maxLen)
+    private static unsafe string ReadFixedChars(char* p, int maxLen)
     {
         int len = 0;
         while (len < maxLen && p[len] != '\0')
+        {
             len++;
+        }
+
         return new string(p, 0, len);
     }
 }

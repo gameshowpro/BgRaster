@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Rendering.Layers;
 
-sealed class NetworkLayer : ILayer
+internal sealed class NetworkLayer : ILayer
 {
     public void Render(RenderContext context, SKCanvas canvas)
     {
@@ -23,9 +23,11 @@ sealed class NetworkLayer : ILayer
         }
 
         if (context.Options.NetworkAdapters.Length == 0)
+        {
             return;
+        }
 
-        ImmutableArray<(string Text, float SizePx, SKColor Color)>.Builder linesBuilder = 
+        ImmutableArray<(string Text, float SizePx, SKColor Color)>.Builder linesBuilder =
             ImmutableArray.CreateBuilder<(string Text, float SizePx, SKColor Color)>();
 
         int lineIndex = 0;
@@ -34,7 +36,9 @@ sealed class NetworkLayer : ILayer
         ImmutableArray<(string Text, float SizePx, SKColor Color)> lines = linesBuilder.ToImmutable();
 
         if (lines.Length == 0)
+        {
             return;
+        }
 
         float cx = context.CanvasOffsetX + context.Options.NetworkXPx;
         float cy = context.CanvasOffsetY + context.Options.NetworkYPx;
@@ -121,7 +125,9 @@ sealed class NetworkLayer : ILayer
         ImmutableArray<(string Text, float SizePx, SKColor Color)>.Builder linesBuilder)
     {
         if (options.NetworkAdapters.Length == 0)
+        {
             return;
+        }
 
         string ipMarker = "\0IP_MARKER\0";
         string adapterFormat = options.NetworkOptions.AdapterFormat.Replace("${IpAddresses}", ipMarker);
@@ -137,7 +143,9 @@ sealed class NetworkLayer : ILayer
 
                 // Don't add trailing empty line if it's just the end of the adapter format
                 if (adapterLineIdx == adapterLines.Length - 1 && string.IsNullOrEmpty(line) && adapterLineIdx > 0)
+                {
                     continue;
+                }
 
                 float sizePx = options.NetworkSizesPx.Length > 0 ? options.NetworkSizesPx[lineIndex % options.NetworkSizesPx.Length] : 0f;
                 SKColor color = options.NetworkColors.Length > 0 ? options.NetworkColors[lineIndex % options.NetworkColors.Length] : SKColors.Transparent;
@@ -156,7 +164,9 @@ sealed class NetworkLayer : ILayer
 
                     // Whitespace is formatting, not content - skip it
                     if (!string.IsNullOrWhiteSpace(prefix))
+                    {
                         linesBuilder.Add((prefix, sizePx, color));
+                    }
 
                     if (!string.IsNullOrWhiteSpace(options.NetworkOptions.IpAddressFormat))
                     {
@@ -168,14 +178,19 @@ sealed class NetworkLayer : ILayer
                             for (int i = 0; i < ipLines.Length; i++)
                             {
                                 if (i == ipLines.Length - 1 && string.IsNullOrEmpty(ipLines[i]) && i > 0)
+                                {
                                     continue;
+                                }
+
                                 linesBuilder.Add((ipLines[i], sizePx, color));
                             }
                         }
                     }
 
                     if (!string.IsNullOrWhiteSpace(suffix))
+                    {
                         linesBuilder.Add((suffix, sizePx, color));
+                    }
 
                     lineIndex++;
                 }

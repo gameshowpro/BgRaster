@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Models;
 
-record CircleOverride
+internal record CircleOverride
 {
     internal string? X { get; init; }
     internal string? Y { get; init; }

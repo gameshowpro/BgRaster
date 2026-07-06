@@ -3,14 +3,16 @@
 
 namespace GameshowPro.BgRaster.Rendering.Layers;
 
-sealed class LogoLayer : ILayer
+internal sealed class LogoLayer : ILayer
 {
-    const string DefaultLogoResourceSuffix = "BgRaster.svg";
+    private const string DefaultLogoResourceSuffix = "BgRaster.svg";
 
     public void Render(RenderContext context, SKCanvas canvas)
     {
         if (LayerSuppression.ShouldSuppressLogo(context.Options))
+        {
             return;
+        }
 
         float anchorX = TextLayer.ParseAnchorX(context.Options.LogoAnchorX);
         float anchorY = TextLayer.ParseAnchorY(context.Options.LogoAnchorY);
@@ -24,41 +26,53 @@ sealed class LogoLayer : ILayer
         bool useDarkTheme = IsDarkBackground(context.Options.BackgroundColor);
 
         if (!string.IsNullOrEmpty(source) && TryRenderSvgLogo(source, canvas, cx, cy, targetWidth, targetHeight, anchorX, anchorY, alpha, useDarkTheme))
+        {
             return;
+        }
 
         if (!string.IsNullOrEmpty(source) && TryRenderBitmapLogo(source, canvas, cx, cy, targetWidth, targetHeight, anchorX, anchorY, alpha))
+        {
             return;
+        }
 
         Console.WriteLine($"LogoLayer: status=logo-fallback-used source=\"{source}\"");
         RenderDefaultSvgLogo(canvas, cx, cy, targetWidth, targetHeight, anchorX, anchorY, alpha, useDarkTheme);
     }
 
-    static bool TryRenderSvgLogo(string source, SKCanvas canvas, float cx, float cy, float targetWidth, float targetHeight, float anchorX, float anchorY, byte alpha, bool _)
+    private static bool TryRenderSvgLogo(string source, SKCanvas canvas, float cx, float cy, float targetWidth, float targetHeight, float anchorX, float anchorY, byte alpha, bool _useDarkTheme)
     {
         Stream? svgStream = null;
         try
         {
             if (!TryOpenSvgLogoStream(source, out svgStream) || svgStream is null)
+            {
                 return false;
+            }
 
             SKSvg svg = new();
-            svg.Load(svgStream);
-            if (svg.Picture is null) return false;
+            _ = svg.Load(svgStream);
+            if (svg.Picture is null)
+            {
+                return false;
+            }
 
             SKRect svgBounds = svg.Picture.CullRect;
-            if (svgBounds.Width <= 0 || svgBounds.Height <= 0) return false;
+            if (svgBounds.Width <= 0 || svgBounds.Height <= 0)
+            {
+                return false;
+            }
 
             (float renderW, float renderH, float scaleX, float scaleY, float offsetX, float offsetY) =
                 ComputeRender(targetWidth, targetHeight, svgBounds.Width, svgBounds.Height, anchorX, anchorY);
 
-            canvas.Save();
+            _ = canvas.Save();
             canvas.Translate(cx + offsetX, cy + offsetY);
             canvas.Scale(scaleX, scaleY);
 
             if (alpha < 255)
             {
                 using SKPaint layerPaint = new() { Color = SKColors.White.WithAlpha(alpha) };
-                canvas.SaveLayer(layerPaint);
+                _ = canvas.SaveLayer(layerPaint);
                 canvas.DrawPicture(svg.Picture);
                 canvas.Restore();
             }
@@ -80,7 +94,7 @@ sealed class LogoLayer : ILayer
         }
     }
 
-    static bool TryRenderBitmapLogo(string source, SKCanvas canvas, float cx, float cy, float targetWidth, float targetHeight, float anchorX, float anchorY, byte alpha)
+    private static bool TryRenderBitmapLogo(string source, SKCanvas canvas, float cx, float cy, float targetWidth, float targetHeight, float anchorX, float anchorY, byte alpha)
     {
         SKBitmap? bitmap = null;
         try
@@ -89,12 +103,18 @@ sealed class LogoLayer : ILayer
             if (Uri.TryCreate(source, UriKind.Absolute, out Uri? uri))
             {
                 if (!uri.IsFile)
+                {
                     return false;
+                }
+
                 bitmapSource = uri.LocalPath;
             }
 
             bitmap = SKBitmap.Decode(bitmapSource);
-            if (bitmap is null) return false;
+            if (bitmap is null)
+            {
+                return false;
+            }
 
             (float renderW, float renderH, float scaleX, float scaleY, float offsetX, float offsetY) =
                 ComputeRender(targetWidth, targetHeight, bitmap.Width, bitmap.Height, anchorX, anchorY);
@@ -115,31 +135,35 @@ sealed class LogoLayer : ILayer
         }
     }
 
-    #pragma warning disable IDE0060 // cx, cy, dark kept for API compatibility
-    static void RenderDefaultSvgLogo(SKCanvas canvas, float _cx, float _cy, float targetWidth, float targetHeight, float anchorX, float anchorY, byte alpha, bool _dark)
+#pragma warning disable IDE0060 // cx, cy, dark kept for API compatibility
+    private static void RenderDefaultSvgLogo(SKCanvas canvas, float _cx, float _cy, float targetWidth, float targetHeight, float anchorX, float anchorY, byte alpha, bool _dark)
 #pragma warning restore IDE0060
     {
         using Stream svgStream = OpenEmbeddedDefaultLogoStream();
         SKSvg svg = new();
-        svg.Load(svgStream);
+        _ = svg.Load(svgStream);
         if (svg.Picture is null)
+        {
             throw new InvalidOperationException("Embedded default logo SVG failed to load.");
+        }
 
         SKRect svgBounds = svg.Picture.CullRect;
         if (svgBounds.Width <= 0 || svgBounds.Height <= 0)
+        {
             throw new InvalidOperationException("Embedded default logo SVG has zero-size bounds.");
+        }
 
         (float renderW, float renderH, float scaleX, float scaleY, float offsetX, float offsetY) =
             ComputeRender(targetWidth, targetHeight, svgBounds.Width, svgBounds.Height, anchorX, anchorY);
 
-        canvas.Save();
+        _ = canvas.Save();
         canvas.Translate(offsetX, offsetY);
         canvas.Scale(scaleX, scaleY);
 
         if (alpha < 255)
         {
             using SKPaint layerPaint = new() { Color = SKColors.White.WithAlpha(alpha) };
-            canvas.SaveLayer(layerPaint);
+            _ = canvas.SaveLayer(layerPaint);
             canvas.DrawPicture(svg.Picture);
             canvas.Restore();
         }
@@ -157,7 +181,7 @@ sealed class LogoLayer : ILayer
     /// - If only one is set: the other is computed from the source's natural aspect ratio.
     /// - If neither is set: source renders at its natural pixel size.
     /// </summary>
-    static (float renderW, float renderH, float scaleX, float scaleY, float offsetX, float offsetY)
+    private static (float renderW, float renderH, float scaleX, float scaleY, float offsetX, float offsetY)
         ComputeRender(float targetWidth, float targetHeight, float naturalW, float naturalH, float anchorX, float anchorY)
     {
         float scaleX, scaleY, renderW, renderH;
@@ -221,7 +245,7 @@ sealed class LogoLayer : ILayer
         return relativeLuminance < 0.5f;
     }
 
-    static bool TryOpenSvgLogoStream(string source, out Stream? svgStream)
+    private static bool TryOpenSvgLogoStream(string source, out Stream? svgStream)
     {
         svgStream = null;
 
@@ -243,56 +267,67 @@ sealed class LogoLayer : ILayer
         }
 
         if (!TryResolveSvgPath(source, out string? svgPath) || svgPath is null)
+        {
             return false;
+        }
 
         svgStream = File.OpenRead(svgPath);
         return true;
     }
 
-    static string ExtractPackUriResourcePath(string packUri)
+    private static string ExtractPackUriResourcePath(string packUri)
     {
         int componentIndex = packUri.IndexOf(";component/", StringComparison.OrdinalIgnoreCase);
         if (componentIndex < 0)
+        {
             return string.Empty;
+        }
 
         string resourcePath = packUri[(componentIndex + ";component/".Length)..];
         int lastSlash = resourcePath.LastIndexOf('/');
         return lastSlash >= 0 ? resourcePath[(lastSlash + 1)..] : resourcePath;
     }
 
-    static bool TryOpenEmbeddedResource(string resourceSuffix, out Stream? resourceStream)
+    private static bool TryOpenEmbeddedResource(string resourceSuffix, out Stream? resourceStream)
     {
         resourceStream = null;
         Assembly assembly = Assembly.GetExecutingAssembly();
         string? match = assembly.GetManifestResourceNames()
             .FirstOrDefault(n => n.EndsWith(resourceSuffix, StringComparison.OrdinalIgnoreCase));
         if (match is null)
+        {
             return false;
+        }
+
         resourceStream = assembly.GetManifestResourceStream(match);
         return resourceStream is not null;
     }
 
-    static bool TryResolveSvgPath(string source, out string? svgPath)
+    private static bool TryResolveSvgPath(string source, out string? svgPath)
     {
         svgPath = null;
 
         if (Uri.TryCreate(source, UriKind.Absolute, out Uri? uri))
         {
             if (!uri.IsFile || !uri.LocalPath.EndsWith(".svg", StringComparison.OrdinalIgnoreCase))
+            {
                 return false;
+            }
 
             svgPath = uri.LocalPath;
             return true;
         }
 
         if (!source.EndsWith(".svg", StringComparison.OrdinalIgnoreCase))
+        {
             return false;
+        }
 
         svgPath = source;
         return true;
     }
 
-    static Stream OpenEmbeddedDefaultLogoStream()
+    private static Stream OpenEmbeddedDefaultLogoStream()
     {
         Assembly assembly = Assembly.GetExecutingAssembly();
         string? resourceName = assembly

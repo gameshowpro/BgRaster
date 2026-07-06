@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: MIT
 // Copyright © 2026 Barjonas LLC
 
-namespace GameshowPro.BgRaster;
 
 using System.Diagnostics;
 
-static class Program
+namespace GameshowPro.BgRaster;
+
+internal static class Program
 {
-    static async Task<int> Main(string[] args)
+    private static async Task<int> Main(string[] args)
     {
         try
         {
@@ -27,7 +28,7 @@ static class Program
         }
     }
 
-    static async Task<int> RunAsync(string? configPath, CliOverlay cliOverlay)
+    private static async Task<int> RunAsync(string? configPath, CliOverlay cliOverlay)
     {
         Stopwatch executionTimer = Stopwatch.StartNew();
 
@@ -79,22 +80,25 @@ static class Program
 
         using ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
         {
-            builder.ClearProviders();
+            _ = builder.ClearProviders();
 #pragma warning disable IL2026, IL3050 // AOT: generic formatter overload
-            builder.AddConsoleFormatter<BgRasterConsoleFormatter, ConsoleFormatterOptions>();
+            _ = builder.AddConsoleFormatter<BgRasterConsoleFormatter, ConsoleFormatterOptions>();
 #pragma warning restore IL2026, IL3050
-            builder.AddConsole(o => o.FormatterName = "BgRaster");
-            builder.SetMinimumLevel(options.Render.MinimumLogLevel);
+            _ = builder.AddConsole(o => o.FormatterName = "BgRaster");
+            _ = builder.SetMinimumLevel(options.Render.MinimumLogLevel);
         });
         ILogger logger = loggerFactory.CreateLogger("bg-raster");
 
         int ReturnWithTiming(int exitCode)
-                {
-                    executionTimer.Stop();
-                    if (logger.IsEnabled(LogLevel.Information))
-                        logger.ExecutionTime(executionTimer.ElapsedMilliseconds, executionTimer.Elapsed.ToString("c", System.Globalization.CultureInfo.InvariantCulture), exitCode);
-                    return exitCode;
-                }
+        {
+            executionTimer.Stop();
+            if (logger.IsEnabled(LogLevel.Information))
+            {
+                logger.ExecutionTime(executionTimer.ElapsedMilliseconds, executionTimer.Elapsed.ToString("c", CultureInfo.InvariantCulture), exitCode);
+            }
+
+            return exitCode;
+        }
 
         logger.RunStart(
             resolvedConfigPath,
@@ -105,10 +109,14 @@ static class Program
             options.Render.MinimumLogLevel);
 
         if (options.Outputs.Length == 0)
+        {
             logger.NoConfiguredOutputs();
+        }
 
         foreach (string warning in configurationWarnings)
+        {
             logger.ConfigurationWarning(warning);
+        }
 
         if (logger.IsEnabled(LogLevel.Debug))
         {
@@ -140,7 +148,9 @@ static class Program
         foreach (OutputOptions output in options.Outputs)
         {
             if (!noDiscovery && output.HardwareOutput is not null)
+            {
                 logger.ConfigurationWarning("[output.hardware_output] is ignored unless [render].no-discovery=true.");
+            }
         }
 
         (int systemWidthPx, int systemHeightPx) = GetSystemDimensions(hardware);
@@ -189,7 +199,10 @@ static class Program
                 Console.WriteLine($"  {D}id{R}={G}\"{EscapeTomlString(adapter.Id)}\"{R}");
                 string typeLine = $"  {D}type{R}={G}\"{EscapeTomlString(adapter.Type)}\"{R}";
                 if (!string.Equals(adapter.Type, adapter.TypeLong, StringComparison.Ordinal))
+                {
                     typeLine += $"{D} ({EscapeTomlString(adapter.TypeLong)}){R}";
+                }
+
                 Console.WriteLine(typeLine);
                 string statusColor = adapter.Status == "Up" ? G : R;
                 Console.WriteLine($"  {D}status{R}={statusColor}\"{EscapeTomlString(adapter.Status)}\"{R}");
@@ -253,7 +266,7 @@ static class Program
                 options.Outputs,
                 skipUnspecifiedOutputs: options.Render.OutputsSkipUnspecified);
 
-        Directory.CreateDirectory(outputDir);
+        _ = Directory.CreateDirectory(outputDir);
 
         OutputRenderer renderer = new();
         Dictionary<string, string> assignedFiles = [];
@@ -269,7 +282,9 @@ static class Program
                 logger.RenderStart(Output.Id, targetDescription);
                 FileNamer.RenderOutputPathResult outputPath = FileNamer.ResolveRenderOutputPath(outputTemplate, Output, options.Render.MachineName);
                 foreach (string warning in outputPath.Warnings)
+                {
                     logger.ConfigurationWarning(warning);
+                }
 
                 RenderOutcome outcome = await renderer.RenderOutputAsync(Output, Config, options, outputPath.FilePath, systemWidthPx, systemHeightPx);
                 assignedFiles[Output.Id] = outcome.FilePath;
@@ -291,11 +306,16 @@ static class Program
                 switch (match)
                 {
                     case MatchResult.Matched(OutputRecord output, OutputOptions outputConfig):
-                                            if (logger.IsEnabled(LogLevel.Trace))
-                                                logger.RenderStart(output.Id, DescribeTarget(outputConfig.Target));
+                        if (logger.IsEnabled(LogLevel.Trace))
+                        {
+                            logger.RenderStart(output.Id, DescribeTarget(outputConfig.Target));
+                        }
+
                         FileNamer.RenderOutputPathResult outputPath = FileNamer.ResolveRenderOutputPath(outputTemplate, output, options.Render.MachineName);
                         foreach (string warning in outputPath.Warnings)
+                        {
                             logger.ConfigurationWarning(warning);
+                        }
 
                         RenderOutcome outcome = await renderer.RenderOutputAsync(output, outputConfig, options, outputPath.FilePath, systemWidthPx, systemHeightPx);
                         assignedFiles[output.Id] = outcome.FilePath;
@@ -331,14 +351,18 @@ static class Program
             }
         }
 
-                logger.MatchingFinished(matches.Length, assignedFiles.Count);
-                if (assignedFiles.Count == 0)
-                    logger.NoRenderedFiles();
+        logger.MatchingFinished(matches.Length, assignedFiles.Count);
+        if (assignedFiles.Count == 0)
+        {
+            logger.NoRenderedFiles();
+        }
 
         foreach (OutputRecord hw in hardware.Outputs)
         {
             if (!noDiscovery && !hardwareStatuses.ContainsKey(hw.Id))
+            {
                 hardwareStatuses[hw.Id] = "output-discovered";
+            }
         }
 
         RunStatus runStatus = new()
@@ -352,7 +376,9 @@ static class Program
         if (!isDryRun)
         {
             if (assignedFiles.Count == 0)
+            {
                 logger.AssignmentSkippedNoRenderedFiles();
+            }
 
             IWallpaperAssigner assigner = new WallpaperAssigner();
             logger.AssignStart(assignedFiles.Count);
@@ -380,7 +406,7 @@ static class Program
         return ReturnWithTiming(0);
     }
 
-    static void WriteLastRun(
+    private static void WriteLastRun(
         string path, string settingsHash, HardwareProfile hardware,
         GlobalOptions options, Dictionary<string, string> assignedFiles,
         ImmutableArray<string> unrecycled, RunStatus runStatus, ILogger logger)
@@ -392,7 +418,7 @@ static class Program
             {
                 Version = version,
                 SettingsHash = settingsHash,
-                Timestamp = DateTime.UtcNow.ToString("O", System.Globalization.CultureInfo.InvariantCulture),
+                Timestamp = DateTime.UtcNow.ToString("O", CultureInfo.InvariantCulture),
                 AssignedFiles = assignedFiles.ToFrozenDictionary(),
                 UnrecycledFiles = [.. unrecycled],
             },
@@ -425,7 +451,9 @@ static class Program
         static void AddSearchPath(ImmutableArray<string>.Builder builder, string rootDirectory)
         {
             if (string.IsNullOrWhiteSpace(rootDirectory))
+            {
                 return;
+            }
 
             builder.Add(Path.Combine(rootDirectory, "BgRaster", "config.toml"));
         }
@@ -439,7 +467,9 @@ static class Program
 
             // If the resolved path is an existing directory, append the default filename
             if (Directory.Exists(resolved))
+            {
                 return Path.Combine(resolved, "config.toml");
+            }
 
             return resolved;
         }
@@ -447,7 +477,9 @@ static class Program
         foreach (string candidate in defaultConfigSearchPaths)
         {
             if (File.Exists(candidate))
+            {
                 return candidate;
+            }
         }
 
         return defaultConfigSearchPaths[0];
@@ -462,13 +494,17 @@ static class Program
         List<string>? warnings = null)
     {
         if (!ShouldSeedExplicitConfigFromDefaults(explicitConfigPath, configExistedAtStartup, isDryRun))
+        {
             return;
+        }
 
         string destinationConfigPath = explicitConfigPath!;
 
         string? directory = Path.GetDirectoryName(destinationConfigPath);
         if (!string.IsNullOrWhiteSpace(directory))
-            Directory.CreateDirectory(directory);
+        {
+            _ = Directory.CreateDirectory(directory);
+        }
 
         string seededToml = BuildSeedConfigToml(effectiveOptions, hardware.Outputs);
         File.WriteAllText(destinationConfigPath, seededToml, Encoding.UTF8);
@@ -494,22 +530,22 @@ static class Program
         GlobalOptions optionsWithoutPerOutput = effectiveOptions with { Outputs = [] };
 
         StringBuilder sb = new();
-        sb.AppendLine("# $schema: https://raw.githubusercontent.com/gameshowpro/BgRaster/refs/heads/main/docs/schemas/bgraster-config.schema.json");
-        sb.AppendLine();
-        sb.AppendLine(LastRunWriter.BuildEffectiveConfigToml(optionsWithoutPerOutput));
+        _ = sb.AppendLine("# $schema: https://raw.githubusercontent.com/gameshowpro/BgRaster/refs/heads/main/docs/schemas/bgraster-config.schema.json");
+        _ = sb.AppendLine();
+        _ = sb.AppendLine(LastRunWriter.BuildEffectiveConfigToml(optionsWithoutPerOutput));
 
         foreach (OutputRecord output in detectedOutputs.OrderBy(o => o.Index))
         {
-            sb.AppendLine();
-            sb.AppendLine("[[output]]");
-            sb.AppendLine($"target = \"{EscapeTomlString(output.Id)}\"");
-            sb.AppendLine($"# target = {output.Index}  # Numeric index fallback for this output");
+            _ = sb.AppendLine();
+            _ = sb.AppendLine("[[output]]");
+            _ = sb.AppendLine($"target = \"{EscapeTomlString(output.Id)}\"");
+            _ = sb.AppendLine($"# target = {output.Index}  # Numeric index fallback for this output");
         }
 
         return sb.ToString().TrimEnd();
     }
 
-    static string EscapeTomlString(string value) =>
+    private static string EscapeTomlString(string value) =>
         value
             .Replace("\\", "\\\\", StringComparison.Ordinal)
             .Replace("\"", "\\\"", StringComparison.Ordinal);
@@ -537,9 +573,12 @@ static class Program
             + "Ensure BgRaster.exe and libSkiaSharp.dll are in the same folder, then run again.";
     }
 
-    static bool HardwareProfileMatches(ImmutableArray<OutputRecord> stored, HardwareProfile current)
+    private static bool HardwareProfileMatches(ImmutableArray<OutputRecord> stored, HardwareProfile current)
     {
-        if (stored.Length != current.Outputs.Length) return false;
+        if (stored.Length != current.Outputs.Length)
+        {
+            return false;
+        }
 
         ImmutableArray<OutputRecord> sortedStored = [.. stored.OrderBy(o => o.Id, StringComparer.Ordinal)];
         ImmutableArray<OutputRecord> sortedCurrent = [.. current.Outputs.OrderBy(o => o.Id, StringComparer.Ordinal)];
@@ -551,27 +590,31 @@ static class Program
             if (s.Id != c.Id || s.WidthPx != c.WidthPx || s.HeightPx != c.HeightPx
                 || s.DesktopX != c.DesktopX || s.DesktopY != c.DesktopY
                 || s.Rotation != c.Rotation || s.DpiX != c.DpiX || s.DpiY != c.DpiY)
+            {
                 return false;
+            }
         }
         return true;
     }
 
-    static string GetAssemblyVersion() =>
+    private static string GetAssemblyVersion() =>
         Assembly.GetExecutingAssembly()
             .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
             ?.InformationalVersion ?? "0.0.0";
 
-    static string DescribeTarget(OutputTarget target) => target switch
+    private static string DescribeTarget(OutputTarget target) => target switch
     {
-        OutputTarget.IndexTarget(int idx) => idx.ToString(System.Globalization.CultureInfo.InvariantCulture),
+        OutputTarget.IndexTarget(int idx) => idx.ToString(CultureInfo.InvariantCulture),
         OutputTarget.IdTarget(string id) => $"\"{id}\"",
         _ => "unknown",
     };
 
-    static (int WidthPx, int HeightPx) GetSystemDimensions(HardwareProfile hardware)
+    private static (int WidthPx, int HeightPx) GetSystemDimensions(HardwareProfile hardware)
     {
         if (hardware.Outputs.IsEmpty)
+        {
             return (0, 0);
+        }
 
         int minX = hardware.Outputs.Min(output => output.DesktopX);
         int minY = hardware.Outputs.Min(output => output.DesktopY);
@@ -581,7 +624,7 @@ static class Program
     }
 
 
-    static ImmutableArray<(OutputRecord Output, OutputOptions Config)> BuildNoDiscoveryMappings(
+    private static ImmutableArray<(OutputRecord Output, OutputOptions Config)> BuildNoDiscoveryMappings(
         ImmutableArray<OutputOptions> configuredOutputs,
         List<string> warnings)
     {
@@ -598,7 +641,7 @@ static class Program
         return builder.ToImmutable();
     }
 
-    static OutputRecord ResolveHardwareOutput(OutputOptions output, int fallbackIndex, List<string> warnings)
+    private static OutputRecord ResolveHardwareOutput(OutputOptions output, int fallbackIndex, List<string> warnings)
     {
         if (output.HardwareOutput is null)
         {
@@ -611,7 +654,7 @@ static class Program
 
         return new OutputRecord
         {
-            Id = string.IsNullOrWhiteSpace(reference.Id) ? $"FIXED-{resolvedIndex.ToString(System.Globalization.CultureInfo.InvariantCulture)}" : reference.Id,
+            Id = string.IsNullOrWhiteSpace(reference.Id) ? $"FIXED-{resolvedIndex.ToString(CultureInfo.InvariantCulture)}" : reference.Id,
             Index = resolvedIndex,
             DesktopX = reference.DesktopX,
             DesktopY = reference.DesktopY,
@@ -625,9 +668,9 @@ static class Program
         };
     }
 
-    static OutputRecord BuildDefaultHardwareOutput(int index) => new()
+    private static OutputRecord BuildDefaultHardwareOutput(int index) => new()
     {
-        Id = $"FIXED-{index.ToString(System.Globalization.CultureInfo.InvariantCulture)}",
+        Id = $"FIXED-{index.ToString(CultureInfo.InvariantCulture)}",
         Index = index,
         DesktopX = 0,
         DesktopY = 0,

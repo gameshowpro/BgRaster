@@ -3,11 +3,14 @@
 
 namespace GameshowPro.BgRaster.StateCache;
 
-static class LastRunReader
+internal static class LastRunReader
 {
     internal static LastRunState? Read(string path)
     {
-        if (!File.Exists(path)) return null;
+        if (!File.Exists(path))
+        {
+            return null;
+        }
 
         try
         {
@@ -23,7 +26,7 @@ static class LastRunReader
         }
     }
 
-    static void TryDeleteUnreadableFile(string path)
+    private static void TryDeleteUnreadableFile(string path)
     {
         try
         {
@@ -35,7 +38,7 @@ static class LastRunReader
         }
     }
 
-    static LastRunState ParseLastRunState(TomlTable table)
+    private static LastRunState ParseLastRunState(TomlTable table)
     {
         LastRunMeta meta = table.TryGetValue("meta", out object? metaObj) && metaObj is TomlTable metaTable
             ? ParseMeta(metaTable)
@@ -52,14 +55,17 @@ static class LastRunReader
         };
     }
 
-    static LastRunMeta ParseMeta(TomlTable t)
+    private static LastRunMeta ParseMeta(TomlTable t)
     {
         Dictionary<string, string> assignedFiles = [];
         if (t.TryGetValue("assignedFiles", out object? afObj) && afObj is TomlTable afTable)
         {
             foreach (KeyValuePair<string, object> kv in afTable)
             {
-                if (kv.Value is string v) assignedFiles[kv.Key] = v;
+                if (kv.Value is string v)
+                {
+                    assignedFiles[kv.Key] = v;
+                }
             }
         }
 
@@ -77,7 +83,7 @@ static class LastRunReader
         };
     }
 
-    static OutputRecord ParseOutputRecord(TomlTable t) => new()
+    private static OutputRecord ParseOutputRecord(TomlTable t) => new()
     {
         Id = GetString(t, "id") ?? "",
         Index = GetInt(t, "index"),
@@ -92,9 +98,9 @@ static class LastRunReader
         FriendlyName = GetString(t, "friendlyName") ?? "",
     };
 
-    static string? GetString(TomlTable t, string key) =>
+    private static string? GetString(TomlTable t, string key) =>
         t.TryGetValue(key, out object? v) && v is string s ? s : null;
 
-    static int GetInt(TomlTable t, string key) =>
+    private static int GetInt(TomlTable t, string key) =>
         t.TryGetValue(key, out object? v) && v is long l ? (int)l : 0;
 }

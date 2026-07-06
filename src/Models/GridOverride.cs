@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Models;
 
-record GridOverride
+internal record GridOverride
 {
     internal string? Size { get; init; }
     internal string? OddColor { get; init; }

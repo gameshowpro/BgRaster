@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Models;
 
-record OutputRecord
+internal record OutputRecord
 {
     internal string Id { get; init; } = "";
     internal int Index { get; init; }

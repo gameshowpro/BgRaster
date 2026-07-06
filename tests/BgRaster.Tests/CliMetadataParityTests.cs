@@ -18,7 +18,7 @@ public sealed class CliMetadataParityTests
         using JsonDocument document = JsonDocument.Parse(schemaJson);
         JsonElement rootElement = document.RootElement;
 
-        rootElement.TryGetProperty("x-bgraster", out JsonElement metadata).Should().BeTrue();
+        _ = rootElement.TryGetProperty("x-bgraster", out JsonElement metadata).Should().BeTrue();
 
         List<(string Alias, string TypeName)> schemaOptions = [];
         AppendOptions(metadata, "cliOnlyOptions", schemaOptions);
@@ -28,34 +28,34 @@ public sealed class CliMetadataParityTests
         {
             string value = string.Equals(typeName, "bool", StringComparison.Ordinal) ? "true" : "sample";
             ParseResult parseResult = root.Parse($"{alias} {value}");
-            parseResult.Errors.Should().BeEmpty($"{alias} should be a bound CLI option.");
+            _ = parseResult.Errors.Should().BeEmpty($"{alias} should be a bound CLI option.");
         }
 
         ImmutableArray<string> generatedAliases = [.. GeneratedCliOptionCatalog.Definitions.Select(static definition => definition.Alias)];
-        generatedAliases.Should().BeEquivalentTo(schemaOptions.Select(static option => option.Alias));
+        _ = generatedAliases.Should().BeEquivalentTo(schemaOptions.Select(static option => option.Alias));
     }
 
-    static void AppendOptions(JsonElement metadata, string propertyName, List<(string Alias, string TypeName)> destination)
+    private static void AppendOptions(JsonElement metadata, string propertyName, List<(string Alias, string TypeName)> destination)
     {
-        metadata.TryGetProperty(propertyName, out JsonElement options).Should().BeTrue();
-        options.ValueKind.Should().Be(JsonValueKind.Array);
+        _ = metadata.TryGetProperty(propertyName, out JsonElement options).Should().BeTrue();
+        _ = options.ValueKind.Should().Be(JsonValueKind.Array);
 
         foreach (JsonElement option in options.EnumerateArray())
         {
-            option.TryGetProperty("alias", out JsonElement aliasElement).Should().BeTrue();
-            aliasElement.ValueKind.Should().Be(JsonValueKind.String);
-            option.TryGetProperty("typeName", out JsonElement typeNameElement).Should().BeTrue();
-            typeNameElement.ValueKind.Should().Be(JsonValueKind.String);
+            _ = option.TryGetProperty("alias", out JsonElement aliasElement).Should().BeTrue();
+            _ = aliasElement.ValueKind.Should().Be(JsonValueKind.String);
+            _ = option.TryGetProperty("typeName", out JsonElement typeNameElement).Should().BeTrue();
+            _ = typeNameElement.ValueKind.Should().Be(JsonValueKind.String);
 
             string? alias = aliasElement.GetString();
             string? typeName = typeNameElement.GetString();
-            string.IsNullOrWhiteSpace(alias).Should().BeFalse();
-            string.IsNullOrWhiteSpace(typeName).Should().BeFalse();
+            _ = string.IsNullOrWhiteSpace(alias).Should().BeFalse();
+            _ = string.IsNullOrWhiteSpace(typeName).Should().BeFalse();
             destination.Add((alias!, typeName!));
         }
     }
 
-    static string FindConfigSchemaPath()
+    private static string FindConfigSchemaPath()
     {
         DirectoryInfo? current = new(AppContext.BaseDirectory);
 

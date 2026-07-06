@@ -3,12 +3,14 @@
 
 namespace GameshowPro.BgRaster.Rendering.Layers;
 
-sealed class CircleLayer : ILayer
+internal sealed class CircleLayer : ILayer
 {
     public void Render(RenderContext context, SKCanvas canvas)
     {
         if (LayerSuppression.ShouldSuppressCircle(context.Options))
+        {
             return;
+        }
 
         float cx = context.CanvasOffsetX + context.Options.CircleXPx;
         float cy = context.CanvasOffsetY + context.Options.CircleYPx;

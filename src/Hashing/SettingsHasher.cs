@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Hashing;
 
-static class SettingsHasher
+internal static class SettingsHasher
 {
     internal static string Compute(GlobalOptions options)
     {
@@ -22,7 +22,7 @@ static class SettingsHasher
         return Convert.ToHexStringLower(hash);
     }
 
-    static void WriteTextOptions(StringBuilder sb, TextOptions t)
+    private static void WriteTextOptions(StringBuilder sb, TextOptions t)
     {
         WriteStringArray(sb, "text.format", t.Format);
         WriteStringArray(sb, "text.size", t.Size);
@@ -31,7 +31,7 @@ static class SettingsHasher
         WriteStringArray(sb, "text.y", t.Y);
     }
 
-    static void WriteBackgroundOptions(StringBuilder sb, BackgroundOptions b)
+    private static void WriteBackgroundOptions(StringBuilder sb, BackgroundOptions b)
     {
         WriteStringArray(sb, "background.color", b.Color);
         WriteStringArray(sb, "background.image", b.Image);
@@ -41,7 +41,7 @@ static class SettingsHasher
         WriteStringArray(sb, "background.border-color", b.BorderColor);
     }
 
-    static void WriteGridOptions(StringBuilder sb, GridOptions g)
+    private static void WriteGridOptions(StringBuilder sb, GridOptions g)
     {
         WriteStringArray(sb, "grid.size", g.Size);
         WriteStringArray(sb, "grid.odd-color", g.OddColor);
@@ -52,21 +52,21 @@ static class SettingsHasher
         WriteBoolArray(sb, "grid.coordinates", g.Coordinates);
     }
 
-    static void WriteCircleOptions(StringBuilder sb, CircleOptions c)
+    private static void WriteCircleOptions(StringBuilder sb, CircleOptions c)
     {
         WriteStringArray(sb, "circle.size", c.Size);
         WriteStringArray(sb, "circle.color", c.Color);
         WriteStringArray(sb, "circle.stroke", c.Stroke);
     }
 
-    static void WriteCrosshairOptions(StringBuilder sb, CrosshairOptions c)
+    private static void WriteCrosshairOptions(StringBuilder sb, CrosshairOptions c)
     {
         WriteStringArray(sb, "crosshair.length", c.Length);
         WriteStringArray(sb, "crosshair.color", c.Color);
         WriteStringArray(sb, "crosshair.stroke", c.Stroke);
     }
 
-    static void WriteLogoOptions(StringBuilder sb, LogoOptions l)
+    private static void WriteLogoOptions(StringBuilder sb, LogoOptions l)
     {
         WriteStringArray(sb, "logo.source", l.Source);
         WriteStringArray(sb, "logo.x", l.X);
@@ -76,22 +76,22 @@ static class SettingsHasher
         WriteFloatArray(sb, "logo.opacity", l.Opacity);
     }
 
-    static void WriteRenderOptions(StringBuilder sb, RenderOptions r)
+    private static void WriteRenderOptions(StringBuilder sb, RenderOptions r)
     {
-        sb.Append("render.no-assignment=").Append(r.DryRun).Append('\n');
-        sb.Append("render.outputs-skip-unspecified=").Append(r.OutputsSkipUnspecified).Append('\n');
-        sb.Append("render.output=").Append(r.Output).Append('\n');
-        sb.Append("render.force=").Append(r.ContinueAfterUnchanged).Append('\n');
+        _ = sb.Append("render.no-assignment=").Append(r.DryRun).Append('\n');
+        _ = sb.Append("render.outputs-skip-unspecified=").Append(r.OutputsSkipUnspecified).Append('\n');
+        _ = sb.Append("render.output=").Append(r.Output).Append('\n');
+        _ = sb.Append("render.force=").Append(r.ContinueAfterUnchanged).Append('\n');
         string verbosity = r.MinimumLogLevel switch
         {
             LogLevel.Warning => "quiet",
             LogLevel.Debug or LogLevel.Trace => "verbose",
             _ => "normal",
         };
-        sb.Append("render.verbosity=").Append(verbosity).Append('\n');
+        _ = sb.Append("render.verbosity=").Append(verbosity).Append('\n');
     }
 
-    static void WriteOutputs(StringBuilder sb, ImmutableArray<OutputOptions> outputs)
+    private static void WriteOutputs(StringBuilder sb, ImmutableArray<OutputOptions> outputs)
     {
         int i = 0;
         foreach (OutputOptions o in outputs)
@@ -103,7 +103,7 @@ static class SettingsHasher
                 OutputTarget.IdTarget(string id) => $"id:{id}",
                 _ => "unknown",
             };
-            sb.Append(prefix).Append(".target=").Append(target).Append('\n');
+            _ = sb.Append(prefix).Append(".target=").Append(target).Append('\n');
 
             if (o.Text is TextOverride text)
             {
@@ -158,74 +158,96 @@ static class SettingsHasher
         }
     }
 
-    static void WriteSlices(StringBuilder sb, string prefix, ImmutableArray<SliceOptions> slices)
+    private static void WriteSlices(StringBuilder sb, string prefix, ImmutableArray<SliceOptions> slices)
     {
         int j = 0;
         foreach (SliceOptions s in slices)
         {
             string sp = $"{prefix}.slice[{j}]";
-            sb.Append(sp).Append(".x=").Append(s.X).Append('\n');
-            sb.Append(sp).Append(".y=").Append(s.Y).Append('\n');
-            sb.Append(sp).Append(".width=").Append(s.Width).Append('\n');
-            sb.Append(sp).Append(".height=").Append(s.Height).Append('\n');
+            _ = sb.Append(sp).Append(".x=").Append(s.X).Append('\n');
+            _ = sb.Append(sp).Append(".y=").Append(s.Y).Append('\n');
+            _ = sb.Append(sp).Append(".width=").Append(s.Width).Append('\n');
+            _ = sb.Append(sp).Append(".height=").Append(s.Height).Append('\n');
             j++;
         }
     }
 
-    static void WriteStringArray(StringBuilder sb, string key, ImmutableArray<string> values)
+    private static void WriteStringArray(StringBuilder sb, string key, ImmutableArray<string> values)
     {
-        sb.Append(key).Append("=[");
+        _ = sb.Append(key).Append("=[");
         for (int i = 0; i < values.Length; i++)
         {
-            if (i > 0) sb.Append(',');
-            sb.Append(values[i]);
+            if (i > 0)
+            {
+                _ = sb.Append(',');
+            }
+
+            _ = sb.Append(values[i]);
         }
-        sb.Append("]\n");
+        _ = sb.Append("]\n");
     }
 
-    static void WriteBoolArray(StringBuilder sb, string key, ImmutableArray<bool> values)
+    private static void WriteBoolArray(StringBuilder sb, string key, ImmutableArray<bool> values)
     {
-        sb.Append(key).Append("=[");
+        _ = sb.Append(key).Append("=[");
         for (int i = 0; i < values.Length; i++)
         {
-            if (i > 0) sb.Append(',');
-            sb.Append(values[i]);
+            if (i > 0)
+            {
+                _ = sb.Append(',');
+            }
+
+            _ = sb.Append(values[i]);
         }
-        sb.Append("]\n");
+        _ = sb.Append("]\n");
     }
 
-    static void WriteFloatArray(StringBuilder sb, string key, ImmutableArray<float> values)
+    private static void WriteFloatArray(StringBuilder sb, string key, ImmutableArray<float> values)
     {
-        sb.Append(key).Append("=[");
+        _ = sb.Append(key).Append("=[");
         for (int i = 0; i < values.Length; i++)
         {
-            if (i > 0) sb.Append(',');
-            sb.Append(values[i].ToString(System.Globalization.CultureInfo.InvariantCulture));
+            if (i > 0)
+            {
+                _ = sb.Append(',');
+            }
+
+            _ = sb.Append(values[i].ToString(CultureInfo.InvariantCulture));
         }
-        sb.Append("]\n");
+        _ = sb.Append("]\n");
     }
 
-    static void WriteNullable(StringBuilder sb, string key, string? value)
+    private static void WriteNullable(StringBuilder sb, string key, string? value)
     {
-        if (value is not null) sb.Append(key).Append('=').Append(value).Append('\n');
+        if (value is not null)
+        {
+            _ = sb.Append(key).Append('=').Append(value).Append('\n');
+        }
     }
 
-    static void WriteNullableArray(StringBuilder sb, string key, ImmutableArray<string>? values)
+    private static void WriteNullableArray(StringBuilder sb, string key, ImmutableArray<string>? values)
     {
         if (values is not { Length: > 0 })
+        {
             return;
+        }
 
         WriteStringArray(sb, key, values.Value);
     }
 
-    static void WriteNullableBool(StringBuilder sb, string key, bool? value)
-    {
-        if (value.HasValue) sb.Append(key).Append('=').Append(value.Value).Append('\n');
-    }
-
-    static void WriteNullableFloat(StringBuilder sb, string key, float? value)
+    private static void WriteNullableBool(StringBuilder sb, string key, bool? value)
     {
         if (value.HasValue)
-            sb.Append(key).Append('=').Append(value.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)).Append('\n');
+        {
+            _ = sb.Append(key).Append('=').Append(value.Value).Append('\n');
+        }
+    }
+
+    private static void WriteNullableFloat(StringBuilder sb, string key, float? value)
+    {
+        if (value.HasValue)
+        {
+            _ = sb.Append(key).Append('=').Append(value.Value.ToString(CultureInfo.InvariantCulture)).Append('\n');
+        }
     }
 }

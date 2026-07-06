@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Models;
 
-record LogoOverride
+internal record LogoOverride
 {
     internal string? Source { get; init; }
     internal string? X { get; init; }

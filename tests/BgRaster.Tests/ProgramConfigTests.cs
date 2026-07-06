@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 // Copyright © 2026 Barjonas LLC
 
-namespace GameshowPro.BgRaster.Tests;
 
 using GameshowPro.BgRaster;
+
+namespace GameshowPro.BgRaster.Tests;
 
 public class ProgramConfigTests
 {
@@ -16,7 +17,7 @@ public class ProgramConfigTests
             localApplicationDataDirectory: @"C:\Users\User\AppData\Local",
             applicationDataDirectory: @"C:\Users\User\AppData\Roaming");
 
-        paths.Should().Equal(
+        _ = paths.Should().Equal(
             @"C:\Apps\BgRaster\config.toml",
             @"C:\ProgramData\BgRaster\config.toml",
             @"C:\Users\User\AppData\Local\BgRaster\config.toml",
@@ -34,18 +35,18 @@ public class ProgramConfigTests
             string localAppData = Path.Combine(tempRoot, "localAppData");
             string appData = Path.Combine(tempRoot, "appData");
 
-            Directory.CreateDirectory(exeDir);
-            Directory.CreateDirectory(programData);
-            Directory.CreateDirectory(localAppData);
-            Directory.CreateDirectory(appData);
+            _ = Directory.CreateDirectory(exeDir);
+            _ = Directory.CreateDirectory(programData);
+            _ = Directory.CreateDirectory(localAppData);
+            _ = Directory.CreateDirectory(appData);
 
             ImmutableArray<string> paths = Program.GetDefaultConfigSearchPaths(exeDir, programData, localAppData, appData);
-            Directory.CreateDirectory(Path.GetDirectoryName(paths[2])!);
+            _ = Directory.CreateDirectory(Path.GetDirectoryName(paths[2])!);
             File.WriteAllText(paths[2], "[render]\nverbosity = \"normal\"\n");
 
             string resolvedPath = Program.ResolveConfigPath(null, paths);
 
-            resolvedPath.Should().Be(paths[2]);
+            _ = resolvedPath.Should().Be(paths[2]);
         }
         finally
         {
@@ -69,7 +70,7 @@ public class ProgramConfigTests
 
             string resolvedPath = Program.ResolveConfigPath(explicitPath, defaultPaths);
 
-            resolvedPath.Should().Be(Path.GetFullPath(Path.Combine(tempRoot, "BgRaster", "config.toml")));
+            _ = resolvedPath.Should().Be(Path.GetFullPath(Path.Combine(tempRoot, "BgRaster", "config.toml")));
         }
         finally
         {
@@ -79,39 +80,39 @@ public class ProgramConfigTests
     }
 
     [Fact]
-        public void ResolveConfigPath_AppendsDefaultFilename_WhenExplicitPathIsDirectory()
-        {
-            string tempRoot = CreateTempDirectory();
-            try
-            {
-                ImmutableArray<string> defaultPaths = [Path.Combine(tempRoot, "fallback.toml")];
-                string resolvedPath = Program.ResolveConfigPath(tempRoot, defaultPaths);
-
-                resolvedPath.Should().Be(Path.Combine(tempRoot, "config.toml"));
-            }
-            finally
-            {
-                Directory.Delete(tempRoot, recursive: true);
-            }
-        }
-
-        [Fact]
-        public void ShouldSeedExplicitConfigFromDefaults_ReturnsTrueOnlyForMissingExplicitNonDryRunConfig()
+    public void ResolveConfigPath_AppendsDefaultFilename_WhenExplicitPathIsDirectory()
     {
-        Program.ShouldSeedExplicitConfigFromDefaults(@"C:\cfg.toml", configExistedAtStartup: false, isDryRun: false).Should().BeTrue();
-        Program.ShouldSeedExplicitConfigFromDefaults(@"C:\cfg.toml", configExistedAtStartup: true, isDryRun: false).Should().BeFalse();
-        Program.ShouldSeedExplicitConfigFromDefaults(@"C:\cfg.toml", configExistedAtStartup: false, isDryRun: true).Should().BeFalse();
-        Program.ShouldSeedExplicitConfigFromDefaults(null, configExistedAtStartup: false, isDryRun: false).Should().BeFalse();
+        string tempRoot = CreateTempDirectory();
+        try
+        {
+            ImmutableArray<string> defaultPaths = [Path.Combine(tempRoot, "fallback.toml")];
+            string resolvedPath = Program.ResolveConfigPath(tempRoot, defaultPaths);
+
+            _ = resolvedPath.Should().Be(Path.Combine(tempRoot, "config.toml"));
+        }
+        finally
+        {
+            Directory.Delete(tempRoot, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void ShouldSeedExplicitConfigFromDefaults_ReturnsTrueOnlyForMissingExplicitNonDryRunConfig()
+    {
+        _ = Program.ShouldSeedExplicitConfigFromDefaults(@"C:\cfg.toml", configExistedAtStartup: false, isDryRun: false).Should().BeTrue();
+        _ = Program.ShouldSeedExplicitConfigFromDefaults(@"C:\cfg.toml", configExistedAtStartup: true, isDryRun: false).Should().BeFalse();
+        _ = Program.ShouldSeedExplicitConfigFromDefaults(@"C:\cfg.toml", configExistedAtStartup: false, isDryRun: true).Should().BeFalse();
+        _ = Program.ShouldSeedExplicitConfigFromDefaults(null, configExistedAtStartup: false, isDryRun: false).Should().BeFalse();
     }
 
     [Fact]
     public void ShouldWriteExplicitConfigOnUnchangedSkip_ReturnsTrueOnlyWhenMissingExplicitAndSkipping()
     {
-        Program.ShouldWriteExplicitConfigOnUnchangedSkip(@"C:\cfg.toml", configExistedAtStartup: false, isDryRun: false, continueAfterUnchanged: false).Should().BeTrue();
-        Program.ShouldWriteExplicitConfigOnUnchangedSkip(@"C:\cfg.toml", configExistedAtStartup: true, isDryRun: false, continueAfterUnchanged: false).Should().BeFalse();
-        Program.ShouldWriteExplicitConfigOnUnchangedSkip(@"C:\cfg.toml", configExistedAtStartup: false, isDryRun: true, continueAfterUnchanged: false).Should().BeFalse();
-        Program.ShouldWriteExplicitConfigOnUnchangedSkip(@"C:\cfg.toml", configExistedAtStartup: false, isDryRun: false, continueAfterUnchanged: true).Should().BeFalse();
-        Program.ShouldWriteExplicitConfigOnUnchangedSkip(null, configExistedAtStartup: false, isDryRun: false, continueAfterUnchanged: false).Should().BeFalse();
+        _ = Program.ShouldWriteExplicitConfigOnUnchangedSkip(@"C:\cfg.toml", configExistedAtStartup: false, isDryRun: false, continueAfterUnchanged: false).Should().BeTrue();
+        _ = Program.ShouldWriteExplicitConfigOnUnchangedSkip(@"C:\cfg.toml", configExistedAtStartup: true, isDryRun: false, continueAfterUnchanged: false).Should().BeFalse();
+        _ = Program.ShouldWriteExplicitConfigOnUnchangedSkip(@"C:\cfg.toml", configExistedAtStartup: false, isDryRun: true, continueAfterUnchanged: false).Should().BeFalse();
+        _ = Program.ShouldWriteExplicitConfigOnUnchangedSkip(@"C:\cfg.toml", configExistedAtStartup: false, isDryRun: false, continueAfterUnchanged: true).Should().BeFalse();
+        _ = Program.ShouldWriteExplicitConfigOnUnchangedSkip(null, configExistedAtStartup: false, isDryRun: false, continueAfterUnchanged: false).Should().BeFalse();
     }
 
     [Fact]
@@ -126,16 +127,16 @@ public class ProgramConfigTests
 
         string toml = Program.BuildSeedConfigToml(options, outputs);
 
-        toml.Should().Contain("bgraster-config.schema.json");
-        toml.Should().Contain("[labeled-edges]");
-            toml.Should().Contain("tail-length = [\"10px\"]");
-            toml.Should().Contain("thickness = [\"3px\"]");
-            toml.Should().Contain("scope = [\"Desktop\"]");
-        toml.Should().Contain("[[output]]");
-        toml.Should().Contain("target = \"\\\\\\\\?\\\\DISPLAY#A#{id}\"");
-        toml.Should().Contain("# target = 0  # Numeric index fallback for this output");
-        toml.Should().Contain("target = \"\\\\\\\\?\\\\DISPLAY#B#{id}\"");
-        toml.Should().Contain("# target = 1  # Numeric index fallback for this output");
+        _ = toml.Should().Contain("bgraster-config.schema.json");
+        _ = toml.Should().Contain("[labeled-edges]");
+        _ = toml.Should().Contain("tail-length = [\"10px\"]");
+        _ = toml.Should().Contain("thickness = [\"3px\"]");
+        _ = toml.Should().Contain("scope = [\"Desktop\"]");
+        _ = toml.Should().Contain("[[output]]");
+        _ = toml.Should().Contain("target = \"\\\\\\\\?\\\\DISPLAY#A#{id}\"");
+        _ = toml.Should().Contain("# target = 0  # Numeric index fallback for this output");
+        _ = toml.Should().Contain("target = \"\\\\\\\\?\\\\DISPLAY#B#{id}\"");
+        _ = toml.Should().Contain("# target = 1  # Numeric index fallback for this output");
     }
 
     [Fact]
@@ -156,15 +157,15 @@ public class ProgramConfigTests
             Program.SeedExplicitConfigFromDefaults(configPath, configExistedAtStartup: false, isDryRun: false, options, hardware, warnings);
 
             string seeded = File.ReadAllText(configPath);
-            seeded.Should().Contain("bgraster-config.schema.json");
-            seeded.Should().Contain("[labeled-edges]");
-                seeded.Should().Contain("tail-length = [\"10px\"]");
-                seeded.Should().Contain("thickness = [\"3px\"]");
-                seeded.Should().Contain("scope = [\"Desktop\"]");
-            seeded.Should().Contain("target = \"\\\\\\\\?\\\\DISPLAY#SAM#{id}\"");
-            seeded.Should().Contain("# target = 0  # Numeric index fallback for this output");
-            warnings.Should().ContainSingle();
-            warnings[0].Should().Contain("config template");
+            _ = seeded.Should().Contain("bgraster-config.schema.json");
+            _ = seeded.Should().Contain("[labeled-edges]");
+            _ = seeded.Should().Contain("tail-length = [\"10px\"]");
+            _ = seeded.Should().Contain("thickness = [\"3px\"]");
+            _ = seeded.Should().Contain("scope = [\"Desktop\"]");
+            _ = seeded.Should().Contain("target = \"\\\\\\\\?\\\\DISPLAY#SAM#{id}\"");
+            _ = seeded.Should().Contain("# target = 0  # Numeric index fallback for this output");
+            _ = warnings.Should().ContainSingle();
+            _ = warnings[0].Should().Contain("config template");
         }
         finally
         {
@@ -179,9 +180,9 @@ public class ProgramConfigTests
             @"C:\temp\config.toml",
             new FormatException("Failed to parse TOML config"));
 
-        message.Should().StartWith("bg-raster: configuration error");
-        message.Should().Contain(@"C:\temp\config.toml");
-        message.Should().Contain("Failed to parse TOML config");
+        _ = message.Should().StartWith("bg-raster: configuration error");
+        _ = message.Should().Contain(@"C:\temp\config.toml");
+        _ = message.Should().Contain("Failed to parse TOML config");
     }
 
     [Fact]
@@ -193,7 +194,7 @@ public class ProgramConfigTests
 
         bool result = Program.IsSkiaNativeDependencyFailure(exception);
 
-        result.Should().BeTrue();
+        _ = result.Should().BeTrue();
     }
 
     [Fact]
@@ -203,7 +204,7 @@ public class ProgramConfigTests
 
         bool result = Program.IsSkiaNativeDependencyFailure(exception);
 
-        result.Should().BeFalse();
+        _ = result.Should().BeFalse();
     }
 
     [Fact]
@@ -213,14 +214,14 @@ public class ProgramConfigTests
 
         string message = Program.BuildNativeDependencyErrorMessage(exception);
 
-        message.Should().StartWith("bg-raster: required native library 'libSkiaSharp.dll' could not be loaded.");
-        message.Should().Contain("BgRaster.exe and libSkiaSharp.dll are in the same folder");
+        _ = message.Should().StartWith("bg-raster: required native library 'libSkiaSharp.dll' could not be loaded.");
+        _ = message.Should().Contain("BgRaster.exe and libSkiaSharp.dll are in the same folder");
     }
 
-    static string CreateTempDirectory()
+    private static string CreateTempDirectory()
     {
         string path = Path.Combine(Path.GetTempPath(), $"bgraster-tests-{Guid.NewGuid():N}");
-        Directory.CreateDirectory(path);
+        _ = Directory.CreateDirectory(path);
         return path;
     }
 }

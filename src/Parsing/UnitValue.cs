@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Parsing;
 
-readonly record struct UnitValue(float Value, DimensionUnit Unit)
+internal readonly record struct UnitValue(float Value, DimensionUnit Unit)
 {
     internal float ResolvePixels(float viewportWidth, float viewportHeight) => Unit switch
     {

@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.FileLifecycle;
 
-static partial class FileNamer
+internal static partial class FileNamer
 {
     private static readonly System.Text.RegularExpressions.Regex s_bgRasterPattern =
         MyRegex();
@@ -21,11 +21,15 @@ static partial class FileNamer
         string defaultTemplate = Path.Combine(Path.GetTempPath(), "BgRaster", "{now}_{index}");
 
         if (string.IsNullOrWhiteSpace(overrideTemplate))
+        {
             return defaultTemplate;
+        }
 
         string expanded = Environment.ExpandEnvironmentVariables(overrideTemplate);
         if (expanded.EndsWith(Path.DirectorySeparatorChar) || expanded.EndsWith(Path.AltDirectorySeparatorChar))
+        {
             return Path.Combine(expanded, "{now}_{index}");
+        }
 
         return expanded;
     }
@@ -64,12 +68,16 @@ static partial class FileNamer
 
         string? directory = Path.GetDirectoryName(substituted);
         if (string.IsNullOrWhiteSpace(directory))
+        {
             directory = ".";
+        }
 
         string fileStem = Path.GetFileName(substituted);
         string safeFileStem = SanitizeId(fileStem);
         if (string.IsNullOrWhiteSpace(safeFileStem))
+        {
             safeFileStem = "output";
+        }
 
         string filePath = Path.Combine(directory, safeFileStem + ".png");
         return new RenderOutputPathResult(filePath, [.. warnings]);
@@ -78,8 +86,8 @@ static partial class FileNamer
         {
             return token.ToLowerInvariant() switch
             {
-                "now" => DateTime.Now.ToString("yyyy-MM-ddTHH-mm-ss.ff", System.Globalization.CultureInfo.InvariantCulture),
-                "index" => output.Index.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                "now" => DateTime.Now.ToString("yyyy-MM-ddTHH-mm-ss.ff", CultureInfo.InvariantCulture),
+                "index" => output.Index.ToString(CultureInfo.InvariantCulture),
                 "friendlyname" => output.FriendlyName,
                 _ => UnknownToken(token, warnings),
             };
@@ -95,21 +103,26 @@ static partial class FileNamer
     internal static bool IsBgRasterFile(string fileName) =>
         s_bgRasterPattern.IsMatch(Path.GetFileName(fileName));
 
-    static string SanitizeId(string id)
+    private static string SanitizeId(string id)
     {
         string trimmed = id.Trim();
         Span<char> buffer = stackalloc char[Math.Min(trimmed.Length, 48)];
         int len = 0;
         foreach (char c in trimmed)
         {
-            if (len >= 48) break;
+            if (len >= 48)
+            {
+                break;
+            }
 
             // Keep user-friendly characters (including '-') and replace only invalid filename chars.
             buffer[len++] = s_invalidFileNameChars.Contains(c) ? '_' : c;
         }
 
         while (len > 0 && (buffer[len - 1] == ' ' || buffer[len - 1] == '.'))
+        {
             len--;
+        }
 
         return new string(buffer[..len]);
     }

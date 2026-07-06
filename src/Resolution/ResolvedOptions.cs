@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Resolution;
 
-record ResolvedOptions
+internal record ResolvedOptions
 {
     internal ImmutableArray<string> TextLines { get; init; } = [];
     internal ImmutableArray<float> TextSizesPx { get; init; } = [];
@@ -53,7 +53,7 @@ record ResolvedOptions
     internal float LogoHeightPx { get; init; }
     internal float LogoOpacity { get; init; } = 1f;
     internal ImmutableArray<AdapterInfo> NetworkAdapters { get; init; } = [];
-    internal Models.NetworkOptions NetworkOptions { get; init; } = new();
+    internal NetworkOptions NetworkOptions { get; init; } = new();
     internal ImmutableArray<float> NetworkSizesPx { get; init; } = [];
     internal ImmutableArray<SKColor> NetworkColors { get; init; } = [];
     internal string NetworkTextAlign { get; init; } = "start";

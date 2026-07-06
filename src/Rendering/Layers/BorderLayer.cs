@@ -3,11 +3,14 @@
 
 namespace GameshowPro.BgRaster.Rendering.Layers;
 
-sealed class BorderLayer : ILayer
+internal sealed class BorderLayer : ILayer
 {
     public void Render(RenderContext context, SKCanvas canvas)
     {
-        if (!context.Options.Border) return;
+        if (!context.Options.Border)
+        {
+            return;
+        }
 
         int ox = context.CanvasOffsetX;
         int oy = context.CanvasOffsetY;

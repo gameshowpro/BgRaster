@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Models;
 
-enum LabeledEdgesScope
+internal enum LabeledEdgesScope
 {
     Desktop,
     Output,
