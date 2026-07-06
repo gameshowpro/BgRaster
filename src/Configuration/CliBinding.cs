@@ -63,7 +63,7 @@ static class CliBinding
         Option<string?> networkColorOption = CreateStringOption("--network-color");
         Option<bool?> networkRenderOption = CreateNullableBoolOption("--network-render");
 
-        RootCommand root = new("BgRaster — per-output wallpaper renderer")
+        RootCommand root = new("BgRaster - per-output wallpaper renderer")
         {
             configOption,
             machineNameOption,

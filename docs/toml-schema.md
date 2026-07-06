@@ -1,13 +1,13 @@
 # TOML Schema Reference
 
-BgRaster reads its primary configuration from a TOML file. If `--config` is omitted, it searches for `config.toml` in this order: next to the executable, `%ProgramData%\BgRaster`, `%LocalAppData%\BgRaster`, and `%AppData%\BgRaster`. If `--config` is provided and the file does not exist, BgRaster uses built-in defaults for that run; after a successful execution, it writes a seeded `config.toml` template at the requested path using effective global defaults and detected output targets. Every key is optional — missing keys fall back to the documented defaults. CLI flags override the corresponding TOML values; per-output overrides take precedence over globals; per-slice overrides take precedence over per-output.
+BgRaster reads its primary configuration from a TOML file. If `--config` is omitted, it searches for `config.toml` in this order: next to the executable, `%ProgramData%\BgRaster`, `%LocalAppData%\BgRaster`, and `%AppData%\BgRaster`. If `--config` is provided and the file does not exist, BgRaster uses built-in defaults for that run; after a successful execution, it writes a seeded `config.toml` template at the requested path using effective global defaults and detected output targets. Every key is optional - missing keys fall back to the documented defaults. CLI flags override the corresponding TOML values; per-output overrides take precedence over globals; per-slice overrides take precedence over per-output.
 
 ## Conventions
 
 - **All multi-value globals are arrays.** `BgRaster` cycles through array elements per output index using `array[index % array.Length]`. Specifying a single-element array applies the value to every output.
 - **Dimension strings** accept the units listed under [Units](#units).
 - **color strings** accept the formats listed under [colors](#colors).
-- **Field substitution** is applied to text and path-bearing values — see [Path resolution](#path-resolution) and [Substitution tokens](#substitution-tokens).
+- **Field substitution** is applied to text and path-bearing values - see [Path resolution](#path-resolution) and [Substitution tokens](#substitution-tokens).
 - **TOML keys use kebab-case** (e.g. `border-color`, `grid-coordinates`); the C# model uses PascalCase (`BorderColor`, `GridCoordinates`).
 
 ## Path resolution
@@ -50,7 +50,7 @@ Notes:
 | --- | --- | --- |
 | `${CidrBits}` | The number of bits in the network suffix of the IP address. See [CIDR notation](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing#CIDR_notation). | `24` |
 | `${Origin}` | The origin of the IP address. See [about address origins](#about-address-origins). | `DHCP`, `Manual`, `Router advertisement-Random` |
-| `${Address}` | The address in standard string form — decimal for IPv4, hex for IPv6. | `198.51.100.14`, `fd6a:9a22:b579:8244:df24:fba6:eb71:2b09` |
+| `${Address}` | The address in standard string form - decimal for IPv4, hex for IPv6. | `198.51.100.14`, `fd6a:9a22:b579:8244:df24:fba6:eb71:2b09` |
 
 ## Substitution tokens - per network interface
 
@@ -83,19 +83,19 @@ Microsoft provides an [incomplete enumeration](https://learn.microsoft.com/en-us
 IPv4 addresses are assigned to the adapter by one of these methods:
 
 - Unknown
-- Manual — manually configured on the host.
-- Well known — specified by convention.
-- DHCP — supplied by a DHCP server.
-- Link layer — the address is derived from the physical address.
-- Random — randomly assigned by the host.
+- Manual - manually configured on the host.
+- Well known - specified by convention.
+- DHCP - supplied by a DHCP server.
+- Link layer - the address is derived from the physical address.
+- Random - randomly assigned by the host.
 
 IPv6 addresses are more complicated because the prefix (the network part) can be from a different origin than the suffix (host part):
 
 - Unknown
-- Manual — manually configured on the host. A manual suffix is virtually guaranteed.
+- Manual - manually configured on the host. A manual suffix is virtually guaranteed.
 - Well known
-- DHCP — supplied by a DHCP server. A DHCP suffix is virtually guaranteed.
-- Router — the prefix was supplied by the router.
+- DHCP - supplied by a DHCP server. A DHCP suffix is virtually guaranteed.
+- Router - the prefix was supplied by the router.
 
 BgRaster treats IPv6 address origins as two parts, e.g. `Router advertisement-Random`. If the two parts are the same, they are collapsed into a single string, e.g. `DHCP`, `Manual`.
 

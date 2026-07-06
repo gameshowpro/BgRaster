@@ -95,7 +95,7 @@ sealed class OutputRenderer
         {
             sx = sy = sw = sh = 0;
             outOfBoundsReason = "slice geometry parse error";
-            Console.WriteLine("OutputRenderer: slice geometry parse error — skipping slice.");
+            Console.WriteLine("OutputRenderer: slice geometry parse error - skipping slice.");
             return false;
         }
 

@@ -28,7 +28,7 @@ and assigns them directly to every display using the Windows `IDesktopWallpaper`
 - Crosshair, grid, circle, labeled edges, logo, and text layers
 - TOML configuration with CLI overrides
 - ASUS ProArt color space support
-- No runtime dependencies — a single AOT-compiled executable
+- No runtime dependencies - a single AOT-compiled executable
 
 ### Quick start
 

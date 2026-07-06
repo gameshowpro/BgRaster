@@ -95,7 +95,7 @@ sealed class BgRasterConsoleFormatter : ConsoleFormatter
             int eqIdx = rest.IndexOf('=');
             if (eqIdx < 0)
             {
-                // No '=' — write remaining text as-is
+                // No '=' - write remaining text as-is
                 if (rest.Length > 0)
                     writer.Write(rest.ToString());
                 break;
@@ -115,20 +115,20 @@ sealed class BgRasterConsoleFormatter : ConsoleFormatter
             // '=' in default
             writer.Write('=');
 
-            // Find value — scan forward from after '='
+            // Find value - scan forward from after '='
             int valStart = eqIdx + 1;
             rest = rest[valStart..];
 
             if (rest.Length == 0 || rest[0] == ' ')
             {
-                // Empty value or next pair — continue
+                // Empty value or next pair - continue
                 continue;
             }
 
             // Determine if value is quoted string, number, bool, or identifier
             if (rest[0] == '"')
             {
-                // Quoted string — find closing quote
+                // Quoted string - find closing quote
                 int closeQuote = rest[1..].IndexOf('"') + 1;
                 if (closeQuote > 1)
                 {
@@ -139,7 +139,7 @@ sealed class BgRasterConsoleFormatter : ConsoleFormatter
                 }
                 else
                 {
-                    // Malformed — write rest
+                    // Malformed - write rest
                     writer.Write(rest.ToString());
                     rest = default;
                 }
@@ -166,7 +166,7 @@ sealed class BgRasterConsoleFormatter : ConsoleFormatter
                 }
                 else
                 {
-                    // Unquoted identifier — default color
+                    // Unquoted identifier - default color
                     writer.Write(val);
                 }
             }

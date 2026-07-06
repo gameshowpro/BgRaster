@@ -101,10 +101,10 @@ public class LayerSuppressionTests
                 LogoOpacity = 1f,
             });
 
-            // One dimension zero — still renders (uniform scale from the non-zero dimension)
+            // One dimension zero - still renders (uniform scale from the non-zero dimension)
             RenderAndDetectPixels(new LogoLayer(), zeroWidth).Should().BeTrue();
             RenderAndDetectPixels(new LogoLayer(), zeroHeight).Should().BeTrue();
-            // Both dimensions zero — suppressed
+            // Both dimensions zero - suppressed
             RenderAndDetectPixels(new LogoLayer(), bothZero).Should().BeFalse();
         }
 

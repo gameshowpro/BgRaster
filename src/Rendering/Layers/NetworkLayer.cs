@@ -154,7 +154,7 @@ sealed class NetworkLayer : ILayer
                     string prefix = parts[0];
                     string suffix = parts.Length > 1 ? parts[1] : "";
 
-                    // Whitespace is formatting, not content — skip it
+                    // Whitespace is formatting, not content - skip it
                     if (!string.IsNullOrWhiteSpace(prefix))
                         linesBuilder.Add((prefix, sizePx, color));
 

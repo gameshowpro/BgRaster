@@ -354,7 +354,7 @@ Matching logic:
 1. try exact match by string target against OS unique identifier
 1. for numeric targets, match by zero-based OS index
 1. if multiple config objects match the same discovered output, the first valid match wins and others are marked duplicate ignored
-1. if a config output target does not match a discovered output, mark output not found; this is tolerated — execution continues with the remaining matched outputs, and the not-found status is recorded as a generated comment in `lastRun.toml`
+1. if a config output target does not match a discovered output, mark output not found; this is tolerated - execution continues with the remaining matched outputs, and the not-found status is recorded as a generated comment in `lastRun.toml`
 
 ## Runtime diagnostics state
 The config file is read-only at runtime. BgRaster writes all generated diagnostics, happy-path comments, effective values, and persisted run-state data to `lastRun.toml` or `lastRun.dry.toml`.

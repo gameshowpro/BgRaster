@@ -22,14 +22,14 @@ sealed class BackgroundLayer : ILayer
             bitmap = SKBitmap.Decode(imagePath);
             if (bitmap is null)
             {
-                Console.WriteLine($"BackgroundLayer: could not decode image '{imagePath}' — skipping.");
+                Console.WriteLine($"BackgroundLayer: could not decode image '{imagePath}' - skipping.");
                 return;
             }
             DrawFittedImage(canvas, bitmap, viewport, context.Options.BackgroundFit);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"BackgroundLayer: error loading image '{imagePath}': {ex.Message} — skipping.");
+            Console.WriteLine($"BackgroundLayer: error loading image '{imagePath}': {ex.Message} - skipping.");
         }
         finally
         {
