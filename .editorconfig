@@ -162,12 +162,12 @@ end_of_line = crlf
 # IDE0160: Convert to file-scoped namespace
 csharp_style_namespace_declarations = file_scoped:warning
 
-# IDE0161: Convert to block-scoped namespace (reverse — error)
+# IDE0161: Convert to block-scoped namespace (reverse - error)
 dotnet_diagnostic.IDE0161.severity = error
 
 # ── BgRaster coding standards (from coding-standards.md) ──
 
-# IDE0005: Unnecessary using directive — all usings go in GlobalUsings.cs
+# IDE0005: Unnecessary using directive - all usings go in GlobalUsings.cs
 dotnet_diagnostic.IDE0005.severity = error
 
 # IDE0044: Make field readonly

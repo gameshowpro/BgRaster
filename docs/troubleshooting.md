@@ -4,7 +4,7 @@ When BgRaster doesn't do what you expect, the first place to look is the run's s
 
 ---
 
-## "Nothing happened" — `run-skipped-unchanged`
+## "Nothing happened" - `run-skipped-unchanged`
 
 If you see `# bg-raster: status=run-skipped-unchanged` and exit code 0 with no PNGs being written, the early-exit fingerprint matched the previous run.
 
@@ -27,7 +27,7 @@ The early-exit only triggers when **not** in no-assignment mode. Dry runs always
 
 The PNG is sized to the output's **physical** pixel dimensions, queried via `EnumDisplaySettingsExW` and `GetDpiForMonitor`. If the resolution looks wrong:
 
-1. Check the `[[hardware_output]]` block in `lastRun.toml` — `widthPx`, `heightPx`, `dpiX`, `dpiY` are recorded as observed.
+1. Check the `[[hardware_output]]` block in `lastRun.toml` - `widthPx`, `heightPx`, `dpiX`, `dpiY` are recorded as observed.
 2. Confirm the BgRaster.exe manifest is `PerMonitorV2`-aware. If you've replaced the manifest or are running an unsigned rebuild, mixed-DPI desktops can report logical (DIP) instead of physical pixels.
 3. Verify you are running in a normal interactive session. Some remote, service, or locked-down sessions can restrict graphics/wallpaper APIs.
 
@@ -39,14 +39,14 @@ The most common causes:
 
 - **Per-monitor wallpaper unsupported.** Older Windows builds (pre-1809) lack the necessary COM contract. Verify Windows version.
 - **Wallpaper slideshow active.** Windows Personalization "slideshow" mode periodically overwrites per-monitor assignments. Disable it.
-- **Group Policy lockdown.** "Prevent changing desktop background" blocks the assignment. Look for `wallpaper-assignment-failed` in stdout — the run will exit 1.
+- **Group Policy lockdown.** "Prevent changing desktop background" blocks the assignment. Look for `wallpaper-assignment-failed` in stdout - the run will exit 1.
 - **Stretched / spanned wallpaper mode.** Even if `SetWallpaper` succeeds, Windows can render the per-monitor PNG stretched. Set `IDesktopWallpaper::SetPosition` to `DWPOS_FILL` from Personalisation, or right-click desktop → Personalize → Background → Picture position → "Fill".
 
-If `lastRun.toml` shows `output-rendered` but the wallpaper visibly didn't change, the failure is downstream of BgRaster — check the points above.
+If `lastRun.toml` shows `output-rendered` but the wallpaper visibly didn't change, the failure is downstream of BgRaster - check the points above.
 
 ---
 
-## "Output-not-found" — configured target doesn't match a real display
+## "Output-not-found" - configured target doesn't match a real display
 
 If `lastRun.toml` reports `output-not-found target=...` for a configured `[[output]]`:
 
@@ -89,14 +89,14 @@ Adjust dimensions to fit, or use `vw`/`vh` instead of `px` so the slice scales w
 The orange diagonal cross is the ultimate fallback. If you're seeing it instead of your logo:
 
 - **PNG/JPG**: confirm the path is correct and the file is readable. Substitution tokens (`${MachineName}`, etc.) are applied to `logo.source`, so a malformed token will produce a missing-file path.
-- **SVG**: BgRaster's SVG renderer supports a deliberately small subset — `<rect>`, `<line>`, `<path>` (M/m/L/l/H/h/V/v/Z only), plus `fill`, `stroke`, `stroke-width`, `opacity`. Curves (C/Q/A/S/T) are not yet implemented, and unrecognised elements are skipped. Re-author the SVG with straight segments, or convert to PNG.
-- The first fallback before the orange cross is the embedded `resources/BgRaster.svg`. If you also see the orange cross, the embedded fallback failed to render too — this should never happen and indicates an SkiaSharp issue worth reporting.
+- **SVG**: BgRaster's SVG renderer supports a deliberately small subset - `<rect>`, `<line>`, `<path>` (M/m/L/l/H/h/V/v/Z only), plus `fill`, `stroke`, `stroke-width`, `opacity`. Curves (C/Q/A/S/T) are not yet implemented, and unrecognised elements are skipped. Re-author the SVG with straight segments, or convert to PNG.
+- The first fallback before the orange cross is the embedded `resources/BgRaster.svg`. If you also see the orange cross, the embedded fallback failed to render too - this should never happen and indicates an SkiaSharp issue worth reporting.
 
 ---
 
 ## Stale files accumulating in the output directory
 
-BgRaster automatically sends older wallpaper PNGs to the Windows Recycle Bin after a successful run. Files that cannot be recycled (locked by another process, permission denied) are left in place and recorded as `unrecycledFiles` in `lastRun.toml` — they will be retried on the next run. You can also safely delete them manually.
+BgRaster automatically sends older wallpaper PNGs to the Windows Recycle Bin after a successful run. Files that cannot be recycled (locked by another process, permission denied) are left in place and recorded as `unrecycledFiles` in `lastRun.toml` - they will be retried on the next run. You can also safely delete them manually.
 
 The "stale file" heuristic only matches files whose names follow the BgRaster timestamp pattern (`yyyy-MM-ddTHH-mm-ss.fffffffZ_<id>.png`); other files in the output directory are left alone.
 
@@ -104,7 +104,7 @@ The "stale file" heuristic only matches files whose names follow the BgRaster ti
 
 ## "Round-trip verification failed"
 
-If you see `LastRunWriter: round-trip verification failed for '...'; previous file kept.`, the writer produced TOML that did not parse back to the same in-memory state. The previous `lastRun.toml` is preserved untouched, so this is a diagnostic — the run otherwise completed.
+If you see `LastRunWriter: round-trip verification failed for '...'; previous file kept.`, the writer produced TOML that did not parse back to the same in-memory state. The previous `lastRun.toml` is preserved untouched, so this is a diagnostic - the run otherwise completed.
 
 This indicates a serialisation bug. To capture diagnostics:
 

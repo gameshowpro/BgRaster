@@ -1,4 +1,4 @@
-# watch-docs.ps1 — polls for changes and regenerates docs.
+# watch-docs.ps1 - polls for changes and regenerates docs.
 # Runs generate-documentation.ps1 whenever schema, sample config, README,
 # branding assets, or the doc generator script itself change.
 

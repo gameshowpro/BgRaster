@@ -43,14 +43,14 @@ A canonical text serialiser walks the resolved `GlobalOptions` in fixed section/
 
 ### 3. Hardware discovery (`src/Discovery/`)
 - **`DisplayDiscovery`** uses `EnumDisplayDevicesW`, `EnumDisplaySettingsExW`, `MonitorFromPoint` + `GetDpiForMonitor`, and `QueryDisplayConfig` + `DisplayConfigGetDeviceInfo` to enumerate physical outputs and produce one `OutputRecord` each.
-- The `OutputRecord.Id` is the `monitorDevicePath` (`\\?\DISPLAY#...`) form — the same string accepted by `IDesktopWallpaper::SetWallpaper`. This is the linchpin that allows us to assign each PNG to its correct monitor.
-- All P/Invoke is via `LibraryImport` (source-generated marshalling) — no `DllImport`, no `[ComImport]`.
+- The `OutputRecord.Id` is the `monitorDevicePath` (`\\?\DISPLAY#...`) form - the same string accepted by `IDesktopWallpaper::SetWallpaper`. This is the linchpin that allows us to assign each PNG to its correct monitor.
+- All P/Invoke is via `LibraryImport` (source-generated marshalling) - no `DllImport`, no `[ComImport]`.
 
 ### 4. Early-exit fingerprint (`Program.cs:39-56`)
 Compares three things between `lastRun.toml` (or `.dry.toml` for no-assignment) and the current state:
 - assembly informational version
 - settings hash
-- hardware profile (count, IDs, position, resolution, rotation, DPI — sorted by Id)
+- hardware profile (count, IDs, position, resolution, rotation, DPI - sorted by Id)
 
 If all three match, the run prints `run-skipped-unchanged` and exits without rendering or touching wallpapers. If the user supplied an explicit config path that did not exist at startup, BgRaster still seeds that file on this early-exit path.
 
@@ -58,9 +58,9 @@ For the full config-selection and skip/seeding decision process, see [Config Fil
 
 ### 5. Target matching (`src/Resolution/TargetMatcher.cs`)
 Walks the configured `[[output]]` list against the discovered `HardwareProfile` and emits a discriminated union:
-- `MatchResult.Matched(OutputRecord, OutputOptions)` — render this.
-- `MatchResult.NotFound(OutputOptions)` — configured target has no hardware match.
-- `MatchResult.Duplicate(OutputOptions, OutputRecord)` — a later `[[output]]` claimed an output already taken.
+- `MatchResult.Matched(OutputRecord, OutputOptions)` - render this.
+- `MatchResult.NotFound(OutputOptions)` - configured target has no hardware match.
+- `MatchResult.Duplicate(OutputOptions, OutputRecord)` - a later `[[output]]` claimed an output already taken.
 
 First-match-wins by traversal order. Integer targets match by index; string targets match by exact `OutputRecord.Id`.
 
@@ -97,7 +97,7 @@ The bitmap is encoded to PNG (`SKEncodedImageFormat.Png`, quality 100) and writt
 - **`RecycleFiles`** sends stale PNGs to the Windows Recycle Bin via `SHFileOperationW` with `FO_DELETE | FOF_ALLOWUNDO`. Files that fail to recycle (locked, permission denied) are returned for retry on the next run.
 
 ### 10. State persistence (`src/StateCache/`)
-- **`LastRunWriter.Write`** hand-emits TOML (Tomlyn's comment API on `[[array_of_tables]]` headers is fragile in 0.17.x). It writes to `<path>.tmp`, parses it back via `LastRunReader.Read`, and only `File.Move`'s into place if the round-trip matches the in-memory state field-by-field. On mismatch it deletes the temp and preserves the previous file — diagnostic, not a hard failure.
+- **`LastRunWriter.Write`** hand-emits TOML (Tomlyn's comment API on `[[array_of_tables]]` headers is fragile in 0.17.x). It writes to `<path>.tmp`, parses it back via `LastRunReader.Read`, and only `File.Move`'s into place if the round-trip matches the in-memory state field-by-field. On mismatch it deletes the temp and preserves the previous file - diagnostic, not a hard failure.
 - Each `[[hardware_output]]`, `[[output]]`, and `[[output.slice]]` is preceded by a `# bg-raster: status=...` comment summarising the run's outcome for that block.
 - **`LastRunReader.Read`** returns `null` on missing file, parse failure, or schema mismatch; the caller treats that as "no previous run".
 
@@ -111,7 +111,7 @@ The project publishes with `PublishAot=true`, `TrimMode=full`, `InvariantGlobali
 - **All P/Invoke uses `LibraryImport`** with `StringMarshalling.Utf16` for `W`-suffixed APIs.
 - **No invariant-culture-sensitive ToString/Parse without explicit culture.** All numeric parsing uses `CultureInfo.InvariantCulture`.
 
-`DisableRuntimeMarshalling=true` is intentionally **not** set — see [deferred task 9](future-plans.md). SkiaSharp's interop has not been validated under that flag.
+`DisableRuntimeMarshalling=true` is intentionally **not** set - see [deferred task 9](future-plans.md). SkiaSharp's interop has not been validated under that flag.
 
 ### DPI awareness
 `src/app.manifest` sets `dpiAwareness` to `PerMonitorV2`. Combined with `GetDpiForMonitor`, the rendered PNG dimensions match the physical pixel grid of each output, regardless of mixed-DPI desktops.
@@ -120,7 +120,7 @@ The project publishes with `PublishAot=true`, `TrimMode=full`, `InvariantGlobali
 The manifest declares `requestedExecutionLevel level="asInvoker"`. BgRaster does not implement an elevation-relaunch path; it runs in the caller's token and reports wallpaper-assignment failures through normal HRESULT/status diagnostics.
 
 ### Embedded resources
-Two resources are embedded into the AOT binary: `resources/gidole/Gidolinya-Regular.otf` (font) and `resources/gsp.svg` (logo). Access is via `Assembly.GetManifestResourceStream` — AOT-safe (the resources are linked into the assembly's manifest, not loaded by dynamic type).
+Two resources are embedded into the AOT binary: `resources/gidole/Gidolinya-Regular.otf` (font) and `resources/gsp.svg` (logo). Access is via `Assembly.GetManifestResourceStream` - AOT-safe (the resources are linked into the assembly's manifest, not loaded by dynamic type).
 
 ## Module layout
 
@@ -130,7 +130,7 @@ Two resources are embedded into the AOT binary: `resources/gidole/Gidolinya-Regu
 | `src/Discovery/` | Win32 / Display Config display enumeration. |
 | `src/FileLifecycle/` | Filename generation, stale-file detection. |
 | `src/Hashing/` | Canonical settings hash. |
-| `src/Models/` | Plain `record` types — no behaviour. |
+| `src/Models/` | Plain `record` types - no behaviour. |
 | `src/Parsing/` | Unit, color, fit-mode parsing. |
 | `src/Rendering/` | SkiaSharp layer pipeline, font, SVG renderer. |
 | `src/Resolution/` | Override merging, target matching, substitution. |

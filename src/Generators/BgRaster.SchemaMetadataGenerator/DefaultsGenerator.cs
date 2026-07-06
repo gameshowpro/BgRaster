@@ -47,8 +47,8 @@ public sealed class DefaultsGenerator : IIncrementalGenerator
         isEnabledByDefault: true);
 
     // Definitions that map to runtime Options records (which have defaults).
-    // Override types are skipped — they have no defaults (all nullable).
-    // outputList and hardwareOutput are skipped — structurally different.
+    // Override types are skipped - they have no defaults (all nullable).
+    // outputList and hardwareOutput are skipped - structurally different.
     static readonly ImmutableArray<string> DefaultableDefinitions =
     [
         "textTable",
