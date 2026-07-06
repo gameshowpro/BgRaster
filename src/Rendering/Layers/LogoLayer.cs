@@ -23,9 +23,8 @@ internal sealed class LogoLayer : ILayer
 
         string source = context.Options.LogoSource;
         byte alpha = (byte)(Math.Clamp(context.Options.LogoOpacity, 0f, 1f) * 255f);
-        bool useDarkTheme = IsDarkBackground(context.Options.BackgroundColor);
 
-        if (!string.IsNullOrEmpty(source) && TryRenderSvgLogo(source, canvas, cx, cy, targetWidth, targetHeight, anchorX, anchorY, alpha, useDarkTheme))
+        if (!string.IsNullOrEmpty(source) && TryRenderSvgLogo(source, canvas, cx, cy, targetWidth, targetHeight, anchorX, anchorY, alpha))
         {
             return;
         }
@@ -36,10 +35,10 @@ internal sealed class LogoLayer : ILayer
         }
 
         Console.WriteLine($"LogoLayer: status=logo-fallback-used source=\"{source}\"");
-        RenderDefaultSvgLogo(canvas, cx, cy, targetWidth, targetHeight, anchorX, anchorY, alpha, useDarkTheme);
+        RenderDefaultSvgLogo(canvas, targetWidth, targetHeight, anchorX, anchorY, alpha);
     }
 
-    private static bool TryRenderSvgLogo(string source, SKCanvas canvas, float cx, float cy, float targetWidth, float targetHeight, float anchorX, float anchorY, byte alpha, bool _useDarkTheme)
+    private static bool TryRenderSvgLogo(string source, SKCanvas canvas, float cx, float cy, float targetWidth, float targetHeight, float anchorX, float anchorY, byte alpha)
     {
         Stream? svgStream = null;
         try
@@ -135,10 +134,8 @@ internal sealed class LogoLayer : ILayer
         }
     }
 
-#pragma warning disable IDE0060 // cx, cy, dark kept for API compatibility
-    private static void RenderDefaultSvgLogo(SKCanvas canvas, float _cx, float _cy, float targetWidth, float targetHeight, float anchorX, float anchorY, byte alpha, bool _dark)
-#pragma warning restore IDE0060
-    {
+    private static void RenderDefaultSvgLogo(SKCanvas canvas, float targetWidth, float targetHeight, float anchorX, float anchorY, byte alpha)
+        {
         using Stream svgStream = OpenEmbeddedDefaultLogoStream();
         SKSvg svg = new();
         _ = svg.Load(svgStream);

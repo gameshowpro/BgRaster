@@ -23,7 +23,7 @@ internal static class Program
         }
         catch (Exception ex) when (IsSkiaNativeDependencyFailure(ex))
         {
-            Console.Error.WriteLine(BuildNativeDependencyErrorMessage(ex));
+            Console.Error.WriteLine(BuildNativeDependencyErrorMessage());
             return 3;
         }
     }
@@ -425,7 +425,7 @@ internal static class Program
             HardwareOutputs = hardware.Outputs,
             EffectiveConfig = options,
         };
-        LastRunWriter.Write(path, state, version, runStatus, logger);
+        LastRunWriter.Write(path, state, runStatus, logger);
     }
 
     internal static ImmutableArray<string> GetDefaultConfigSearchPaths() =>
@@ -567,7 +567,7 @@ internal static class Program
         return false;
     }
 
-    internal static string BuildNativeDependencyErrorMessage(Exception _)
+    internal static string BuildNativeDependencyErrorMessage()
     {
         return "bg-raster: required native library 'libSkiaSharp.dll' could not be loaded. "
             + "Ensure BgRaster.exe and libSkiaSharp.dll are in the same folder, then run again.";
