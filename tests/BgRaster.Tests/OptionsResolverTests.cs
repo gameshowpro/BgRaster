@@ -378,8 +378,8 @@ public class OptionsResolverTests
             isImplicitSlice: false);
 
         _ = resolved.TextLines[0].Should().Contain("output 1");
-        _ = resolved.TextLines[1].Should().Be("slice B");
-        _ = resolved.TextLines[2].Should().Be("100x50");
+                _ = resolved.TextLines[1].Should().Be("slice B\n");
+                _ = resolved.TextLines[2].Should().Be("100x50");
     }
 
     [Fact]
