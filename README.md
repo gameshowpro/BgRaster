@@ -26,7 +26,7 @@ BgRaster is a fast console application that uses modern frameworks and APIs to g
 |---|---|
 | OS | Windows 10 1809+ or Windows 11 |
 | Architecture | x64 |
-| Privileges | Any user (IDesktopWallpaper COM interface) |
+| Privileges | Any user |
 | DPI | Per-Monitor v2 aware |
 
 Linux and macOS are not supported - the project is intentionally Windows-specific.
