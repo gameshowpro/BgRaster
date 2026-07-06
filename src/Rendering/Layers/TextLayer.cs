@@ -56,11 +56,10 @@ internal sealed class TextLayer : ILayer
                         currentLine = [];
                     }
 
-                    ImmutableArray<(string Text, float SizePx, SKColor Color)>.Builder netLines =
-                        ImmutableArray.CreateBuilder<(string Text, float SizePx, SKColor Color)>();
-                    NetworkLayer.BuildNetworkLines(context.Options, netLines);
-                    foreach (var ns in netLines.ToImmutable())
-                        visualLines.Add([ns]);
+                    List<List<(string Text, float SizePx, SKColor Color)>> netVisualLines = [];
+                    NetworkLayer.BuildNetworkLines(context.Options, netVisualLines);
+                    foreach (var netLine in netVisualLines)
+                        visualLines.Add(netLine);
 
                     if (parts.Length > 1 && !string.IsNullOrEmpty(parts[1]))
                         currentLine.Add((parts[1], size, color));

@@ -19,89 +19,85 @@ internal sealed class NetworkLayer : ILayer
         if (context.Options.NetworkAdapters.Length == 0)
             return;
 
-        ImmutableArray<(string Text, float SizePx, SKColor Color)>.Builder linesBuilder =
-            ImmutableArray.CreateBuilder<(string Text, float SizePx, SKColor Color)>();
+        // Build visual lines: each line has segments with individual sizes/colors
+        List<List<(string Text, float SizePx, SKColor Color)>> visualLines = [];
+        BuildNetworkLines(context.Options, visualLines);
 
-        BuildNetworkLines(context.Options, linesBuilder);
-
-        ImmutableArray<(string Text, float SizePx, SKColor Color)> lines = linesBuilder.ToImmutable();
-
-        if (lines.Length == 0)
+        if (visualLines.Count == 0)
             return;
 
         float cx = context.CanvasOffsetX + context.Options.NetworkXPx;
         float cy = context.CanvasOffsetY + context.Options.NetworkYPx;
-        SKTextAlign align = TextLayer.ParseTextAlign(context.Options.NetworkTextAlign);
         float anchorX = TextLayer.ParseAnchorX(context.Options.NetworkAnchorX);
         float anchorY = TextLayer.ParseAnchorY(context.Options.NetworkAnchorY);
 
-        ImmutableArray<(string Text, float SizePx, SKColor Color, float AscentPx, float DescentPx, float WidthPx)>.Builder metricsBuilder =
-            ImmutableArray.CreateBuilder<(string Text, float SizePx, SKColor Color, float AscentPx, float DescentPx, float WidthPx)>(lines.Length);
-        foreach ((string text, float sizePx, SKColor color) in lines)
+        // Measure
+        List<(float Ascent, float Descent, float Width,
+            List<(string Text, float SizePx, SKColor Color, float W, float A, float D)> Segs)> measured = [];
+
+        foreach (var line in visualLines)
         {
-            using SKFont metricsFont = new(FontManager.Typeface, sizePx);
-            SKFontMetrics metrics = metricsFont.Metrics;
-            metricsBuilder.Add((text, sizePx, color, metrics.Ascent, metrics.Descent, metricsFont.MeasureText(text)));
+            float la = 0f, ld = 0f, lw = 0f;
+            var segs = new List<(string, float, SKColor, float, float, float)>();
+
+            foreach (var s in line)
+            {
+                using SKFont f = new(FontManager.Typeface, s.SizePx);
+                SKFontMetrics m = f.Metrics;
+                float sw = f.MeasureText(s.Text);
+                float sa = -m.Ascent;
+                float sd = m.Descent;
+                la = Math.Max(la, sa);
+                ld = Math.Max(ld, sd);
+                segs.Add((s.Text, s.SizePx, s.Color, sw, sa, sd));
+                lw += sw;
+            }
+            measured.Add((la, ld, lw, segs));
         }
 
-        ImmutableArray<(string Text, float SizePx, SKColor Color, float AscentPx, float DescentPx, float WidthPx)> measuredLines =
-            metricsBuilder.ToImmutable();
-
-        ImmutableArray<float>.Builder baselineOffsetsBuilder = ImmutableArray.CreateBuilder<float>(measuredLines.Length);
-        baselineOffsetsBuilder.Add(0f);
-        for (int index = 1; index < measuredLines.Length; index++)
+        // Baselines
+        List<float> baseline = [0f];
+        for (int i = 1; i < measured.Count; i++)
         {
-            (string _, float topSizePx, SKColor _, float _, float topDescentPx, float _) = measuredLines[index - 1];
-            (string _, float bottomSizePx, SKColor _, float bottomAscentPx, float _, float _) = measuredLines[index];
-
-            float advance = TextLayer.ComputeBaselineAdvance(
-                topSizePx, bottomSizePx,
-                topDescentPx, bottomAscentPx,
-                TextLayer.DefaultLineHeightRatio,
-                TextLayer.DefaultCollisionGapPx);
-            baselineOffsetsBuilder.Add(baselineOffsetsBuilder[index - 1] + advance);
+            float topSz = measured[i - 1].Segs.Max(s => s.SizePx);
+            float botSz = measured[i].Segs.Max(s => s.SizePx);
+            float adv = TextLayer.ComputeBaselineAdvance(topSz, botSz,
+                measured[i - 1].Descent, -measured[i].Ascent,
+                TextLayer.DefaultLineHeightRatio, TextLayer.DefaultCollisionGapPx);
+            baseline.Add(baseline[i - 1] + adv);
         }
 
-        ImmutableArray<float> baselineOffsets = baselineOffsetsBuilder.ToImmutable();
-
-        float blockTop = float.PositiveInfinity;
-        float blockBottom = float.NegativeInfinity;
-        float blockWidth = 0f;
-        for (int index = 0; index < measuredLines.Length; index++)
+        // Block bounds
+        float bt = float.PositiveInfinity, bb = float.NegativeInfinity, bw = 0f;
+        for (int i = 0; i < measured.Count; i++)
         {
-            (string _, float _, SKColor _, float ascentPx, float descentPx, float widthPx) = measuredLines[index];
-            float baseline = baselineOffsets[index];
-            blockTop = Math.Min(blockTop, baseline + ascentPx);
-            blockBottom = Math.Max(blockBottom, baseline + descentPx);
-            blockWidth = Math.Max(blockWidth, widthPx);
+            float bl = baseline[i];
+            bt = Math.Min(bt, bl - measured[i].Ascent);
+            bb = Math.Max(bb, bl + measured[i].Descent);
+            bw = Math.Max(bw, measured[i].Width);
         }
 
-        float blockHeight = blockBottom - blockTop;
-        float anchorPointOffset = blockTop + (blockHeight * anchorY);
-        float baselineShift = cy - anchorPointOffset;
+        float shift = cy - (bt + (bb - bt) * anchorY);
+        float left = cx - bw * anchorX;
 
-        float blockLeft = cx - (blockWidth * anchorX);
-        float drawX = align switch
+        // Draw
+        for (int i = 0; i < measured.Count; i++)
         {
-            SKTextAlign.Left => blockLeft,
-            SKTextAlign.Center => blockLeft + (blockWidth / 2f),
-            SKTextAlign.Right => blockLeft + blockWidth,
-            _ => blockLeft
-        };
-
-        for (int index = 0; index < measuredLines.Length; index++)
-        {
-            (string text, float sizePx, SKColor color, float _, float _, float _) = measuredLines[index];
-            float y = baselineOffsets[index] + baselineShift;
-            using SKFont font = new(FontManager.Typeface, sizePx);
-            using SKPaint paint = new() { Color = color, IsAntialias = true };
-            canvas.DrawText(text, drawX, y, align, font, paint);
+            float y = baseline[i] + shift;
+            float x = left;
+            foreach (var seg in measured[i].Segs)
+            {
+                using SKFont f = new(FontManager.Typeface, seg.SizePx);
+                using SKPaint p = new() { Color = seg.Color, IsAntialias = true };
+                canvas.DrawText(seg.Text, x, y, SKTextAlign.Left, f, p);
+                x += seg.W;
+            }
         }
     }
 
     internal static void BuildNetworkLines(
         ResolvedOptions options,
-        ImmutableArray<(string Text, float SizePx, SKColor Color)>.Builder linesBuilder)
+        List<List<(string Text, float SizePx, SKColor Color)>> visualLines)
     {
         if (options.NetworkAdapters.Length == 0)
             return;
@@ -114,15 +110,12 @@ internal sealed class NetworkLayer : ILayer
         {
             for (int elemIdx = 0; elemIdx < adapterFormat.Length; elemIdx++)
             {
-                string template = adapterFormat[elemIdx]
-                    .Replace("${IpAddresses}", ipMarker);
+                string template = adapterFormat[elemIdx].Replace("${IpAddresses}", ipMarker);
 
                 float sizePx = options.NetworkSizesPx.Length > 0
-                    ? options.NetworkSizesPx[elemIdx % options.NetworkSizesPx.Length]
-                    : 0f;
+                    ? options.NetworkSizesPx[elemIdx % options.NetworkSizesPx.Length] : 0f;
                 SKColor color = options.NetworkColors.Length > 0
-                    ? options.NetworkColors[elemIdx % options.NetworkColors.Length]
-                    : SKColors.Transparent;
+                    ? options.NetworkColors[elemIdx % options.NetworkColors.Length] : SKColors.Transparent;
 
                 if (sizePx <= 0f)
                     continue;
@@ -144,33 +137,28 @@ internal sealed class NetworkLayer : ILayer
                         string prefix = parts[0];
                         string suffix = parts.Length > 1 ? parts[1] : "";
 
+                        List<(string, float, SKColor)> currentLine = [];
+
                         if (!string.IsNullOrWhiteSpace(prefix))
-                            linesBuilder.Add((prefix, sizePx, color));
+                            currentLine.Add((prefix, sizePx, color));
 
                         if (!ipFormat.IsDefaultOrEmpty)
                         {
                             foreach (AdapterIpAddress ip in adapter.IpAddresses)
                             {
-                                // Accumulate IP elements into a single text until <br>
-                                StringBuilder ipAccum = new();
-                                float ipAccumSize = 0f;
-                                SKColor ipAccumColor = SKColors.Transparent;
-
                                 for (int ipElemIdx = 0; ipElemIdx < ipFormat.Length; ipElemIdx++)
                                 {
-                                    float ipSizePx = options.NetworkSizesPx.Length > 0
-                                        ? options.NetworkSizesPx[ipElemIdx % options.NetworkSizesPx.Length]
-                                        : 0f;
-                                    SKColor ipColor = options.NetworkColors.Length > 0
-                                        ? options.NetworkColors[ipElemIdx % options.NetworkColors.Length]
-                                        : SKColors.Transparent;
+                                    float ipSize = options.NetworkSizesPx.Length > 0
+                                        ? options.NetworkSizesPx[ipElemIdx % options.NetworkSizesPx.Length] : 0f;
+                                    SKColor ipCol = options.NetworkColors.Length > 0
+                                        ? options.NetworkColors[ipElemIdx % options.NetworkColors.Length] : SKColors.Transparent;
 
-                                    if (ipSizePx <= 0f)
+                                    if (ipSize <= 0f)
                                         continue;
 
-                                    string ipFormatted = NetworkFormatter.FormatIpAddress(ip,
+                                    string ipFmt = NetworkFormatter.FormatIpAddress(ip,
                                         ImmutableArray.Create(ipFormat[ipElemIdx]));
-                                    string[] ipSegs = ipFormatted.Split(["\n", "<br>"], StringSplitOptions.None);
+                                    string[] ipSegs = ipFmt.Split(["\n", "<br>"], StringSplitOptions.None);
 
                                     for (int s = 0; s < ipSegs.Length; s++)
                                     {
@@ -180,39 +168,44 @@ internal sealed class NetworkLayer : ILayer
                                         if (isLast && string.IsNullOrEmpty(seg) && s > 0)
                                             continue;
 
-                                        // If this is the first segment in the accumulator, capture its size/color
-                                        if (ipAccum.Length == 0)
-                                        {
-                                            ipAccumSize = ipSizePx;
-                                            ipAccumColor = ipColor;
-                                        }
+                                        currentLine.Add((seg, ipSize, ipCol));
 
-                                        ipAccum.Append(seg);
-
-                                        // Flush on line break (not-last means there was a <br> after this segment)
                                         if (!isLast)
                                         {
-                                            linesBuilder.Add((ipAccum.ToString(), ipAccumSize, ipAccumColor));
-                                            ipAccum.Clear();
+                                            visualLines.Add(currentLine);
+                                            currentLine = [];
                                         }
                                     }
                                 }
-
-                                // Flush remaining
-                                if (ipAccum.Length > 0)
-                                    linesBuilder.Add((ipAccum.ToString(), ipAccumSize, ipAccumColor));
                             }
                         }
 
                         if (!string.IsNullOrWhiteSpace(suffix))
-                            linesBuilder.Add((suffix, sizePx, color));
+                            currentLine.Add((suffix, sizePx, color));
+
+                        if (currentLine.Count > 0)
+                            visualLines.Add(currentLine);
                     }
                     else
                     {
-                        linesBuilder.Add((line, sizePx, color));
+                        visualLines.Add([(line, sizePx, color)]);
                     }
                 }
             }
+        }
+    }
+
+    // Legacy overload for TextLayer inline network rendering — flattens to simple lines
+    internal static void BuildNetworkLines(
+        ResolvedOptions options,
+        ImmutableArray<(string Text, float SizePx, SKColor Color)>.Builder linesBuilder)
+    {
+        List<List<(string Text, float SizePx, SKColor Color)>> visualLines = [];
+        BuildNetworkLines(options, visualLines);
+        foreach (var line in visualLines)
+        {
+            foreach (var seg in line)
+                linesBuilder.Add((seg.Text, seg.SizePx, seg.Color));
         }
     }
 }
