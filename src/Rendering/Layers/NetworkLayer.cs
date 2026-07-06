@@ -108,17 +108,22 @@ internal sealed class NetworkLayer : ILayer
 
         foreach (AdapterInfo adapter in options.NetworkAdapters)
         {
+            int fmtIdx = 0;
+
             for (int elemIdx = 0; elemIdx < adapterFormat.Length; elemIdx++)
             {
                 string template = adapterFormat[elemIdx].Replace("${IpAddresses}", ipMarker);
 
                 float sizePx = options.NetworkSizesPx.Length > 0
-                    ? options.NetworkSizesPx[elemIdx % options.NetworkSizesPx.Length] : 0f;
+                    ? options.NetworkSizesPx[fmtIdx % options.NetworkSizesPx.Length] : 0f;
                 SKColor color = options.NetworkColors.Length > 0
-                    ? options.NetworkColors[elemIdx % options.NetworkColors.Length] : SKColors.Transparent;
+                    ? options.NetworkColors[fmtIdx % options.NetworkColors.Length] : SKColors.Transparent;
 
                 if (sizePx <= 0f)
+                {
+                    fmtIdx++;
                     continue;
+                }
 
                 string formatted = NetworkFormatter.FormatAdapter(adapter,
                     ImmutableArray.Create(template));
@@ -144,9 +149,9 @@ internal sealed class NetworkLayer : ILayer
 
                         if (!ipFormat.IsDefaultOrEmpty)
                         {
-                            // Save adapter element index as the base for IP color/size indexing.
+                            // Save current format index as the base for IP color/size indexing.
                             // Each IP address uses the same color/size sequence.
-                            int ipBaseIdx = elemIdx;
+                            int ipBaseIdx = fmtIdx;
 
                             foreach (AdapterIpAddress ip in adapter.IpAddresses)
                             {
@@ -183,6 +188,9 @@ internal sealed class NetworkLayer : ILayer
                                     }
                                 }
                             }
+
+                            // Advance past the IP format slots (even if no addresses were rendered)
+                            fmtIdx += ipFormat.Length;
                         }
 
                         if (!string.IsNullOrWhiteSpace(suffix))
@@ -194,6 +202,7 @@ internal sealed class NetworkLayer : ILayer
                     else
                     {
                         visualLines.Add([(line, sizePx, color)]);
+                        fmtIdx++;
                     }
                 }
             }
