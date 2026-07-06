@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Logging;
 
-enum ConfigSource
+internal enum ConfigSource
 {
     Default,
     Toml,

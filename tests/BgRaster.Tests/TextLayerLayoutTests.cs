@@ -16,7 +16,7 @@ public class TextLayerLayoutTests
             lineHeightRatio: 1.2f,
             collisionGapPx: 1f);
 
-        result.Should().BeApproximately(30f, 0.001f);
+        _ = result.Should().BeApproximately(30f, 0.001f);
     }
 
     [Fact]
@@ -30,6 +30,6 @@ public class TextLayerLayoutTests
             lineHeightRatio: 1.2f,
             collisionGapPx: 1f);
 
-        result.Should().BeApproximately(19f, 0.001f);
+        _ = result.Should().BeApproximately(19f, 0.001f);
     }
 }

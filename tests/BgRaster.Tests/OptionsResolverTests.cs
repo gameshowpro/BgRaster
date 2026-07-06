@@ -5,7 +5,7 @@ namespace GameshowPro.BgRaster.Tests;
 
 public class OptionsResolverTests
 {
-    static OutputRecord MakeOutput(int index, int width = 1920, int height = 1080) => new()
+    private static OutputRecord MakeOutput(int index, int width = 1920, int height = 1080) => new()
     {
         Id = $"STUB\\DISPLAY#{index}",
         Index = index,
@@ -26,9 +26,9 @@ public class OptionsResolverTests
         SKColor green = OptionsResolver.Resolve(global, MakeOutput(1), null).BackgroundColor;
         SKColor blue = OptionsResolver.Resolve(global, MakeOutput(2), null).BackgroundColor;
 
-        red.Should().Be(new SKColor(255, 0, 0));
-        green.Should().Be(new SKColor(0, 255, 0));
-        blue.Should().Be(new SKColor(0, 0, 255));
+        _ = red.Should().Be(new SKColor(255, 0, 0));
+        _ = green.Should().Be(new SKColor(0, 255, 0));
+        _ = blue.Should().Be(new SKColor(0, 0, 255));
     }
 
     [Fact]
@@ -40,7 +40,7 @@ public class OptionsResolverTests
         };
 
         SKColor color = OptionsResolver.Resolve(global, MakeOutput(3), null).BackgroundColor;
-        color.Should().Be(new SKColor(255, 0, 0));
+        _ = color.Should().Be(new SKColor(255, 0, 0));
     }
 
     [Fact]
@@ -57,7 +57,7 @@ public class OptionsResolverTests
         };
 
         SKColor color = OptionsResolver.Resolve(global, MakeOutput(0), outputConfig).BackgroundColor;
-        color.Should().Be(SKColors.White);
+        _ = color.Should().Be(SKColors.White);
     }
 
     [Fact]
@@ -74,12 +74,15 @@ public class OptionsResolverTests
         };
         SliceOptions slice = new()
         {
-            X = "0", Y = "0", Width = "960px", Height = "1080px",
+            X = "0",
+            Y = "0",
+            Width = "960px",
+            Height = "1080px",
             Background = new BackgroundOverride { Color = "#000000" },
         };
 
         SKColor color = OptionsResolver.ResolveForSlice(global, MakeOutput(0), outputConfig, slice, 960, 1080).BackgroundColor;
-        color.Should().Be(SKColors.Black);
+        _ = color.Should().Be(SKColors.Black);
     }
 
     [Fact]
@@ -93,7 +96,7 @@ public class OptionsResolverTests
         SKColor c0 = OptionsResolver.Resolve(global, MakeOutput(0), null).BackgroundColor;
         SKColor c5 = OptionsResolver.Resolve(global, MakeOutput(5), null).BackgroundColor;
 
-        c0.Should().Be(c5);
+        _ = c0.Should().Be(c5);
     }
 
     [Fact]
@@ -105,7 +108,7 @@ public class OptionsResolverTests
         };
 
         string line = OptionsResolver.Resolve(global, MakeOutput(0), null).TextLines[0];
-        line.Should().Contain(Environment.MachineName);
+        _ = line.Should().Contain(Environment.MachineName);
     }
 
     [Fact]
@@ -118,7 +121,7 @@ public class OptionsResolverTests
         };
 
         string line = OptionsResolver.Resolve(global, MakeOutput(0), null).TextLines[0];
-        line.Should().Be("Hello ConfiguredMachine");
+        _ = line.Should().Be("Hello ConfiguredMachine");
     }
 
     [Fact]
@@ -130,7 +133,7 @@ public class OptionsResolverTests
         };
 
         string line = OptionsResolver.Resolve(global, MakeOutput(0, 1920, 1080), null).TextLines[0];
-        line.Should().Be("1920x1080");
+        _ = line.Should().Be("1920x1080");
     }
 
     [Fact]
@@ -142,7 +145,7 @@ public class OptionsResolverTests
         };
 
         string line = OptionsResolver.Resolve(global, MakeOutput(27), null).TextLines[0];
-        line.Should().Be("27|28|AB");
+        _ = line.Should().Be("27|28|AB");
     }
 
     [Fact]
@@ -157,9 +160,9 @@ public class OptionsResolverTests
         string one = OptionsResolver.Resolve(global, MakeOutput(1), null).TextLines[0];
         string twentySeven = OptionsResolver.Resolve(global, MakeOutput(27), null).TextLines[0];
 
-        zero.Should().Be("#");
-        one.Should().Be("A");
-        twentySeven.Should().Be("AA");
+        _ = zero.Should().Be("#");
+        _ = one.Should().Be("A");
+        _ = twentySeven.Should().Be("AA");
     }
 
     [Fact]
@@ -178,7 +181,7 @@ public class OptionsResolverTests
         };
 
         string line = OptionsResolver.ResolveForSlice(global, MakeOutput(1), null, slice, 100, 100, sliceIndex: 1).TextLines[0];
-        line.Should().Be("1|2|B|100x100");
+        _ = line.Should().Be("1|2|B|100x100");
     }
 
     [Fact]
@@ -200,9 +203,9 @@ public class OptionsResolverTests
         string one = OptionsResolver.ResolveForSlice(global, MakeOutput(1), null, slice, 100, 100, sliceIndex: 1).TextLines[0];
         string twentySeven = OptionsResolver.ResolveForSlice(global, MakeOutput(1), null, slice, 100, 100, sliceIndex: 27).TextLines[0];
 
-        zero.Should().Be("#");
-        one.Should().Be("A");
-        twentySeven.Should().Be("AA");
+        _ = zero.Should().Be("#");
+        _ = one.Should().Be("A");
+        _ = twentySeven.Should().Be("AA");
     }
 
     [Fact]
@@ -216,10 +219,10 @@ public class OptionsResolverTests
 
         ResolvedOptions resolved = OptionsResolver.Resolve(global, MakeOutput(2, 1920, 1080), null);
 
-        resolved.BackgroundImage.Should().Contain(Environment.MachineName);
-        resolved.BackgroundImage.Should().Contain("Display 2");
-        resolved.LogoSource.Should().Contain("3");
-        resolved.LogoSource.Should().Contain("1920x1080");
+        _ = resolved.BackgroundImage.Should().Contain(Environment.MachineName);
+        _ = resolved.BackgroundImage.Should().Contain("Display 2");
+        _ = resolved.LogoSource.Should().Contain("3");
+        _ = resolved.LogoSource.Should().Contain("1920x1080");
     }
 
     [Fact]
@@ -237,8 +240,8 @@ public class OptionsResolverTests
 
         ResolvedOptions resolved = OptionsResolver.Resolve(options, MakeOutput(0), null);
 
-        resolved.BackgroundImage.Should().Be(Path.GetFullPath(Path.Combine(currentDirectory, "assets", "bg.png")));
-        resolved.LogoSource.Should().Be(Path.GetFullPath(Path.Combine(currentDirectory, "assets", "logo.svg")));
+        _ = resolved.BackgroundImage.Should().Be(Path.GetFullPath(Path.Combine(currentDirectory, "assets", "bg.png")));
+        _ = resolved.LogoSource.Should().Be(Path.GetFullPath(Path.Combine(currentDirectory, "assets", "logo.svg")));
     }
 
     [Fact]
@@ -269,28 +272,28 @@ public class OptionsResolverTests
         GlobalOptions fileGlobal = new() { Text = new TextOptions { Format = ["file"] } };
         GlobalOptions cliGlobal = ConfigLoader.ApplyCliOverlay(fileGlobal, new CliOverlay { TextFormat = "cli" });
 
-        OptionsResolver.ResolveForSlice(cliGlobal, output, outputConfig, sliceWithText, 100, 100)
+        _ = OptionsResolver.ResolveForSlice(cliGlobal, output, outputConfig, sliceWithText, 100, 100)
             .TextLines[0]
             .Should().Be("slice");
-        OptionsResolver.Resolve(cliGlobal, output, outputConfig)
+        _ = OptionsResolver.Resolve(cliGlobal, output, outputConfig)
             .TextLines[0]
             .Should().Be("output");
 
         OutputOptions noOutputText = outputConfig with { Text = null };
-        OptionsResolver.Resolve(cliGlobal, output, noOutputText)
+        _ = OptionsResolver.Resolve(cliGlobal, output, noOutputText)
             .TextLines[0]
             .Should().Be("cli");
-        OptionsResolver.ResolveForSlice(cliGlobal, output, noOutputText, sliceWithoutText, 100, 100)
+        _ = OptionsResolver.ResolveForSlice(cliGlobal, output, noOutputText, sliceWithoutText, 100, 100)
             .TextLines[0]
             .Should().Be("cli");
 
         GlobalOptions fileOnlyGlobal = fileGlobal;
-        OptionsResolver.Resolve(fileOnlyGlobal, output, noOutputText)
+        _ = OptionsResolver.Resolve(fileOnlyGlobal, output, noOutputText)
             .TextLines[0]
             .Should().Be("file");
 
         GlobalOptions defaultGlobal = new() { Text = new TextOptions() };
-        OptionsResolver.Resolve(defaultGlobal, output, null)
+        _ = OptionsResolver.Resolve(defaultGlobal, output, null)
             .TextLines[0]
             .Should().NotBeNullOrWhiteSpace();
     }
@@ -315,9 +318,9 @@ public class OptionsResolverTests
         SKColor second = OptionsResolver.ResolveForSlice(global, output, null, slice, 100, 100, sequenceIndex: 1).BackgroundColor;
         SKColor third = OptionsResolver.ResolveForSlice(global, output, null, slice, 100, 100, sequenceIndex: 2).BackgroundColor;
 
-        first.Should().Be(new SKColor(255, 0, 0));
-        second.Should().Be(new SKColor(0, 255, 0));
-        third.Should().Be(new SKColor(0, 0, 255));
+        _ = first.Should().Be(new SKColor(255, 0, 0));
+        _ = second.Should().Be(new SKColor(0, 255, 0));
+        _ = third.Should().Be(new SKColor(0, 0, 255));
     }
 
     [Fact]
@@ -327,10 +330,10 @@ public class OptionsResolverTests
 
         ResolvedOptions resolved = OptionsResolver.Resolve(global, MakeOutput(0, 1920, 1080), null);
 
-        resolved.CircleXPx.Should().Be(960f);
-        resolved.CircleYPx.Should().Be(540f);
-        resolved.CrosshairXPx.Should().Be(960f);
-        resolved.CrosshairYPx.Should().Be(540f);
+        _ = resolved.CircleXPx.Should().Be(960f);
+        _ = resolved.CircleYPx.Should().Be(540f);
+        _ = resolved.CrosshairXPx.Should().Be(960f);
+        _ = resolved.CrosshairYPx.Should().Be(540f);
     }
 
     [Fact]
@@ -346,10 +349,10 @@ public class OptionsResolverTests
 
         ResolvedOptions resolved = OptionsResolver.Resolve(global, MakeOutput(0, 1000, 500), outputConfig);
 
-        resolved.CircleXPx.Should().Be(250f);
-        resolved.CircleYPx.Should().Be(375f);
-        resolved.CrosshairXPx.Should().Be(100f);
-        resolved.CrosshairYPx.Should().Be(100f);
+        _ = resolved.CircleXPx.Should().Be(250f);
+        _ = resolved.CircleYPx.Should().Be(375f);
+        _ = resolved.CrosshairXPx.Should().Be(100f);
+        _ = resolved.CrosshairYPx.Should().Be(100f);
     }
 
     [Fact]
@@ -374,9 +377,9 @@ public class OptionsResolverTests
             sliceIndex: 1,
             isImplicitSlice: false);
 
-        resolved.TextLines[0].Should().Contain("output 1");
-        resolved.TextLines[1].Should().Be("slice B");
-        resolved.TextLines[2].Should().Be("100x50");
+        _ = resolved.TextLines[0].Should().Contain("output 1");
+        _ = resolved.TextLines[1].Should().Be("slice B");
+        _ = resolved.TextLines[2].Should().Be("100x50");
     }
 
     [Fact]
@@ -401,9 +404,9 @@ public class OptionsResolverTests
             sliceIndex: 0,
             isImplicitSlice: true);
 
-        resolved.TextLines[0].Should().Contain("2");
-        resolved.TextLines[1].Should().Be("Display 2");
-        resolved.TextLines[2].Should().Be("1920x1080");
+        _ = resolved.TextLines[0].Should().Contain("2");
+        _ = resolved.TextLines[1].Should().Be("Display 2");
+        _ = resolved.TextLines[2].Should().Be("1920x1080");
     }
 
     [Fact]
@@ -430,7 +433,7 @@ public class OptionsResolverTests
             100,
             isImplicitSlice: true);
 
-        resolved.TextLines[0].Should().Be("configured");
+        _ = resolved.TextLines[0].Should().Be("configured");
     }
 
     [Fact]
@@ -455,7 +458,7 @@ public class OptionsResolverTests
 
         ResolvedOptions resolved = OptionsResolver.ResolveForSlice(global, MakeOutput(0), outputConfig, slice, 200, 400);
 
-        resolved.GridSizePx.Should().BeApproximately(100f, 0.01f);
+        _ = resolved.GridSizePx.Should().BeApproximately(100f, 0.01f);
     }
 
     [Fact]
@@ -503,11 +506,11 @@ public class OptionsResolverTests
 
         ResolvedOptions resolved = OptionsResolver.ResolveForSlice(global, MakeOutput(0), outputConfig, slice, 200, 100);
 
-        resolved.LabeledEdgesTextSizePx.Should().BeApproximately(5f, 0.01f);
-        resolved.LabeledEdgesTailLengthPx.Should().BeApproximately(8f, 0.01f);
-        resolved.LabeledEdgesThicknessPx.Should().BeApproximately(4f, 0.01f);
-        resolved.LabeledEdgesHeadScale.Should().BeApproximately(2f, 0.01f);
-        resolved.LabeledEdgesScope.Should().Be(LabeledEdgesScope.Slice);
-        resolved.LabeledEdgesSides.Should().Equal([LabeledEdgeSide.BR, LabeledEdgeSide.T]);
+        _ = resolved.LabeledEdgesTextSizePx.Should().BeApproximately(5f, 0.01f);
+        _ = resolved.LabeledEdgesTailLengthPx.Should().BeApproximately(8f, 0.01f);
+        _ = resolved.LabeledEdgesThicknessPx.Should().BeApproximately(4f, 0.01f);
+        _ = resolved.LabeledEdgesHeadScale.Should().BeApproximately(2f, 0.01f);
+        _ = resolved.LabeledEdgesScope.Should().Be(LabeledEdgesScope.Slice);
+        _ = resolved.LabeledEdgesSides.Should().Equal([LabeledEdgeSide.BR, LabeledEdgeSide.T]);
     }
 }

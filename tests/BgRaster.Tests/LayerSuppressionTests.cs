@@ -18,7 +18,7 @@ public class LayerSuppressionTests
         });
 
         bool hasPixels = RenderAndDetectPixels(new CircleLayer(), context);
-        hasPixels.Should().BeFalse();
+        _ = hasPixels.Should().BeFalse();
     }
 
     [Fact]
@@ -34,7 +34,7 @@ public class LayerSuppressionTests
         });
 
         bool hasPixels = RenderAndDetectPixels(new CircleLayer(), context);
-        hasPixels.Should().BeFalse();
+        _ = hasPixels.Should().BeFalse();
     }
 
     [Fact]
@@ -50,7 +50,7 @@ public class LayerSuppressionTests
         });
 
         bool hasPixels = RenderAndDetectPixels(new CrosshairLayer(), context);
-        hasPixels.Should().BeFalse();
+        _ = hasPixels.Should().BeFalse();
     }
 
     [Fact]
@@ -67,48 +67,48 @@ public class LayerSuppressionTests
         });
 
         bool hasPixels = RenderAndDetectPixels(new LogoLayer(), context);
-        hasPixels.Should().BeFalse();
+        _ = hasPixels.Should().BeFalse();
     }
 
     [Fact]
-        public void Logo_IsSuppressed_WhenBothDimensionsAreNonPositive()
+    public void Logo_IsSuppressed_WhenBothDimensionsAreNonPositive()
+    {
+        RenderContext zeroWidth = CreateContext(new ResolvedOptions
         {
-            RenderContext zeroWidth = CreateContext(new ResolvedOptions
-            {
-                LogoSource = "pack://application:,,,/GameshowPro.BgRaster;component/resources/gsp.svg",
-                LogoXPx = 64f,
-                LogoYPx = 64f,
-                LogoWidthPx = 0f,
-                LogoHeightPx = 64f,
-                LogoOpacity = 1f,
-            });
-            RenderContext zeroHeight = CreateContext(new ResolvedOptions
-            {
-                LogoSource = "pack://application:,,,/GameshowPro.BgRaster;component/resources/gsp.svg",
-                LogoXPx = 64f,
-                LogoYPx = 64f,
-                LogoWidthPx = 64f,
-                LogoHeightPx = 0f,
-                LogoOpacity = 1f,
-            });
-            RenderContext bothZero = CreateContext(new ResolvedOptions
-            {
-                LogoSource = "pack://application:,,,/GameshowPro.BgRaster;component/resources/gsp.svg",
-                LogoXPx = 64f,
-                LogoYPx = 64f,
-                LogoWidthPx = 0f,
-                LogoHeightPx = 0f,
-                LogoOpacity = 1f,
-            });
+            LogoSource = "pack://application:,,,/GameshowPro.BgRaster;component/resources/gsp.svg",
+            LogoXPx = 64f,
+            LogoYPx = 64f,
+            LogoWidthPx = 0f,
+            LogoHeightPx = 64f,
+            LogoOpacity = 1f,
+        });
+        RenderContext zeroHeight = CreateContext(new ResolvedOptions
+        {
+            LogoSource = "pack://application:,,,/GameshowPro.BgRaster;component/resources/gsp.svg",
+            LogoXPx = 64f,
+            LogoYPx = 64f,
+            LogoWidthPx = 64f,
+            LogoHeightPx = 0f,
+            LogoOpacity = 1f,
+        });
+        RenderContext bothZero = CreateContext(new ResolvedOptions
+        {
+            LogoSource = "pack://application:,,,/GameshowPro.BgRaster;component/resources/gsp.svg",
+            LogoXPx = 64f,
+            LogoYPx = 64f,
+            LogoWidthPx = 0f,
+            LogoHeightPx = 0f,
+            LogoOpacity = 1f,
+        });
 
-            // One dimension zero - still renders (uniform scale from the non-zero dimension)
-            RenderAndDetectPixels(new LogoLayer(), zeroWidth).Should().BeTrue();
-            RenderAndDetectPixels(new LogoLayer(), zeroHeight).Should().BeTrue();
-            // Both dimensions zero - suppressed
-            RenderAndDetectPixels(new LogoLayer(), bothZero).Should().BeFalse();
-        }
+        // One dimension zero - still renders (uniform scale from the non-zero dimension)
+        _ = RenderAndDetectPixels(new LogoLayer(), zeroWidth).Should().BeTrue();
+        _ = RenderAndDetectPixels(new LogoLayer(), zeroHeight).Should().BeTrue();
+        // Both dimensions zero - suppressed
+        _ = RenderAndDetectPixels(new LogoLayer(), bothZero).Should().BeFalse();
+    }
 
-    static RenderContext CreateContext(ResolvedOptions options) =>
+    private static RenderContext CreateContext(ResolvedOptions options) =>
         new(
             OutputRecord: new OutputRecord
             {
@@ -123,7 +123,7 @@ public class LayerSuppressionTests
             CanvasOffsetX: 0,
             CanvasOffsetY: 0);
 
-    static bool RenderAndDetectPixels(ILayer layer, RenderContext context)
+    private static bool RenderAndDetectPixels(ILayer layer, RenderContext context)
     {
         SKImageInfo info = new(context.ViewportWidth, context.ViewportHeight);
         using SKSurface surface = SKSurface.Create(info);
@@ -140,7 +140,9 @@ public class LayerSuppressionTests
             for (int x = 0; x < bitmap.Width; x++)
             {
                 if (bitmap.GetPixel(x, y).Alpha > 0)
+                {
                     return true;
+                }
             }
         }
 

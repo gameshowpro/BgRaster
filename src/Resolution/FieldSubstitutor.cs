@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Resolution;
 
-record SubstitutionContext(
+internal record SubstitutionContext(
     string MachineName,
     int OutputWidth,
     int OutputHeight,
@@ -13,29 +13,29 @@ record SubstitutionContext(
     int SliceHeight,
     int SliceIndex = 0);
 
-static class FieldSubstitutor
+internal static class FieldSubstitutor
 {
     internal static string Substitute(string template, SubstitutionContext ctx)
     {
-        string outputIndex = ctx.OutputIndex.ToString(System.Globalization.CultureInfo.InvariantCulture);
-        string outputIndexPlusOne = (ctx.OutputIndex + 1).ToString(System.Globalization.CultureInfo.InvariantCulture);
+        string outputIndex = ctx.OutputIndex.ToString(CultureInfo.InvariantCulture);
+        string outputIndexPlusOne = (ctx.OutputIndex + 1).ToString(CultureInfo.InvariantCulture);
         string outputLetter = ToLetterToken(ctx.OutputIndex);
         string outputLetterMinusOne = ToLetterToken(ctx.OutputIndex, includeHashAtZero: true);
-        string sliceIndex = ctx.SliceIndex.ToString(System.Globalization.CultureInfo.InvariantCulture);
-        string sliceIndexPlusOne = (ctx.SliceIndex + 1).ToString(System.Globalization.CultureInfo.InvariantCulture);
+        string sliceIndex = ctx.SliceIndex.ToString(CultureInfo.InvariantCulture);
+        string sliceIndexPlusOne = (ctx.SliceIndex + 1).ToString(CultureInfo.InvariantCulture);
         string sliceLetter = ToLetterToken(ctx.SliceIndex);
         string sliceLetterMinusOne = ToLetterToken(ctx.SliceIndex, includeHashAtZero: true);
 
         string result = template
             .Replace("${MachineName}", ctx.MachineName)
-            .Replace("${OutputWidth}", ctx.OutputWidth.ToString(System.Globalization.CultureInfo.InvariantCulture))
-            .Replace("${OutputHeight}", ctx.OutputHeight.ToString(System.Globalization.CultureInfo.InvariantCulture))
+            .Replace("${OutputWidth}", ctx.OutputWidth.ToString(CultureInfo.InvariantCulture))
+            .Replace("${OutputHeight}", ctx.OutputHeight.ToString(CultureInfo.InvariantCulture))
             .Replace("${OutputIndexPlusOne}", outputIndexPlusOne)
             .Replace("${OutputIndex}", outputIndex)
             .Replace("${OutputLetter}", outputLetter)
             .Replace("${OutputLetterMinusOne}", outputLetterMinusOne)
-            .Replace("${SliceWidth}", ctx.SliceWidth.ToString(System.Globalization.CultureInfo.InvariantCulture))
-            .Replace("${SliceHeight}", ctx.SliceHeight.ToString(System.Globalization.CultureInfo.InvariantCulture))
+            .Replace("${SliceWidth}", ctx.SliceWidth.ToString(CultureInfo.InvariantCulture))
+            .Replace("${SliceHeight}", ctx.SliceHeight.ToString(CultureInfo.InvariantCulture))
             .Replace("${SliceIndexPlusOne}", sliceIndexPlusOne)
             .Replace("${SliceIndex}", sliceIndex)
             .Replace("${SliceLetter}", sliceLetter)
@@ -46,15 +46,19 @@ static class FieldSubstitutor
         return result;
     }
 
-    static string ToLetterToken(int zeroBasedIndex, bool includeHashAtZero = false)
+    private static string ToLetterToken(int zeroBasedIndex, bool includeHashAtZero = false)
     {
         if (zeroBasedIndex < 0)
+        {
             return "?";
+        }
 
         if (includeHashAtZero)
         {
             if (zeroBasedIndex == 0)
+            {
                 return "#";
+            }
 
             zeroBasedIndex -= 1;
         }
@@ -64,7 +68,7 @@ static class FieldSubstitutor
         while (value >= 0)
         {
             int remainder = value % 26;
-            builder.Insert(0, (char)('A' + remainder));
+            _ = builder.Insert(0, (char)('A' + remainder));
             value = (value / 26) - 1;
         }
 

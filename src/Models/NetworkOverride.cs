@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Models;
 
-record NetworkOverride
+internal record NetworkOverride
 {
     internal ImmutableArray<string>? RequireAdapterType { get; init; }
     internal ImmutableArray<string>? ExcludeAdapterType { get; init; }

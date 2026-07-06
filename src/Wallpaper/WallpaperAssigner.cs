@@ -1,16 +1,19 @@
 // SPDX-License-Identifier: MIT
 // Copyright © 2026 Barjonas LLC
 
-namespace GameshowPro.BgRaster.Wallpaper;
 
 using GameshowPro.BgRaster.Wallpaper.Interop;
 
-sealed class WallpaperAssigner : IWallpaperAssigner
+namespace GameshowPro.BgRaster.Wallpaper;
+
+internal sealed class WallpaperAssigner : IWallpaperAssigner
 {
     public Task<bool> AssignAsync(FrozenDictionary<string, string> outputIdToFilePath)
     {
         if (outputIdToFilePath.Count == 0)
+        {
             return Task.FromResult(true);
+        }
 
         bool allOk = true;
         bool comOk = WithDesktopWallpaper(instance =>
@@ -32,22 +35,26 @@ sealed class WallpaperAssigner : IWallpaperAssigner
     public Task ClearAsync(IReadOnlyCollection<string> outputIds)
     {
         if (outputIds.Count == 0)
+        {
             return Task.CompletedTask;
+        }
 
-        WithDesktopWallpaper(instance =>
+        _ = WithDesktopWallpaper(instance =>
         {
             foreach (string id in outputIds)
             {
                 int hr = SetWallpaper(instance, id, "");
                 if (hr != WallpaperInterop.S_OK)
+                {
                     Console.Error.WriteLine($"WallpaperAssigner: clear failed for '{id}' (HRESULT 0x{hr:X8}).");
+                }
             }
         });
 
         return Task.CompletedTask;
     }
 
-    static unsafe bool WithDesktopWallpaper(Action<nint> body)
+    private static unsafe bool WithDesktopWallpaper(Action<nint> body)
     {
         int initHr = Ole32.CoInitializeEx(0,
             WallpaperInterop.COINIT_APARTMENTTHREADED | WallpaperInterop.COINIT_DISABLE_OLE1DDE);
@@ -77,11 +84,13 @@ sealed class WallpaperAssigner : IWallpaperAssigner
         finally
         {
             if (needsUninit)
+            {
                 Ole32.CoUninitialize();
+            }
         }
     }
 
-    static unsafe int SetWallpaper(nint instance, string monitorId, string wallpaperPath)
+    private static unsafe int SetWallpaper(nint instance, string monitorId, string wallpaperPath)
     {
         nint vtable = *(nint*)instance;
         nint slot = ((nint*)vtable)[WallpaperInterop.VT_SetWallpaper];
@@ -95,12 +104,12 @@ sealed class WallpaperAssigner : IWallpaperAssigner
         }
     }
 
-    static unsafe void Release(nint instance)
+    private static unsafe void Release(nint instance)
     {
         nint vtable = *(nint*)instance;
         nint slot = ((nint*)vtable)[WallpaperInterop.VT_Release];
         delegate* unmanaged[Stdcall]<nint, uint> release =
             (delegate* unmanaged[Stdcall]<nint, uint>)slot;
-        release(instance);
+        _ = release(instance);
     }
 }

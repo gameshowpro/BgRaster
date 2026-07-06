@@ -3,12 +3,15 @@
 
 namespace GameshowPro.BgRaster.Parsing;
 
-static class ColorParser
+internal static class ColorParser
 {
     internal static SKColor Parse(string input)
     {
         if (TryParse(input, out SKColor color))
+        {
             return color;
+        }
+
         throw new FormatException($"Cannot parse '{input}' as a color.");
     }
 
@@ -23,25 +26,35 @@ static class ColorParser
         }
 
         if (span.StartsWith("#"))
+        {
             return TryParseHex(span[1..], out color);
+        }
 
         if (span.StartsWith("rgba(", StringComparison.OrdinalIgnoreCase) && span.EndsWith(")"))
+        {
             return TryParseRgba(span[5..^1], out color);
+        }
 
         if (span.StartsWith("rgb(", StringComparison.OrdinalIgnoreCase) && span.EndsWith(")"))
+        {
             return TryParseRgb(span[4..^1], out color);
+        }
 
         if (span.StartsWith("hsla(", StringComparison.OrdinalIgnoreCase) && span.EndsWith(")"))
+        {
             return TryParseHsla(span[5..^1], out color);
+        }
 
         if (span.StartsWith("hsl(", StringComparison.OrdinalIgnoreCase) && span.EndsWith(")"))
+        {
             return TryParseHsl(span[4..^1], out color);
+        }
 
         color = default;
         return false;
     }
 
-    static bool TryParseHex(ReadOnlySpan<char> hex, out SKColor color)
+    private static bool TryParseHex(ReadOnlySpan<char> hex, out SKColor color)
     {
         if (hex.Length == 3)
         {
@@ -89,22 +102,25 @@ static class ColorParser
         return false;
     }
 
-    static bool TryParseShorthandHexByte(char hex, out byte value)
+    private static bool TryParseShorthandHexByte(char hex, out byte value)
     {
         Span<char> expanded = [hex, hex];
         return TryParseHexByte(expanded, out value);
     }
 
-    static bool TryParseHexByte(ReadOnlySpan<char> hex, out byte value)
+    private static bool TryParseHexByte(ReadOnlySpan<char> hex, out byte value)
     {
-        if (byte.TryParse(hex, System.Globalization.NumberStyles.HexNumber,
-                System.Globalization.CultureInfo.InvariantCulture, out value))
+        if (byte.TryParse(hex, NumberStyles.HexNumber,
+                CultureInfo.InvariantCulture, out value))
+        {
             return true;
+        }
+
         value = 0;
         return false;
     }
 
-    static bool TryParseRgb(ReadOnlySpan<char> inner, out SKColor color)
+    private static bool TryParseRgb(ReadOnlySpan<char> inner, out SKColor color)
     {
         Span<Range> parts = stackalloc Range[3];
         int count = inner.Split(parts, ',');
@@ -120,7 +136,7 @@ static class ColorParser
         return false;
     }
 
-    static bool TryParseRgba(ReadOnlySpan<char> inner, out SKColor color)
+    private static bool TryParseRgba(ReadOnlySpan<char> inner, out SKColor color)
     {
         Span<Range> parts = stackalloc Range[4];
         int count = inner.Split(parts, ',');
@@ -137,7 +153,7 @@ static class ColorParser
         return false;
     }
 
-    static bool TryParseHsl(ReadOnlySpan<char> inner, out SKColor color)
+    private static bool TryParseHsl(ReadOnlySpan<char> inner, out SKColor color)
     {
         Span<Range> parts = stackalloc Range[3];
         int count = inner.Split(parts, ',');
@@ -154,7 +170,7 @@ static class ColorParser
         return false;
     }
 
-    static bool TryParseHsla(ReadOnlySpan<char> inner, out SKColor color)
+    private static bool TryParseHsla(ReadOnlySpan<char> inner, out SKColor color)
     {
         Span<Range> parts = stackalloc Range[4];
         int count = inner.Split(parts, ',');
@@ -172,11 +188,11 @@ static class ColorParser
         return false;
     }
 
-    static bool TryParseFloat(ReadOnlySpan<char> span, out float value) =>
-        float.TryParse(span.Trim(), System.Globalization.NumberStyles.Float,
-            System.Globalization.CultureInfo.InvariantCulture, out value);
+    private static bool TryParseFloat(ReadOnlySpan<char> span, out float value) =>
+        float.TryParse(span.Trim(), NumberStyles.Float,
+            CultureInfo.InvariantCulture, out value);
 
-    static bool TryParsePercentage(ReadOnlySpan<char> span, out float value)
+    private static bool TryParsePercentage(ReadOnlySpan<char> span, out float value)
     {
         ReadOnlySpan<char> trimmed = span.Trim();
         if (trimmed.EndsWith("%"))
@@ -195,9 +211,9 @@ static class ColorParser
         return false;
     }
 
-    static byte ClampByte(float value) => (byte)Math.Clamp((int)MathF.Round(value), 0, 255);
+    private static byte ClampByte(float value) => (byte)Math.Clamp((int)MathF.Round(value), 0, 255);
 
-    static (byte R, byte G, byte B) HslToRgb(float h, float s, float l)
+    private static (byte R, byte G, byte B) HslToRgb(float h, float s, float l)
     {
         if (s == 0f)
         {
@@ -216,13 +232,33 @@ static class ColorParser
         );
     }
 
-    static float HueToRgb(float p, float q, float t)
+    private static float HueToRgb(float p, float q, float t)
     {
-        if (t < 0f) t += 1f;
-        if (t > 1f) t -= 1f;
-        if (t < 1f / 6f) return p + (q - p) * 6f * t;
-        if (t < 1f / 2f) return q;
-        if (t < 2f / 3f) return p + (q - p) * (2f / 3f - t) * 6f;
+        if (t < 0f)
+        {
+            t += 1f;
+        }
+
+        if (t > 1f)
+        {
+            t -= 1f;
+        }
+
+        if (t < 1f / 6f)
+        {
+            return p + (q - p) * 6f * t;
+        }
+
+        if (t < 1f / 2f)
+        {
+            return q;
+        }
+
+        if (t < 2f / 3f)
+        {
+            return p + (q - p) * (2f / 3f - t) * 6f;
+        }
+
         return p;
     }
 }

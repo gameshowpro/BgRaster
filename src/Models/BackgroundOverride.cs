@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Models;
 
-record BackgroundOverride
+internal record BackgroundOverride
 {
     internal string? Color { get; init; }
     internal string? Image { get; init; }

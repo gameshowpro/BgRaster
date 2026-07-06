@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Models;
 
-record LabeledEdgesOverride
+internal record LabeledEdgesOverride
 {
     internal string? TextSize { get; init; }
     internal string? TailLength { get; init; }

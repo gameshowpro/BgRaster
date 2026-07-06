@@ -10,8 +10,8 @@ public class FontManagerTests
     {
         SKTypeface typeface = FontManager.Typeface;
 
-        typeface.Should().NotBeNull();
-        typeface.FamilyName.Should().NotBeNullOrWhiteSpace();
+        _ = typeface.Should().NotBeNull();
+        _ = typeface.FamilyName.Should().NotBeNullOrWhiteSpace();
     }
 
     [Fact]
@@ -19,7 +19,7 @@ public class FontManagerTests
     {
         SKImageInfo info = new(240, 120);
         using SKSurface surface = SKSurface.Create(info);
-        surface.Should().NotBeNull();
+        _ = surface.Should().NotBeNull();
 
         SKCanvas canvas = surface.Canvas;
         canvas.Clear(SKColors.Transparent);
@@ -64,6 +64,6 @@ public class FontManagerTests
             }
         }
 
-        hasNonTransparentPixel.Should().BeTrue("text rendering should draw visible pixels with the embedded font");
+        _ = hasNonTransparentPixel.Should().BeTrue("text rendering should draw visible pixels with the embedded font");
     }
 }

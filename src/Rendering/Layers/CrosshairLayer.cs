@@ -3,12 +3,14 @@
 
 namespace GameshowPro.BgRaster.Rendering.Layers;
 
-sealed class CrosshairLayer : ILayer
+internal sealed class CrosshairLayer : ILayer
 {
     public void Render(RenderContext context, SKCanvas canvas)
     {
         if (LayerSuppression.ShouldSuppressCrosshair(context.Options))
+        {
             return;
+        }
 
         float cx = context.CanvasOffsetX + context.Options.CrosshairXPx;
         float cy = context.CanvasOffsetY + context.Options.CrosshairYPx;

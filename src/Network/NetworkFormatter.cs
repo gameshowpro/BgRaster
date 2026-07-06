@@ -3,12 +3,14 @@
 
 namespace GameshowPro.BgRaster.Network;
 
-static class NetworkFormatter
+internal static class NetworkFormatter
 {
-    internal static string Format(ImmutableArray<AdapterInfo> adapters, Models.NetworkOptions options)
+    internal static string Format(ImmutableArray<AdapterInfo> adapters, NetworkOptions options)
     {
         if (adapters.Length == 0)
+        {
             return string.Empty;
+        }
 
         StringBuilder sb = new();
         foreach (AdapterInfo adapter in adapters)
@@ -16,7 +18,7 @@ static class NetworkFormatter
             string ipBlock = FormatIpAddresses(adapter.IpAddresses, options);
             string adapterBlock = FormatAdapter(adapter, options.AdapterFormat)
                 .Replace("${IpAddresses}", ipBlock);
-            sb.Append(adapterBlock);
+            _ = sb.Append(adapterBlock);
         }
         return sb.ToString();
     }
@@ -33,17 +35,20 @@ static class NetworkFormatter
             .Replace("${PhysicalAddress}", adapter.MacAddress)
             .Replace("${MacAddress}", adapter.MacAddress);
 
-    internal static string FormatIpAddresses(ImmutableArray<AdapterIpAddress> ips, Models.NetworkOptions options)
+    internal static string FormatIpAddresses(ImmutableArray<AdapterIpAddress> ips, NetworkOptions options)
     {
         StringBuilder sb = new();
         foreach (AdapterIpAddress ip in ips)
-            sb.Append(FormatIpAddress(ip, options.IpAddressFormat));
+        {
+            _ = sb.Append(FormatIpAddress(ip, options.IpAddressFormat));
+        }
+
         return sb.ToString();
     }
 
     internal static string FormatIpAddress(AdapterIpAddress ip, string formatTemplate) =>
         formatTemplate
             .Replace("${Address}", ip.Address)
-            .Replace("${CidrBits}", ip.CidrBits.ToString(System.Globalization.CultureInfo.InvariantCulture))
+            .Replace("${CidrBits}", ip.CidrBits.ToString(CultureInfo.InvariantCulture))
             .Replace("${Origin}", ip.Origin);
 }

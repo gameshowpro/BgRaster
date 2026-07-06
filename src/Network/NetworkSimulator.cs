@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Network;
 
-static class NetworkSimulator
+internal static class NetworkSimulator
 {
     /// <summary>
     /// Returns simulated adapter data when [render].simulate-network is true.

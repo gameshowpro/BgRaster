@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Rendering.Layers;
 
-sealed class LabeledEdgesLayer : ILayer
+internal sealed class LabeledEdgesLayer : ILayer
 {
     // Temporary anchor debug overlay. Keep for future geometry tuning sessions.
     // static bool ShowLabelAnchorDebugDot => true;
@@ -11,17 +11,23 @@ sealed class LabeledEdgesLayer : ILayer
     public void Render(RenderContext context, SKCanvas canvas)
     {
         if (context.Options.LabeledEdgesSides.Length == 0 || context.Options.LabeledEdgesThicknessPx <= 0f)
+        {
             return;
+        }
 
         float textSizePx = context.Options.LabeledEdgesTextSizePx;
         if (textSizePx <= 0f)
+        {
             return;
+        }
 
         foreach (LabeledEdgeSide side in context.Options.LabeledEdgesSides)
         {
             string label = BuildLabelTextForContext(side, context);
             if (string.IsNullOrWhiteSpace(label))
+            {
                 continue;
+            }
 
             SKPoint target = GetTargetPoint(side, context.CanvasOffsetX, context.CanvasOffsetY, context.ViewportWidth, context.ViewportHeight);
             SKPoint direction = GetDirectionVector(side);
@@ -33,23 +39,6 @@ sealed class LabeledEdgesLayer : ILayer
             DrawAnchoredLabel(canvas, label, labelAnchor, textAnchor, textSizePx);
             // DrawLabelAnchorDebugDot(canvas, labelAnchor);
         }
-    }
-
-    static void DrawLabelAnchorDebugDot(SKCanvas canvas, SKPoint anchor)
-    {
-        // if (!ShowLabelAnchorDebugDot)
-        //     return;
-
-        int pixelX = (int)MathF.Round(anchor.X, MidpointRounding.AwayFromZero);
-        int pixelY = (int)MathF.Round(anchor.Y, MidpointRounding.AwayFromZero);
-
-        using SKPaint dotPaint = new()
-        {
-            Color = SKColors.Red,
-            IsAntialias = false,
-            Style = SKPaintStyle.Fill,
-        };
-        canvas.DrawRect(pixelX, pixelY, 1f, 1f, dotPaint);
     }
 
     internal static SKPoint GetTargetPoint(LabeledEdgeSide side, int canvasOffsetX, int canvasOffsetY, int viewportWidth, int viewportHeight)
@@ -90,7 +79,7 @@ sealed class LabeledEdgesLayer : ILayer
              height / 2);
     }
 
-    static string BuildLabelTextForContext(LabeledEdgeSide side, RenderContext context)
+    private static string BuildLabelTextForContext(LabeledEdgeSide side, RenderContext context)
     {
         int viewportWidth = Math.Max(0, context.ViewportWidth);
         int viewportHeight = Math.Max(0, context.ViewportHeight);
@@ -131,7 +120,7 @@ sealed class LabeledEdgesLayer : ILayer
         };
     }
 
-    static string BuildLabelText(LabeledEdgeSide side, int left, int top, int right, int bottom, int _, int __)
+    private static string BuildLabelText(LabeledEdgeSide side, int left, int top, int right, int bottom, int _, int __)
     {
         int safeLeft = left;
         int safeTop = top;
@@ -152,7 +141,7 @@ sealed class LabeledEdgesLayer : ILayer
         };
     }
 
-    static SKPoint GetTailStartPoint(
+    private static SKPoint GetTailStartPoint(
         SKPoint target,
         SKPoint direction,
         float tailLengthPx,
@@ -164,7 +153,7 @@ sealed class LabeledEdgesLayer : ILayer
         return new SKPoint(target.X - direction.X * gap, target.Y - direction.Y * gap);
     }
 
-    static SKPoint GetDirectionVector(LabeledEdgeSide side)
+    private static SKPoint GetDirectionVector(LabeledEdgeSide side)
     {
         const float invSqrt2 = 0.70710677f;
 
@@ -182,7 +171,7 @@ sealed class LabeledEdgesLayer : ILayer
         };
     }
 
-    static SKPoint GetLabelAnchorPoint(LabeledEdgeSide side, SKPoint tailStart, float textSizePx)
+    private static SKPoint GetLabelAnchorPoint(LabeledEdgeSide side, SKPoint tailStart, float textSizePx)
     {
         float baseX = MathF.Round(tailStart.X, MidpointRounding.AwayFromZero);
         float baseY = MathF.Round(tailStart.Y, MidpointRounding.AwayFromZero);
@@ -202,7 +191,7 @@ sealed class LabeledEdgesLayer : ILayer
         return new SKPoint(anchorX, anchorY);
     }
 
-    static SKPoint GetLabelOffsetDirection(LabeledEdgeSide side)
+    private static SKPoint GetLabelOffsetDirection(LabeledEdgeSide side)
     {
         const float invSqrt2 = 0.70710677f;
 
@@ -220,7 +209,7 @@ sealed class LabeledEdgesLayer : ILayer
         };
     }
 
-    static TextAnchor GetTextAnchor(LabeledEdgeSide side) => side switch
+    private static TextAnchor GetTextAnchor(LabeledEdgeSide side) => side switch
     {
         LabeledEdgeSide.TL => TextAnchor.TopLeft,
         LabeledEdgeSide.T => TextAnchor.TopCenter,
@@ -233,13 +222,15 @@ sealed class LabeledEdgesLayer : ILayer
         _ => TextAnchor.TopLeft,
     };
 
-    static void DrawArrow(RenderContext context, SKCanvas canvas, SKPoint start, SKPoint target)
+    private static void DrawArrow(RenderContext context, SKCanvas canvas, SKPoint start, SKPoint target)
     {
         float dx = target.X - start.X;
         float dy = target.Y - start.Y;
         float length = MathF.Sqrt(dx * dx + dy * dy);
         if (length <= 0f)
+        {
             return;
+        }
 
         float directionX = dx / length;
         float directionY = dy / length;
@@ -276,15 +267,15 @@ sealed class LabeledEdgesLayer : ILayer
         };
 
         using (SKPathBuilder tailBuilder = new())
-                {
-                    tailBuilder.MoveTo(tailStartLeft);
-                    tailBuilder.LineTo(tailStartRight);
-                    tailBuilder.LineTo(tailEndRight);
-                    tailBuilder.LineTo(tailEndLeft);
-                    tailBuilder.Close();
-                    using SKPath tail = tailBuilder.Detach();
-                    canvas.DrawPath(tail, tailPaint);
-                }
+        {
+            tailBuilder.MoveTo(tailStartLeft);
+            tailBuilder.LineTo(tailStartRight);
+            tailBuilder.LineTo(tailEndRight);
+            tailBuilder.LineTo(tailEndLeft);
+            tailBuilder.Close();
+            using SKPath tail = tailBuilder.Detach();
+            canvas.DrawPath(tail, tailPaint);
+        }
 
         using SKPathBuilder headBuilder = new();
         headBuilder.MoveTo(target);
@@ -295,21 +286,21 @@ sealed class LabeledEdgesLayer : ILayer
         canvas.DrawPath(head, headPaint);
     }
 
-    static void DrawAnchoredLabel(SKCanvas canvas, string label, SKPoint anchor, TextAnchor textAnchor, float textSizePx)
+    private static void DrawAnchoredLabel(SKCanvas canvas, string label, SKPoint anchor, TextAnchor textAnchor, float textSizePx)
     {
-            SKFont font = new(FontManager.Typeface, textSizePx);
-            using SKPaint textPaint = new()
-            {
-                Color = SKColors.White,
-                IsAntialias = true,
-            };
+        SKFont font = new(FontManager.Typeface, textSizePx);
+        using SKPaint textPaint = new()
+        {
+            Color = SKColors.White,
+            IsAntialias = true,
+        };
 
         float advanceWidth = font.MeasureText(label, out SKRect bounds);
 
         DrawTextAt(canvas, label, font, textPaint, anchor.X, anchor.Y, textAnchor, bounds, advanceWidth);
-        }
+    }
 
-        static void DrawTextAt(SKCanvas canvas, string text, SKFont font, SKPaint paint, float anchorX, float anchorY, TextAnchor textAnchor, SKRect bounds, float advanceWidth)
+    private static void DrawTextAt(SKCanvas canvas, string text, SKFont font, SKPaint paint, float anchorX, float anchorY, TextAnchor textAnchor, SKRect bounds, float advanceWidth)
     {
         float x = anchorX;
         float baselineY = anchorY;
@@ -377,7 +368,7 @@ sealed class LabeledEdgesLayer : ILayer
         canvas.DrawText(text, x, baselineY, SKTextAlign.Left, font, paint);
     }
 
-    enum TextAnchor
+    private enum TextAnchor
     {
         TopLeft,
         TopCenter,

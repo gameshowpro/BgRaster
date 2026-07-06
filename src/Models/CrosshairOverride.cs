@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Models;
 
-record CrosshairOverride
+internal record CrosshairOverride
 {
     internal string? X { get; init; }
     internal string? Y { get; init; }

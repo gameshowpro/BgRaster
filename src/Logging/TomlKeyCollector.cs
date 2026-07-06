@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Logging;
 
-static class TomlKeyCollector
+internal static class TomlKeyCollector
 {
     internal static HashSet<string> Collect(TomlTable root)
     {
@@ -12,7 +12,7 @@ static class TomlKeyCollector
         return paths;
     }
 
-    static void WalkTable(TomlTable table, string prefix, HashSet<string> paths)
+    private static void WalkTable(TomlTable table, string prefix, HashSet<string> paths)
     {
         foreach (KeyValuePair<string, object> kv in table)
         {
@@ -34,7 +34,7 @@ static class TomlKeyCollector
                     break;
 
                 default:
-                    paths.Add(path);
+                    _ = paths.Add(path);
                     break;
             }
         }

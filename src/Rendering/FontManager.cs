@@ -3,13 +3,11 @@
 
 namespace GameshowPro.BgRaster.Rendering;
 
-static partial class FontManager
+internal static partial class FontManager
 {
-    private static readonly SKTypeface s_typeface = LoadEmbeddedFont();
+    internal static SKTypeface Typeface { get; } = LoadEmbeddedFont();
 
-    internal static SKTypeface Typeface => s_typeface;
-
-    static SKTypeface LoadEmbeddedFont()
+    private static SKTypeface LoadEmbeddedFont()
     {
         Assembly asm = Assembly.GetExecutingAssembly();
         string? resourceName = asm.GetManifestResourceNames()

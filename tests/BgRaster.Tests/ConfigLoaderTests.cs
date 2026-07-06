@@ -13,7 +13,7 @@ public class ConfigLoaderTests
 
         GlobalOptions result = ConfigLoader.ApplyCliOverlay(baseOptions, overlay);
 
-        result.Render.MachineName.Should().Be("CliMachine");
+        _ = result.Render.MachineName.Should().Be("CliMachine");
     }
 
     [Fact]
@@ -24,7 +24,7 @@ public class ConfigLoaderTests
 
         GlobalOptions result = ConfigLoader.ApplyCliOverlay(baseOptions, overlay);
 
-        result.Text.Size.Should().Equal(["3vh", "2vh", "2vh"]);
+        _ = result.Text.Size.Should().Equal(["3vh", "2vh", "2vh"]);
     }
 
     [Fact]
@@ -41,10 +41,10 @@ public class ConfigLoaderTests
 
         GlobalOptions result = ConfigLoader.ApplyCliOverlay(baseOptions, overlay);
 
-        result.Circle.X.Should().Equal(["10vw"]);
-        result.Circle.Y.Should().Equal(["20vh"]);
-        result.Crosshair.X.Should().Equal(["30vw"]);
-        result.Crosshair.Y.Should().Equal(["40vh"]);
+        _ = result.Circle.X.Should().Equal(["10vw"]);
+        _ = result.Circle.Y.Should().Equal(["20vh"]);
+        _ = result.Crosshair.X.Should().Equal(["30vw"]);
+        _ = result.Crosshair.Y.Should().Equal(["40vh"]);
     }
 
     [Fact]
@@ -55,7 +55,7 @@ public class ConfigLoaderTests
 
         GlobalOptions result = ConfigLoader.ApplyCliOverlay(baseOptions, overlay);
 
-        result.Text.Size.Should().Equal(["2vh"]);
+        _ = result.Text.Size.Should().Equal(["2vh"]);
     }
 
     [Fact]
@@ -66,7 +66,7 @@ public class ConfigLoaderTests
 
         GlobalOptions result = ConfigLoader.ApplyCliOverlay(baseOptions, overlay);
 
-        result.Logo.Opacity.Should().Equal([0.25f, 0.75f]);
+        _ = result.Logo.Opacity.Should().Equal([0.25f, 0.75f]);
     }
 
     [Fact]
@@ -77,7 +77,7 @@ public class ConfigLoaderTests
 
         Action act = () => ConfigLoader.ApplyCliOverlay(baseOptions, overlay);
 
-        act.Should().Throw<FormatException>()
+        _ = act.Should().Throw<FormatException>()
             .WithMessage("*cli --logo-opacity*");
     }
 
@@ -89,7 +89,7 @@ public class ConfigLoaderTests
 
         GlobalOptions result = ConfigLoader.ApplyCliOverlay(baseOptions, overlay);
 
-        result.Render.OutputsSkipUnspecified.Should().BeTrue();
+        _ = result.Render.OutputsSkipUnspecified.Should().BeTrue();
     }
 
     [Fact]
@@ -100,7 +100,7 @@ public class ConfigLoaderTests
 
         GlobalOptions result = ConfigLoader.ApplyCliOverlay(baseOptions, overlay);
 
-        result.Render.NoDiscovery.Should().BeTrue();
+        _ = result.Render.NoDiscovery.Should().BeTrue();
     }
 
     [Fact]
@@ -113,12 +113,14 @@ public class ConfigLoaderTests
 
             GlobalOptions result = ConfigLoader.Load(path);
 
-            result.Logo.Opacity.Should().Equal([0.4f, 0.8f]);
+            _ = result.Logo.Opacity.Should().Equal([0.4f, 0.8f]);
         }
         finally
         {
             if (File.Exists(path))
+            {
                 File.Delete(path);
+            }
         }
     }
 
@@ -138,15 +140,17 @@ public class ConfigLoaderTests
 
             GlobalOptions result = ConfigLoader.Load(path);
 
-            result.Circle.X.Should().Equal(["10vw"]);
-            result.Circle.Y.Should().Equal(["20vh"]);
-            result.Crosshair.X.Should().Equal(["30vw"]);
-            result.Crosshair.Y.Should().Equal(["40vh"]);
+            _ = result.Circle.X.Should().Equal(["10vw"]);
+            _ = result.Circle.Y.Should().Equal(["20vh"]);
+            _ = result.Crosshair.X.Should().Equal(["30vw"]);
+            _ = result.Crosshair.Y.Should().Equal(["40vh"]);
         }
         finally
         {
             if (File.Exists(path))
+            {
                 File.Delete(path);
+            }
         }
     }
 
@@ -160,12 +164,14 @@ public class ConfigLoaderTests
 
             GlobalOptions result = ConfigLoader.Load(path);
 
-            result.Render.MachineName.Should().Be("TomlMachine");
+            _ = result.Render.MachineName.Should().Be("TomlMachine");
         }
         finally
         {
             if (File.Exists(path))
+            {
                 File.Delete(path);
+            }
         }
     }
 
@@ -179,13 +185,15 @@ public class ConfigLoaderTests
 
             Action act = () => ConfigLoader.Load(path);
 
-            act.Should().Throw<FormatException>()
+            _ = act.Should().Throw<FormatException>()
                 .WithMessage("*config [logo].opacity*");
         }
         finally
         {
             if (File.Exists(path))
+            {
                 File.Delete(path);
+            }
         }
     }
 
@@ -199,12 +207,14 @@ public class ConfigLoaderTests
 
             GlobalOptions result = ConfigLoader.Load(path);
 
-            result.Render.OutputsSkipUnspecified.Should().BeTrue();
+            _ = result.Render.OutputsSkipUnspecified.Should().BeTrue();
         }
         finally
         {
             if (File.Exists(path))
+            {
                 File.Delete(path);
+            }
         }
     }
 
@@ -218,12 +228,14 @@ public class ConfigLoaderTests
 
             GlobalOptions result = ConfigLoader.Load(path);
 
-            result.Render.NoDiscovery.Should().BeTrue();
+            _ = result.Render.NoDiscovery.Should().BeTrue();
         }
         finally
         {
             if (File.Exists(path))
+            {
                 File.Delete(path);
+            }
         }
     }
 
@@ -237,16 +249,18 @@ public class ConfigLoaderTests
 
             GlobalOptions result = ConfigLoader.Load(path);
 
-            result.Outputs.Should().HaveCount(1);
-            result.Outputs[0].HardwareOutput.Should().NotBeNull();
-            result.Outputs[0].HardwareOutput!.WidthPx.Should().Be(800);
-            result.Outputs[0].HardwareOutput!.HeightPx.Should().Be(600);
-            result.Outputs[0].HardwareOutput!.FriendlyName.Should().Be("Fixture");
+            _ = result.Outputs.Should().HaveCount(1);
+            _ = result.Outputs[0].HardwareOutput.Should().NotBeNull();
+            _ = result.Outputs[0].HardwareOutput!.WidthPx.Should().Be(800);
+            _ = result.Outputs[0].HardwareOutput!.HeightPx.Should().Be(600);
+            _ = result.Outputs[0].HardwareOutput!.FriendlyName.Should().Be("Fixture");
         }
         finally
         {
             if (File.Exists(path))
+            {
                 File.Delete(path);
+            }
         }
     }
 
@@ -256,7 +270,7 @@ public class ConfigLoaderTests
         string configDir = Path.Combine(Path.GetTempPath(), $"bgraster-config-dir-{Guid.NewGuid():N}");
         string path = Path.Combine(configDir, "config.toml");
 
-        Directory.CreateDirectory(configDir);
+        _ = Directory.CreateDirectory(configDir);
         try
         {
             File.WriteAllText(path,
@@ -269,14 +283,16 @@ public class ConfigLoaderTests
 
             GlobalOptions result = ConfigLoader.Load(path);
 
-            result.Background.Image.Should().Equal([Path.GetFullPath(Path.Combine(configDir, "images", "bg.png"))]);
-            result.Logo.Source.Should().Equal([Path.GetFullPath(Path.Combine(configDir, "logos", "mark.svg"))]);
-            result.Render.Output.Should().Be(Path.GetFullPath(Path.Combine(configDir, "output", "{index}")));
+            _ = result.Background.Image.Should().Equal([Path.GetFullPath(Path.Combine(configDir, "images", "bg.png"))]);
+            _ = result.Logo.Source.Should().Equal([Path.GetFullPath(Path.Combine(configDir, "logos", "mark.svg"))]);
+            _ = result.Render.Output.Should().Be(Path.GetFullPath(Path.Combine(configDir, "output", "{index}")));
         }
         finally
         {
             if (Directory.Exists(configDir))
+            {
                 Directory.Delete(configDir, recursive: true);
+            }
         }
     }
 
@@ -286,7 +302,7 @@ public class ConfigLoaderTests
         string configDir = Path.Combine(Path.GetTempPath(), $"bgraster-config-dir-{Guid.NewGuid():N}");
         string path = Path.Combine(configDir, "config.toml");
 
-        Directory.CreateDirectory(configDir);
+        _ = Directory.CreateDirectory(configDir);
         try
         {
             File.WriteAllText(path,
@@ -304,22 +320,24 @@ public class ConfigLoaderTests
 
             GlobalOptions result = ConfigLoader.Load(path);
 
-            result.Outputs.Should().HaveCount(1);
-            result.Outputs[0].Background.Should().NotBeNull();
-            result.Outputs[0].Background!.Image.Should().Be(Path.GetFullPath(Path.Combine(configDir, "output-bg.png")));
-            result.Outputs[0].Logo.Should().NotBeNull();
-            result.Outputs[0].Logo!.Source.Should().Be(Path.GetFullPath(Path.Combine(configDir, "output-logo.svg")));
+            _ = result.Outputs.Should().HaveCount(1);
+            _ = result.Outputs[0].Background.Should().NotBeNull();
+            _ = result.Outputs[0].Background!.Image.Should().Be(Path.GetFullPath(Path.Combine(configDir, "output-bg.png")));
+            _ = result.Outputs[0].Logo.Should().NotBeNull();
+            _ = result.Outputs[0].Logo!.Source.Should().Be(Path.GetFullPath(Path.Combine(configDir, "output-logo.svg")));
 
-            result.Outputs[0].Slices.Should().HaveCount(1);
-            result.Outputs[0].Slices[0].Background.Should().NotBeNull();
-            result.Outputs[0].Slices[0].Background!.Image.Should().Be(Path.GetFullPath(Path.Combine(configDir, "slice-bg.png")));
-            result.Outputs[0].Slices[0].Logo.Should().NotBeNull();
-            result.Outputs[0].Slices[0].Logo!.Source.Should().Be(Path.GetFullPath(Path.Combine(configDir, "slice-logo.svg")));
+            _ = result.Outputs[0].Slices.Should().HaveCount(1);
+            _ = result.Outputs[0].Slices[0].Background.Should().NotBeNull();
+            _ = result.Outputs[0].Slices[0].Background!.Image.Should().Be(Path.GetFullPath(Path.Combine(configDir, "slice-bg.png")));
+            _ = result.Outputs[0].Slices[0].Logo.Should().NotBeNull();
+            _ = result.Outputs[0].Slices[0].Logo!.Source.Should().Be(Path.GetFullPath(Path.Combine(configDir, "slice-logo.svg")));
         }
         finally
         {
             if (Directory.Exists(configDir))
+            {
                 Directory.Delete(configDir, recursive: true);
+            }
         }
     }
 
@@ -335,12 +353,14 @@ public class ConfigLoaderTests
 
             GlobalOptions result = ConfigLoader.Load(path);
 
-            result.Render.ContinueAfterUnchanged.Should().BeTrue();
+            _ = result.Render.ContinueAfterUnchanged.Should().BeTrue();
         }
         finally
         {
             if (File.Exists(path))
+            {
                 File.Delete(path);
+            }
         }
     }
 
@@ -354,13 +374,15 @@ public class ConfigLoaderTests
 
             Action act = () => ConfigLoader.Load(path);
 
-            act.Should().Throw<FormatException>()
+            _ = act.Should().Throw<FormatException>()
                 .WithMessage($"*{path}*");
         }
         finally
         {
             if (File.Exists(path))
+            {
                 File.Delete(path);
+            }
         }
     }
 
@@ -374,13 +396,15 @@ public class ConfigLoaderTests
 
             Action act = () => ConfigLoader.Load(path);
 
-            act.Should().Throw<FormatException>()
+            _ = act.Should().Throw<FormatException>()
                 .WithMessage("*Duplicate labeled-edge side*");
         }
         finally
         {
             if (File.Exists(path))
+            {
                 File.Delete(path);
+            }
         }
     }
 
@@ -394,13 +418,15 @@ public class ConfigLoaderTests
 
             GlobalOptions result = ConfigLoader.Load(path);
 
-            result.LabeledEdges.TailLength.Should().Equal(["6px"]);
-            result.LabeledEdges.Scope.Should().Equal([LabeledEdgesScope.Slice]);
+            _ = result.LabeledEdges.TailLength.Should().Equal(["6px"]);
+            _ = result.LabeledEdges.Scope.Should().Equal([LabeledEdgesScope.Slice]);
         }
         finally
         {
             if (File.Exists(path))
+            {
                 File.Delete(path);
+            }
         }
     }
 
@@ -414,13 +440,15 @@ public class ConfigLoaderTests
 
             Action act = () => ConfigLoader.Load(path);
 
-            act.Should().Throw<FormatException>()
+            _ = act.Should().Throw<FormatException>()
                 .WithMessage("*expected one of Desktop, Output, Slice*");
         }
         finally
         {
             if (File.Exists(path))
+            {
                 File.Delete(path);
+            }
         }
     }
 

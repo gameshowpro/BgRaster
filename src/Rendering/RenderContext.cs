@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Rendering;
 
-record RenderContext(
+internal record RenderContext(
     OutputRecord OutputRecord,
     ResolvedOptions Options,
     int ViewportWidth,

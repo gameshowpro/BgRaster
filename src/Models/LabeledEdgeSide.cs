@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Models;
 
-enum LabeledEdgeSide
+internal enum LabeledEdgeSide
 {
     TL,
     T,

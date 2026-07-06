@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Models;
 
-record LastRunState
+internal record LastRunState
 {
     internal LastRunMeta Meta { get; init; } = new();
     internal ImmutableArray<OutputRecord> HardwareOutputs { get; init; } = [];

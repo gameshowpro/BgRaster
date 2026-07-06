@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Rendering.Layers;
 
-sealed class TextLayer : ILayer
+internal sealed class TextLayer : ILayer
 {
     internal const float DefaultLineHeightRatio = 1.2f;
     internal const float DefaultCollisionGapPx = 1f;
@@ -11,7 +11,9 @@ sealed class TextLayer : ILayer
     public void Render(RenderContext context, SKCanvas canvas)
     {
         if (context.Options.TextLines.Length == 0)
+        {
             return;
+        }
 
         float cx = context.CanvasOffsetX + context.Options.TextXPx;
         float cy = context.CanvasOffsetY + context.Options.TextYPx;
@@ -21,7 +23,7 @@ sealed class TextLayer : ILayer
 
         const string networkMarker = "\0NETWORK\0";
 
-        ImmutableArray<(string Text, float SizePx, SKColor Color)>.Builder linesBuilder = 
+        ImmutableArray<(string Text, float SizePx, SKColor Color)>.Builder linesBuilder =
             ImmutableArray.CreateBuilder<(string Text, float SizePx, SKColor Color)>();
 
         int networkLineIndex = 0;
@@ -40,18 +42,24 @@ sealed class TextLayer : ILayer
                     string subLine = subLines[j];
                     // Don't add the trailing empty string if the original text ends with a newline
                     if (j == subLines.Length - 1 && string.IsNullOrEmpty(subLine) && j > 0)
+                    {
                         continue;
+                    }
 
                     if (subLine.Contains(networkMarker))
                     {
                         string[] parts = subLine.Split([networkMarker], 2, StringSplitOptions.None);
                         if (!string.IsNullOrEmpty(parts[0]))
+                        {
                             linesBuilder.Add((parts[0], size, color));
+                        }
 
                         NetworkLayer.BuildNetworkLines(context.Options, ref networkLineIndex, linesBuilder);
 
                         if (parts.Length > 1 && !string.IsNullOrEmpty(parts[1]))
+                        {
                             linesBuilder.Add((parts[1], size, color));
+                        }
                     }
                     else
                     {
@@ -60,11 +68,13 @@ sealed class TextLayer : ILayer
                 }
             }
         }
-        
+
         ImmutableArray<(string Text, float SizePx, SKColor Color)> lines = linesBuilder.ToImmutable();
 
         if (lines.Length == 0)
+        {
             return;
+        }
 
         ImmutableArray<(string Text, float SizePx, SKColor Color, float AscentPx, float DescentPx, float WidthPx)>.Builder metricsBuilder =
             ImmutableArray.CreateBuilder<(string Text, float SizePx, SKColor Color, float AscentPx, float DescentPx, float WidthPx)>(lines.Length);

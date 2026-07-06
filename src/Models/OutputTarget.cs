@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Models;
 
-abstract record OutputTarget
+internal abstract record OutputTarget
 {
     internal sealed record IndexTarget(int Index) : OutputTarget;
     internal sealed record IdTarget(string Id) : OutputTarget;

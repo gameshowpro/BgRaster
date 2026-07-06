@@ -1,16 +1,19 @@
 // SPDX-License-Identifier: MIT
 // Copyright © 2026 Barjonas LLC
 
-namespace GameshowPro.BgRaster.FileLifecycle;
 
 using GameshowPro.BgRaster.FileLifecycle.Interop;
 
-class StaleFileCleaner
+namespace GameshowPro.BgRaster.FileLifecycle;
+
+internal class StaleFileCleaner
 {
     internal static ImmutableArray<string> FindStaleFiles(string directory, IReadOnlySet<string> currentRunFiles)
     {
         if (!Directory.Exists(directory))
+        {
             return [];
+        }
 
         return [.. Directory
             .EnumerateFiles(directory, "*.png")
@@ -20,7 +23,9 @@ class StaleFileCleaner
     internal static ImmutableArray<string> RecycleFiles(ImmutableArray<string> filePaths)
     {
         if (filePaths.IsEmpty)
+        {
             return [];
+        }
 
         // Build double-null-terminated file list for SHFileOperation
         string fileList = string.Join("\0", filePaths) + "\0\0";
@@ -51,7 +56,9 @@ class StaleFileCleaner
         finally
         {
             if (pFrom != IntPtr.Zero)
+            {
                 Marshal.FreeCoTaskMem(pFrom);
+            }
         }
     }
 }

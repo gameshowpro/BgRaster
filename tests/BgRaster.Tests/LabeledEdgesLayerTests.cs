@@ -8,25 +8,25 @@ public class LabeledEdgesLayerTests
     [Fact]
     public void BuildLabelText_UsesViewportRelativeNumbers()
     {
-        LabeledEdgesLayer.BuildLabelText(LabeledEdgeSide.TL, 1920, 1080).Should().Be("0,0");
-        LabeledEdgesLayer.BuildLabelText(LabeledEdgeSide.T, 1920, 1080).Should().Be("0");
-        LabeledEdgesLayer.BuildLabelText(LabeledEdgeSide.R, 1920, 1080).Should().Be("1920");
+        _ = LabeledEdgesLayer.BuildLabelText(LabeledEdgeSide.TL, 1920, 1080).Should().Be("0,0");
+        _ = LabeledEdgesLayer.BuildLabelText(LabeledEdgeSide.T, 1920, 1080).Should().Be("0");
+        _ = LabeledEdgesLayer.BuildLabelText(LabeledEdgeSide.R, 1920, 1080).Should().Be("1920");
     }
 
     [Fact]
     public void BuildLabelText_UsesInclusiveExtentsForEdges()
     {
-        LabeledEdgesLayer.BuildLabelText(LabeledEdgeSide.TR, 1024, 1024).Should().Be("1024,0");
-        LabeledEdgesLayer.BuildLabelText(LabeledEdgeSide.BR, 1024, 1024).Should().Be("1024,1024");
-        LabeledEdgesLayer.BuildLabelText(LabeledEdgeSide.BL, 1024, 1024).Should().Be("0,1024");
+        _ = LabeledEdgesLayer.BuildLabelText(LabeledEdgeSide.TR, 1024, 1024).Should().Be("1024,0");
+        _ = LabeledEdgesLayer.BuildLabelText(LabeledEdgeSide.BR, 1024, 1024).Should().Be("1024,1024");
+        _ = LabeledEdgesLayer.BuildLabelText(LabeledEdgeSide.BL, 1024, 1024).Should().Be("0,1024");
     }
 
     [Fact]
     public void GetTargetPoint_ResolvesEdgesAndCorners()
     {
-        LabeledEdgesLayer.GetTargetPoint(LabeledEdgeSide.TL, 10, 20, 100, 50).Should().Be(new SKPoint(10f, 20f));
-        LabeledEdgesLayer.GetTargetPoint(LabeledEdgeSide.T, 10, 20, 100, 50).Should().Be(new SKPoint(60f, 20f));
-        LabeledEdgesLayer.GetTargetPoint(LabeledEdgeSide.BR, 10, 20, 100, 50).Should().Be(new SKPoint(109f, 69f));
+        _ = LabeledEdgesLayer.GetTargetPoint(LabeledEdgeSide.TL, 10, 20, 100, 50).Should().Be(new SKPoint(10f, 20f));
+        _ = LabeledEdgesLayer.GetTargetPoint(LabeledEdgeSide.T, 10, 20, 100, 50).Should().Be(new SKPoint(60f, 20f));
+        _ = LabeledEdgesLayer.GetTargetPoint(LabeledEdgeSide.BR, 10, 20, 100, 50).Should().Be(new SKPoint(109f, 69f));
     }
 
     [Fact]
@@ -34,7 +34,7 @@ public class LabeledEdgesLayerTests
     {
         SKImageInfo info = new(200, 120);
         using SKSurface surface = SKSurface.Create(info);
-        surface.Should().NotBeNull();
+        _ = surface.Should().NotBeNull();
 
         SKCanvas canvas = surface.Canvas;
         canvas.Clear(SKColors.Transparent);
@@ -75,10 +75,12 @@ public class LabeledEdgesLayerTests
             for (int x = 0; x < 30; x++)
             {
                 if (bitmap.GetPixel(x, y).Alpha > 0)
+                {
                     nonTransparentPixels++;
+                }
             }
         }
 
-        nonTransparentPixels.Should().BeGreaterThan(10);
+        _ = nonTransparentPixels.Should().BeGreaterThan(10);
     }
 }

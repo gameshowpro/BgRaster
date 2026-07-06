@@ -12,7 +12,7 @@ public class ConfiguredPathResolverTests
 
         string resolved = ConfiguredPathResolver.Resolve(packUri, @"C:\base");
 
-        resolved.Should().Be(packUri);
+        _ = resolved.Should().Be(packUri);
     }
 
     [Fact]
@@ -24,7 +24,7 @@ public class ConfiguredPathResolverTests
 
         try
         {
-            Directory.CreateDirectory(tempRoot);
+            _ = Directory.CreateDirectory(tempRoot);
             Environment.SetEnvironmentVariable(environmentVariableName, tempRoot);
 
             CliOverlay overlay = new()
@@ -36,15 +36,17 @@ public class ConfiguredPathResolverTests
 
             GlobalOptions merged = ConfigLoader.ApplyCliOverlay(new GlobalOptions(), overlay);
 
-            merged.Background.Image[0].Should().Be(Path.GetFullPath(Path.Combine(tempRoot, "backgrounds", "test.png")));
-            merged.Logo.Source[0].Should().Be("pack://application:,,,/GameshowPro.BgRaster;component/resources/gsp.svg");
-            merged.Render.Output.Should().Be(Path.GetFullPath(Path.Combine(tempRoot, "output")));
+            _ = merged.Background.Image[0].Should().Be(Path.GetFullPath(Path.Combine(tempRoot, "backgrounds", "test.png")));
+            _ = merged.Logo.Source[0].Should().Be("pack://application:,,,/GameshowPro.BgRaster;component/resources/gsp.svg");
+            _ = merged.Render.Output.Should().Be(Path.GetFullPath(Path.Combine(tempRoot, "output")));
         }
         finally
         {
             Environment.SetEnvironmentVariable(environmentVariableName, originalEnvironmentVariable);
             if (Directory.Exists(tempRoot))
+            {
                 Directory.Delete(tempRoot, recursive: true);
+            }
         }
     }
 }

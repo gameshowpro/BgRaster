@@ -3,9 +3,9 @@
 
 namespace GameshowPro.BgRaster.Resolution;
 
-static class OptionsResolver
+internal static class OptionsResolver
 {
-    static readonly ImmutableArray<string> s_implicitFullOutputSliceDefaultText =
+    private static readonly ImmutableArray<string> s_implicitFullOutputSliceDefaultText =
     [
         "${MachineName} ${OutputIndex}",
         "${OutputName}",
@@ -19,10 +19,10 @@ static class OptionsResolver
         float vh = output.HeightPx;
         string machineName = ResolveMachineName(global.Render.MachineName);
         NetworkOptions network = MergeNetwork(global.Network, outputConfig?.Network);
-        ImmutableArray<AdapterInfo> networkAdapters = Network.NetworkFilter.Apply(
+        ImmutableArray<AdapterInfo> networkAdapters = NetworkFilter.Apply(
             global.Render.SimulateNetwork
-                ? Network.NetworkSimulator.GetAdapters()
-                : Network.NetworkCollector.Collect(),
+                ? NetworkSimulator.GetAdapters()
+                : NetworkCollector.Collect(),
             network);
 
         SubstitutionContext ctx = new(
@@ -174,10 +174,10 @@ static class OptionsResolver
         float vh = sliceHeight;
         string machineName = ResolveMachineName(global.Render.MachineName);
         NetworkOptions network = MergeNetwork(global.Network, outputConfig?.Network, slice.Network);
-        ImmutableArray<AdapterInfo> networkAdapters = Network.NetworkFilter.Apply(
+        ImmutableArray<AdapterInfo> networkAdapters = NetworkFilter.Apply(
             global.Render.SimulateNetwork
-                ? Network.NetworkSimulator.GetAdapters()
-                : Network.NetworkCollector.Collect(),
+                ? NetworkSimulator.GetAdapters()
+                : NetworkCollector.Collect(),
             network);
 
         SubstitutionContext ctx = new(
@@ -326,59 +326,105 @@ static class OptionsResolver
         };
     }
 
-    static string ResolveString(ImmutableArray<string> global, int index, string? outputOverride)
+    private static string ResolveString(ImmutableArray<string> global, int index, string? outputOverride)
     {
-        if (outputOverride is not null) return outputOverride;
-        if (global.IsDefaultOrEmpty) return "";
+        if (outputOverride is not null)
+        {
+            return outputOverride;
+        }
+
+        if (global.IsDefaultOrEmpty)
+        {
+            return "";
+        }
+
         return global[index % global.Length];
     }
 
-    static string ResolveMachineName(string configuredMachineName) =>
+    private static string ResolveMachineName(string configuredMachineName) =>
         string.IsNullOrWhiteSpace(configuredMachineName) ? Environment.MachineName : configuredMachineName;
 
-    static string ResolveSliceString(ImmutableArray<string> global, int index, string? outputOverride, string? sliceOverride)
+    private static string ResolveSliceString(ImmutableArray<string> global, int index, string? outputOverride, string? sliceOverride)
     {
-        if (sliceOverride is not null) return sliceOverride;
-        if (outputOverride is not null) return outputOverride;
-        if (global.IsDefaultOrEmpty) return "";
+        if (sliceOverride is not null)
+        {
+            return sliceOverride;
+        }
+
+        if (outputOverride is not null)
+        {
+            return outputOverride;
+        }
+
+        if (global.IsDefaultOrEmpty)
+        {
+            return "";
+        }
+
         return global[index % global.Length];
     }
 
-    static float ResolveFloat(ImmutableArray<float> global, int index, float? outputOverride)
+    private static float ResolveFloat(ImmutableArray<float> global, int index, float? outputOverride)
     {
-        if (outputOverride is not null) return outputOverride.Value;
-        if (global.IsDefaultOrEmpty) return 0f;
+        if (outputOverride is not null)
+        {
+            return outputOverride.Value;
+        }
+
+        if (global.IsDefaultOrEmpty)
+        {
+            return 0f;
+        }
+
         return global[index % global.Length];
     }
 
-    static float ResolveSliceFloat(ImmutableArray<float> global, int index, float? outputOverride, float? sliceOverride)
+    private static float ResolveSliceFloat(ImmutableArray<float> global, int index, float? outputOverride, float? sliceOverride)
     {
-        if (sliceOverride is not null) return sliceOverride.Value;
-        if (outputOverride is not null) return outputOverride.Value;
-        if (global.IsDefaultOrEmpty) return 0f;
+        if (sliceOverride is not null)
+        {
+            return sliceOverride.Value;
+        }
+
+        if (outputOverride is not null)
+        {
+            return outputOverride.Value;
+        }
+
+        if (global.IsDefaultOrEmpty)
+        {
+            return 0f;
+        }
+
         return global[index % global.Length];
     }
 
-    static LabeledEdgesScope ResolveLabeledEdgesScope(ImmutableArray<LabeledEdgesScope> global, int index, string? outputOverride)
+    private static LabeledEdgesScope ResolveLabeledEdgesScope(ImmutableArray<LabeledEdgesScope> global, int index, string? outputOverride)
     {
         if (outputOverride is not null && TryParseLabeledEdgesScope(outputOverride, out LabeledEdgesScope scope))
+        {
             return scope;
+        }
 
         return global.Length == 0 ? LabeledEdgesScope.Output : global[index % global.Length];
     }
 
-    static LabeledEdgesScope ResolveLabeledEdgesScope(ImmutableArray<LabeledEdgesScope> global, int index, string? outputOverride, string? sliceOverride)
+    private static LabeledEdgesScope ResolveLabeledEdgesScope(ImmutableArray<LabeledEdgesScope> global, int index, string? outputOverride, string? sliceOverride)
     {
         if (sliceOverride is not null && TryParseLabeledEdgesScope(sliceOverride, out LabeledEdgesScope sliceScope))
+        {
             return sliceScope;
+        }
 
         if (outputOverride is not null && TryParseLabeledEdgesScope(outputOverride, out LabeledEdgesScope outputScope))
+        {
             return outputScope;
+        }
 
         return global.Length == 0 ? LabeledEdgesScope.Output : global[index % global.Length];
     }
 
-    static (float WidthPx, float HeightPx) ResolveLabeledEdgesScopeDimensions(
+    private static (float WidthPx, float HeightPx) ResolveLabeledEdgesScopeDimensions(
         LabeledEdgesScope scope,
         int outputWidthPx,
         int outputHeightPx,
@@ -386,17 +432,17 @@ static class OptionsResolver
         int sliceHeightPx,
         int systemWidthPx,
         int systemHeightPx) => scope switch
-    {
-        LabeledEdgesScope.Desktop => (
-            systemWidthPx > 0 ? systemWidthPx : outputWidthPx,
-            systemHeightPx > 0 ? systemHeightPx : outputHeightPx),
-        LabeledEdgesScope.Slice => (
-            sliceWidthPx > 0 ? sliceWidthPx : outputWidthPx,
-            sliceHeightPx > 0 ? sliceHeightPx : outputHeightPx),
-        _ => (outputWidthPx, outputHeightPx),
-    };
+        {
+            LabeledEdgesScope.Desktop => (
+                systemWidthPx > 0 ? systemWidthPx : outputWidthPx,
+                systemHeightPx > 0 ? systemHeightPx : outputHeightPx),
+            LabeledEdgesScope.Slice => (
+                sliceWidthPx > 0 ? sliceWidthPx : outputWidthPx,
+                sliceHeightPx > 0 ? sliceHeightPx : outputHeightPx),
+            _ => (outputWidthPx, outputHeightPx),
+        };
 
-    static bool TryParseLabeledEdgesScope(string raw, out LabeledEdgesScope scope)
+    private static bool TryParseLabeledEdgesScope(string raw, out LabeledEdgesScope scope)
     {
         scope = raw switch
         {
@@ -409,35 +455,44 @@ static class OptionsResolver
         return raw is "Desktop" or "Output" or "Slice";
     }
 
-    static ImmutableArray<string> ResolveTextArray(ImmutableArray<string> global, ImmutableArray<string>? outputOverride)
+    private static ImmutableArray<string> ResolveTextArray(ImmutableArray<string> global, ImmutableArray<string>? outputOverride)
     {
         if (outputOverride is { Length: > 0 })
+        {
             return outputOverride.Value;
+        }
 
         return global.Length == 0 ? [""] : global;
     }
 
-    static ImmutableArray<string> ResolveSliceTextArray(
+    private static ImmutableArray<string> ResolveSliceTextArray(
         ImmutableArray<string> global,
         ImmutableArray<string>? outputOverride,
         ImmutableArray<string>? sliceOverride,
         bool isImplicitSlice)
     {
         if (sliceOverride is { Length: > 0 })
+        {
             return sliceOverride.Value;
+        }
+
         if (outputOverride is { Length: > 0 })
+        {
             return outputOverride.Value;
+        }
 
         if (isImplicitSlice && IsDefaultSliceText(global))
+        {
             return s_implicitFullOutputSliceDefaultText;
+        }
 
         return global.Length == 0 ? [""] : global;
     }
 
-    static bool IsDefaultSliceText(ImmutableArray<string> textValues) =>
+    private static bool IsDefaultSliceText(ImmutableArray<string> textValues) =>
         textValues.SequenceEqual(new TextOptions().Format);
 
-    static ImmutableArray<float> ResolveTextSizes(
+    private static ImmutableArray<float> ResolveTextSizes(
         ImmutableArray<string> global,
         ImmutableArray<string>? outputOverride,
         int lineCount,
@@ -448,7 +503,7 @@ static class OptionsResolver
         return ResolveSizedLines(source, lineCount, vw, vh);
     }
 
-    static ImmutableArray<float> ResolveSliceTextSizes(
+    private static ImmutableArray<float> ResolveSliceTextSizes(
         ImmutableArray<string> global,
         ImmutableArray<string>? outputOverride,
         ImmutableArray<string>? sliceOverride,
@@ -460,10 +515,12 @@ static class OptionsResolver
         return ResolveSizedLines(source, lineCount, vw, vh);
     }
 
-    static ImmutableArray<float> ResolveSizedLines(ImmutableArray<string> sizeValues, int lineCount, float vw, float vh)
+    private static ImmutableArray<float> ResolveSizedLines(ImmutableArray<string> sizeValues, int lineCount, float vw, float vh)
     {
         if (lineCount <= 0)
+        {
             return [];
+        }
 
         ImmutableArray<string> source = sizeValues.Length == 0 ? ["0"] : sizeValues;
         ImmutableArray<float>.Builder result = ImmutableArray.CreateBuilder<float>(lineCount);
@@ -474,7 +531,7 @@ static class OptionsResolver
         return result.ToImmutable();
     }
 
-    static ImmutableArray<SKColor> ResolveTextColors(
+    private static ImmutableArray<SKColor> ResolveTextColors(
         ImmutableArray<string> global,
         ImmutableArray<string>? outputOverride,
         int lineCount)
@@ -483,7 +540,7 @@ static class OptionsResolver
         return ResolveColorLines(source, lineCount);
     }
 
-    static ImmutableArray<SKColor> ResolveSliceTextColors(
+    private static ImmutableArray<SKColor> ResolveSliceTextColors(
         ImmutableArray<string> global,
         ImmutableArray<string>? outputOverride,
         ImmutableArray<string>? sliceOverride,
@@ -493,10 +550,12 @@ static class OptionsResolver
         return ResolveColorLines(source, lineCount);
     }
 
-    static ImmutableArray<SKColor> ResolveColorLines(ImmutableArray<string> colorValues, int lineCount)
+    private static ImmutableArray<SKColor> ResolveColorLines(ImmutableArray<string> colorValues, int lineCount)
     {
         if (lineCount <= 0)
+        {
             return [];
+        }
 
         ImmutableArray<string> source = colorValues.Length == 0 ? ["#fff"] : colorValues;
         ImmutableArray<SKColor>.Builder result = ImmutableArray.CreateBuilder<SKColor>(lineCount);
@@ -507,50 +566,66 @@ static class OptionsResolver
         return result.ToImmutable();
     }
 
-    static bool ResolveBool(ImmutableArray<bool> global, int index, bool? outputOverride) =>
+    private static bool ResolveBool(ImmutableArray<bool> global, int index, bool? outputOverride) =>
         outputOverride ?? global[index % global.Length];
 
-    static bool ResolveSliceBool(ImmutableArray<bool> global, int index, bool? outputOverride, bool? sliceOverride) =>
+    private static bool ResolveSliceBool(ImmutableArray<bool> global, int index, bool? outputOverride, bool? sliceOverride) =>
         sliceOverride ?? outputOverride ?? global[index % global.Length];
 
-    static float ParseUnit(string value, float vw, float vh)
+    private static float ParseUnit(string value, float vw, float vh)
     {
-        try { return UnitParser.Parse(value).ResolvePixels(vw, vh); }
+        try
+        { return UnitParser.Parse(value).ResolvePixels(vw, vh); }
         catch (FormatException) { return 0f; }
     }
 
-    static SKColor ParseColor(string value)
+    private static SKColor ParseColor(string value)
     {
-        if (ColorParser.TryParse(value, out SKColor color)) return color;
+        if (ColorParser.TryParse(value, out SKColor color))
+        {
+            return color;
+        }
+
         return SKColors.Transparent;
     }
 
-    static SKColor ParseTextColor(string value)
+    private static SKColor ParseTextColor(string value)
     {
-        if (ColorParser.TryParse(value, out SKColor color)) return color;
+        if (ColorParser.TryParse(value, out SKColor color))
+        {
+            return color;
+        }
+
         return SKColors.White;
     }
 
-    static FitMode ParseFitMode(string value)
+    private static FitMode ParseFitMode(string value)
     {
-        try { return FitModeParser.Parse(value); }
+        try
+        { return FitModeParser.Parse(value); }
         catch (FormatException) { return FitMode.CropToFill; }
     }
 
-    static string Substitute(string template, SubstitutionContext ctx) =>
+    private static string Substitute(string template, SubstitutionContext ctx) =>
         FieldSubstitutor.Substitute(template, ctx);
 
-    static NetworkOptions MergeNetwork(NetworkOptions global, NetworkOverride? outputOverride, NetworkOverride? sliceOverride = null)
+    private static NetworkOptions MergeNetwork(NetworkOptions global, NetworkOverride? outputOverride, NetworkOverride? sliceOverride = null)
     {
         NetworkOptions result = global;
         if (outputOverride is not null)
+        {
             result = MergeOne(result, outputOverride);
+        }
+
         if (sliceOverride is not null)
+        {
             result = MergeOne(result, sliceOverride);
+        }
+
         return result;
     }
 
-    static NetworkOptions MergeOne(NetworkOptions base_, NetworkOverride override_) =>
+    private static NetworkOptions MergeOne(NetworkOptions base_, NetworkOverride override_) =>
         base_ with
         {
             RequireAdapterType = override_.RequireAdapterType ?? base_.RequireAdapterType,

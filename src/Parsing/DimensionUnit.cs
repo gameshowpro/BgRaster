@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Parsing;
 
-enum DimensionUnit
+internal enum DimensionUnit
 {
     Px,
     Vw,

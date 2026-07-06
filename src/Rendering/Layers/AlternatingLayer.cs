@@ -3,11 +3,14 @@
 
 namespace GameshowPro.BgRaster.Rendering.Layers;
 
-sealed class AlternatingLayer : ILayer
+internal sealed class AlternatingLayer : ILayer
 {
     public void Render(RenderContext context, SKCanvas canvas)
     {
-        if (!context.Options.Alternating) return;
+        if (!context.Options.Alternating)
+        {
+            return;
+        }
 
         int ox = context.CanvasOffsetX;
         int oy = context.CanvasOffsetY;
@@ -36,6 +39,6 @@ sealed class AlternatingLayer : ILayer
         canvas.DrawBitmap(layer, ox, oy, SKSamplingOptions.Default);
     }
 
-    static unsafe uint PackBgra(SKColor c) =>
+    private static uint PackBgra(SKColor c) =>
         ((uint)c.Alpha << 24) | ((uint)c.Red << 16) | ((uint)c.Green << 8) | c.Blue;
 }

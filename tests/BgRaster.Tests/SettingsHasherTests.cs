@@ -11,7 +11,7 @@ public class SettingsHasherTests
         GlobalOptions options = new();
         string hash1 = SettingsHasher.Compute(options);
         string hash2 = SettingsHasher.Compute(options);
-        hash1.Should().Be(hash2);
+        _ = hash1.Should().Be(hash2);
     }
 
     [Fact]
@@ -26,15 +26,15 @@ public class SettingsHasherTests
             Background = new BackgroundOptions { Color = ["#00FF00"] },
         };
 
-        SettingsHasher.Compute(a).Should().NotBe(SettingsHasher.Compute(b));
+        _ = SettingsHasher.Compute(a).Should().NotBe(SettingsHasher.Compute(b));
     }
 
     [Fact]
     public void Compute_EmptyOptions_ReturnsStableHash()
     {
         string hash = SettingsHasher.Compute(new GlobalOptions());
-        hash.Should().HaveLength(64); // SHA-256 hex = 32 bytes = 64 hex chars
-        hash.Should().MatchRegex("^[0-9a-f]{64}$");
+        _ = hash.Should().HaveLength(64); // SHA-256 hex = 32 bytes = 64 hex chars
+        _ = hash.Should().MatchRegex("^[0-9a-f]{64}$");
     }
 
     [Fact]
@@ -44,6 +44,6 @@ public class SettingsHasherTests
         CliOverlay overlay = new() { BackgroundColor = "#000000" };
         GlobalOptions modified = ConfigLoader.ApplyCliOverlay(base_, overlay);
 
-        SettingsHasher.Compute(base_).Should().NotBe(SettingsHasher.Compute(modified));
+        _ = SettingsHasher.Compute(base_).Should().NotBe(SettingsHasher.Compute(modified));
     }
 }

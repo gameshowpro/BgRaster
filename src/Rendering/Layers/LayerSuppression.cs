@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Rendering.Layers;
 
-static class LayerSuppression
+internal static class LayerSuppression
 {
     internal static bool ShouldSuppressCircle(ResolvedOptions options) =>
         options.CircleSizePx <= 0f
@@ -20,5 +20,5 @@ static class LayerSuppression
             || (options.LogoWidthPx <= 0f && options.LogoHeightPx <= 0f)
             || options.LogoOpacity <= 0f;
 
-    static bool IsTransparent(SKColor color) => color.Alpha == 0;
+    private static bool IsTransparent(SKColor color) => color.Alpha == 0;
 }

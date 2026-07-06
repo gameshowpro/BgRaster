@@ -3,7 +3,7 @@
 
 namespace GameshowPro.BgRaster.Models;
 
-record TextOverride
+internal record TextOverride
 {
     internal ImmutableArray<string>? Format { get; init; }
     internal string? TextAlign { get; init; }
