@@ -33,7 +33,7 @@ sealed class LogoLayer : ILayer
         RenderDefaultSvgLogo(canvas, cx, cy, targetWidth, targetHeight, anchorX, anchorY, alpha, useDarkTheme);
     }
 
-    static bool TryRenderSvgLogo(string source, SKCanvas canvas, float cx, float cy, float targetWidth, float targetHeight, float anchorX, float anchorY, byte alpha, bool useDarkTheme)
+    static bool TryRenderSvgLogo(string source, SKCanvas canvas, float cx, float cy, float targetWidth, float targetHeight, float anchorX, float anchorY, byte alpha, bool _)
     {
         Stream? svgStream = null;
         try
@@ -115,7 +115,9 @@ sealed class LogoLayer : ILayer
         }
     }
 
-    static void RenderDefaultSvgLogo(SKCanvas canvas, float cx, float cy, float targetWidth, float targetHeight, float anchorX, float anchorY, byte alpha, bool useDarkTheme)
+    #pragma warning disable IDE0060 // cx, cy, dark kept for API compatibility
+    static void RenderDefaultSvgLogo(SKCanvas canvas, float _cx, float _cy, float targetWidth, float targetHeight, float anchorX, float anchorY, byte alpha, bool _dark)
+#pragma warning restore IDE0060
     {
         using Stream svgStream = OpenEmbeddedDefaultLogoStream();
         SKSvg svg = new();
@@ -295,10 +297,7 @@ sealed class LogoLayer : ILayer
         Assembly assembly = Assembly.GetExecutingAssembly();
         string? resourceName = assembly
             .GetManifestResourceNames()
-            .FirstOrDefault(name => name.EndsWith(DefaultLogoResourceSuffix, StringComparison.OrdinalIgnoreCase));
-
-        if (resourceName is null)
-            throw new InvalidOperationException($"Embedded default logo resource matching '*{DefaultLogoResourceSuffix}' was not found.");
+            .FirstOrDefault(name => name.EndsWith(DefaultLogoResourceSuffix, StringComparison.OrdinalIgnoreCase)) ?? throw new InvalidOperationException($"Embedded default logo resource matching '*{DefaultLogoResourceSuffix}' was not found.");
 
         Stream? resourceStream = assembly.GetManifestResourceStream(resourceName);
         return resourceStream ?? throw new InvalidOperationException($"Embedded default logo resource '{resourceName}' could not be opened.");

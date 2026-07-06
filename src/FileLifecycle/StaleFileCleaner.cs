@@ -7,7 +7,7 @@ using GameshowPro.BgRaster.FileLifecycle.Interop;
 
 class StaleFileCleaner
 {
-    internal ImmutableArray<string> FindStaleFiles(string directory, IReadOnlySet<string> currentRunFiles)
+    internal static ImmutableArray<string> FindStaleFiles(string directory, IReadOnlySet<string> currentRunFiles)
     {
         if (!Directory.Exists(directory))
             return [];
@@ -17,7 +17,7 @@ class StaleFileCleaner
             .Where(f => FileNamer.IsBgRasterFile(f) && !currentRunFiles.Contains(f))];
     }
 
-    internal ImmutableArray<string> RecycleFiles(ImmutableArray<string> filePaths)
+    internal static ImmutableArray<string> RecycleFiles(ImmutableArray<string> filePaths)
     {
         if (filePaths.IsEmpty)
             return [];

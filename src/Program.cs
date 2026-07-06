@@ -89,11 +89,12 @@ static class Program
         ILogger logger = loggerFactory.CreateLogger("bg-raster");
 
         int ReturnWithTiming(int exitCode)
-        {
-            executionTimer.Stop();
-            logger.ExecutionTime(executionTimer.ElapsedMilliseconds, executionTimer.Elapsed.ToString("c", System.Globalization.CultureInfo.InvariantCulture), exitCode);
-            return exitCode;
-        }
+                {
+                    executionTimer.Stop();
+                    if (logger.IsEnabled(LogLevel.Information))
+                        logger.ExecutionTime(executionTimer.ElapsedMilliseconds, executionTimer.Elapsed.ToString("c", System.Globalization.CultureInfo.InvariantCulture), exitCode);
+                    return exitCode;
+                }
 
         logger.RunStart(
             resolvedConfigPath,
@@ -262,25 +263,25 @@ static class Program
 
         if (noDiscovery)
         {
-            foreach ((OutputRecord Output, OutputOptions Config) mapping in noDiscoveryMappings)
+            foreach ((OutputRecord Output, OutputOptions Config) in noDiscoveryMappings)
             {
-                string targetDescription = DescribeTarget(mapping.Config.Target);
-                logger.RenderStart(mapping.Output.Id, targetDescription);
-                FileNamer.RenderOutputPathResult outputPath = FileNamer.ResolveRenderOutputPath(outputTemplate, mapping.Output, options.Render.MachineName);
+                string targetDescription = DescribeTarget(Config.Target);
+                logger.RenderStart(Output.Id, targetDescription);
+                FileNamer.RenderOutputPathResult outputPath = FileNamer.ResolveRenderOutputPath(outputTemplate, Output, options.Render.MachineName);
                 foreach (string warning in outputPath.Warnings)
                     logger.ConfigurationWarning(warning);
 
-                RenderOutcome outcome = await renderer.RenderOutputAsync(mapping.Output, mapping.Config, options, outputPath.FilePath, systemWidthPx, systemHeightPx);
-                assignedFiles[mapping.Output.Id] = outcome.FilePath;
-                hardwareStatuses[mapping.Output.Id] = "output-rendered";
+                RenderOutcome outcome = await renderer.RenderOutputAsync(Output, Config, options, outputPath.FilePath, systemWidthPx, systemHeightPx);
+                assignedFiles[Output.Id] = outcome.FilePath;
+                hardwareStatuses[Output.Id] = "output-rendered";
                 configuredStatuses.Add(new ConfiguredOutputStatus
                 {
                     TargetDescription = targetDescription,
                     Status = "output-matched",
-                    Reason = $"id=\"{mapping.Output.Id}\" index={mapping.Output.Index} position={mapping.Output.DesktopX},{mapping.Output.DesktopY} resolution={mapping.Output.WidthPx}x{mapping.Output.HeightPx}",
+                    Reason = $"id=\"{Output.Id}\" index={Output.Index} position={Output.DesktopX},{Output.DesktopY} resolution={Output.WidthPx}x{Output.HeightPx}",
                     Slices = outcome.SliceStatuses,
                 });
-                logger.OutputRendered(mapping.Output.Id, outcome.FilePath);
+                logger.OutputRendered(Output.Id, outcome.FilePath);
             }
         }
         else
@@ -290,7 +291,8 @@ static class Program
                 switch (match)
                 {
                     case MatchResult.Matched(OutputRecord output, OutputOptions outputConfig):
-                        logger.RenderStart(output.Id, DescribeTarget(outputConfig.Target));
+                                            if (logger.IsEnabled(LogLevel.Trace))
+                                                logger.RenderStart(output.Id, DescribeTarget(outputConfig.Target));
                         FileNamer.RenderOutputPathResult outputPath = FileNamer.ResolveRenderOutputPath(outputTemplate, output, options.Render.MachineName);
                         foreach (string warning in outputPath.Warnings)
                             logger.ConfigurationWarning(warning);
@@ -366,8 +368,8 @@ static class Program
             }
 
             StaleFileCleaner cleaner = new();
-            ImmutableArray<string> stale = cleaner.FindStaleFiles(outputDir, assignedFiles.Values.ToHashSet());
-            unrecycled = cleaner.RecycleFiles(stale);
+            ImmutableArray<string> stale = StaleFileCleaner.FindStaleFiles(outputDir, assignedFiles.Values.ToHashSet());
+            unrecycled = StaleFileCleaner.RecycleFiles(stale);
             logger.StaleScan(stale.Length, unrecycled.Length);
         }
 
@@ -529,7 +531,7 @@ static class Program
         return false;
     }
 
-    internal static string BuildNativeDependencyErrorMessage(Exception exception)
+    internal static string BuildNativeDependencyErrorMessage(Exception _)
     {
         return "bg-raster: required native library 'libSkiaSharp.dll' could not be loaded. "
             + "Ensure BgRaster.exe and libSkiaSharp.dll are in the same folder, then run again.";

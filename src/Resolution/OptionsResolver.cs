@@ -5,7 +5,7 @@ namespace GameshowPro.BgRaster.Resolution;
 
 static class OptionsResolver
 {
-    static readonly ImmutableArray<string> ImplicitFullOutputSliceDefaultText =
+    static readonly ImmutableArray<string> s_implicitFullOutputSliceDefaultText =
     [
         "${MachineName} ${OutputIndex}",
         "${OutputName}",
@@ -35,9 +35,7 @@ static class OptionsResolver
             SliceHeight: output.HeightPx);
         string currentDirectory = Directory.GetCurrentDirectory();
 
-        ImmutableArray<string> textLines = ResolveTextArray(global.Text.Format, outputConfig?.Text?.Format)
-            .Select(line => Substitute(line, ctx))
-            .ToImmutableArray();
+        ImmutableArray<string> textLines = [.. ResolveTextArray(global.Text.Format, outputConfig?.Text?.Format).Select(line => Substitute(line, ctx))];
         ImmutableArray<float> textSizesPx = ResolveTextSizes(
             global.Text.Size,
             outputConfig?.Text?.Size,
@@ -193,13 +191,12 @@ static class OptionsResolver
             SliceIndex: sliceIndex);
         string currentDirectory = Directory.GetCurrentDirectory();
 
-        ImmutableArray<string> textLines = ResolveSliceTextArray(
+        ImmutableArray<string> textLines = [.. ResolveSliceTextArray(
                 global.Text.Format,
                 outputConfig?.Text?.Format,
                 slice.Text?.Format,
                 isImplicitSlice)
-            .Select(line => Substitute(line, ctx))
-            .ToImmutableArray();
+            .Select(line => Substitute(line, ctx))];
         ImmutableArray<float> textSizesPx = ResolveSliceTextSizes(
             global.Text.Size,
             outputConfig?.Text?.Size,
@@ -432,7 +429,7 @@ static class OptionsResolver
             return outputOverride.Value;
 
         if (isImplicitSlice && IsDefaultSliceText(global))
-            return ImplicitFullOutputSliceDefaultText;
+            return s_implicitFullOutputSliceDefaultText;
 
         return global.Length == 0 ? [""] : global;
     }

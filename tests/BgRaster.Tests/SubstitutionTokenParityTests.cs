@@ -63,9 +63,9 @@ public sealed class SubstitutionTokenParityTests
 
         foreach (JsonElement token in tokens.EnumerateArray())
         {
-            token.TryGetProperty("machineScoped", out JsonElement machineElement).Should().BeTrue();
-            token.TryGetProperty("outputScoped", out JsonElement outputElement).Should().BeTrue();
-            token.TryGetProperty("sliceScoped", out JsonElement sliceElement).Should().BeTrue();
+            token.TryGetProperty("machineScoped", out _).Should().BeTrue();
+                        token.TryGetProperty("outputScoped", out _).Should().BeTrue();
+                        token.TryGetProperty("sliceScoped", out _).Should().BeTrue();
         }
     }
 

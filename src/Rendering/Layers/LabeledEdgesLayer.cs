@@ -86,8 +86,8 @@ sealed class LabeledEdgesLayer : ILayer
             top: 0,
             right: width,
             bottom: height,
-            centerX: width / 2,
-            centerY: height / 2);
+             width / 2,
+             height / 2);
     }
 
     static string BuildLabelTextForContext(LabeledEdgeSide side, RenderContext context)
@@ -110,35 +110,33 @@ sealed class LabeledEdgesLayer : ILayer
                 top: 0,
                 right: viewportWidth,
                 bottom: viewportHeight,
-                centerX: viewportWidth / 2,
-                centerY: viewportHeight / 2),
+                 viewportWidth / 2,
+                 viewportHeight / 2),
             LabeledEdgesScope.Desktop => BuildLabelText(
                 side,
                 left: context.OutputRecord.DesktopX + localLeft,
                 top: context.OutputRecord.DesktopY + localTop,
                 right: context.OutputRecord.DesktopX + localRight,
                 bottom: context.OutputRecord.DesktopY + localBottom,
-                centerX: context.OutputRecord.DesktopX + localCenterX,
-                centerY: context.OutputRecord.DesktopY + localCenterY),
+                 context.OutputRecord.DesktopX + localCenterX,
+                 context.OutputRecord.DesktopY + localCenterY),
             _ => BuildLabelText(
                 side,
                 left: localLeft,
                 top: localTop,
                 right: localRight,
                 bottom: localBottom,
-                centerX: localCenterX,
-                centerY: localCenterY),
+                 localCenterX,
+                 localCenterY),
         };
     }
 
-    static string BuildLabelText(LabeledEdgeSide side, int left, int top, int right, int bottom, int centerX, int centerY)
+    static string BuildLabelText(LabeledEdgeSide side, int left, int top, int right, int bottom, int _, int __)
     {
         int safeLeft = left;
         int safeTop = top;
         int safeRight = Math.Max(left, right);
         int safeBottom = Math.Max(top, bottom);
-        int safeCenterX = Math.Clamp(centerX, safeLeft, safeRight);
-        int safeCenterY = Math.Clamp(centerY, safeTop, safeBottom);
 
         return side switch
         {
@@ -288,15 +286,13 @@ sealed class LabeledEdgesLayer : ILayer
                     canvas.DrawPath(tail, tailPaint);
                 }
 
-                using (SKPathBuilder headBuilder = new())
-                {
-                    headBuilder.MoveTo(target);
-                    headBuilder.LineTo(headLeft);
-                    headBuilder.LineTo(headRight);
-                    headBuilder.Close();
-                    using SKPath head = headBuilder.Detach();
-                    canvas.DrawPath(head, headPaint);
-                }
+        using SKPathBuilder headBuilder = new();
+        headBuilder.MoveTo(target);
+        headBuilder.LineTo(headLeft);
+        headBuilder.LineTo(headRight);
+        headBuilder.Close();
+        using SKPath head = headBuilder.Detach();
+        canvas.DrawPath(head, headPaint);
     }
 
     static void DrawAnchoredLabel(SKCanvas canvas, string label, SKPoint anchor, TextAnchor textAnchor, float textSizePx)
@@ -308,10 +304,9 @@ sealed class LabeledEdgesLayer : ILayer
                 IsAntialias = true,
             };
 
-            SKRect bounds = default;
-            float advanceWidth = font.MeasureText(label, out bounds);
+        float advanceWidth = font.MeasureText(label, out SKRect bounds);
 
-            DrawTextAt(canvas, label, font, textPaint, anchor.X, anchor.Y, textAnchor, bounds, advanceWidth);
+        DrawTextAt(canvas, label, font, textPaint, anchor.X, anchor.Y, textAnchor, bounds, advanceWidth);
         }
 
         static void DrawTextAt(SKCanvas canvas, string text, SKFont font, SKPaint paint, float anchorX, float anchorY, TextAnchor textAnchor, SKRect bounds, float advanceWidth)

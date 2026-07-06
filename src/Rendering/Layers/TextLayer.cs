@@ -34,7 +34,7 @@ sealed class TextLayer : ILayer
 
             if (size > 0f)
             {
-                string[] subLines = originalLine.Split(new[] { "\n", "<br>" }, StringSplitOptions.None);
+                string[] subLines = originalLine.Split(["\n", "<br>"], StringSplitOptions.None);
                 for (int j = 0; j < subLines.Length; j++)
                 {
                     string subLine = subLines[j];
@@ -44,7 +44,7 @@ sealed class TextLayer : ILayer
 
                     if (subLine.Contains(networkMarker))
                     {
-                        string[] parts = subLine.Split(new[] { networkMarker }, 2, StringSplitOptions.None);
+                        string[] parts = subLine.Split([networkMarker], 2, StringSplitOptions.None);
                         if (!string.IsNullOrEmpty(parts[0]))
                             linesBuilder.Add((parts[0], size, color));
 

@@ -51,8 +51,14 @@
 - Primary constructors should be used unless there is a need to run logic during construction that can't be achieved without primary constructors.
     - Parameters in primary constructors that will not be changed should be used in the class directly rather than assigning them to readonly fields.
 - Address all code analyzer messages with codes using prefixes "IDE", "CA"," RCS", and "GSP". Use the Code Fix offered by the analyzer, if it has one.
+- All regex statements should use generated regex.
 
-### C# Naming Conventions
+## Native code
+- All native code declarations should be confined to static classes named to make their purposes clear.
+    - Native code declaration classes should not contain logic, unless strictly necessary.
+    - All declarations should use `LibraryImport` wherever possible.
+
+## Naming Conventions
 - Static types are always prefixed with a `s_` followed by camelCase.
 - Private class fields are always prefixed with `_` followed by camelCase.
 - Methods, types, Constants, and property names always use PascalCase.

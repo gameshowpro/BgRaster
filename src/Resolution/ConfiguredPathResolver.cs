@@ -5,7 +5,7 @@ namespace GameshowPro.BgRaster.Resolution;
 
 static class ConfiguredPathResolver
 {
-    static readonly StringComparison PathComparison = StringComparison.OrdinalIgnoreCase;
+    static readonly StringComparison s_pathComparison = StringComparison.OrdinalIgnoreCase;
 
     internal static ImmutableArray<string>? ResolveArray(
         ImmutableArray<string>? values,
@@ -43,7 +43,7 @@ static class ConfiguredPathResolver
         if (string.IsNullOrWhiteSpace(expanded))
             return expanded;
 
-        if (expanded.StartsWith("pack://application:,,,/", PathComparison))
+        if (expanded.StartsWith("pack://application:,,,/", s_pathComparison))
             return expanded;
 
         if (Uri.TryCreate(expanded, UriKind.Absolute, out Uri? _))

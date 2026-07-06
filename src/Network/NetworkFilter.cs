@@ -77,7 +77,7 @@ static class NetworkFilter
                 });
             }
 
-            ImmutableArray<AdapterIpAddress> finalIps = ips.ToImmutableArray();
+            ImmutableArray<AdapterIpAddress> finalIps = [.. ips];
             if (finalIps.Length >= options.MinimumAddressCount)
             {
                 filtered.Add(adapter with { IpAddresses = finalIps });
@@ -88,15 +88,15 @@ static class NetworkFilter
     }
 
     static int GetAdapterTypeId(string typeShort) =>
-        NetworkCollector.IanaShortToId.TryGetValue(typeShort, out int id) ? id : 0;
+        NetworkCollector.s_ianaShortToId.TryGetValue(typeShort, out int id) ? id : 0;
 
     static bool TryParseAdapterType(string value, out int ianaId)
     {
-        if (int.TryParse(value, out ianaId) && NetworkCollector.IanaIfTypes.ContainsKey(ianaId))
+        if (int.TryParse(value, out ianaId) && NetworkCollector.s_ianaIfTypes.ContainsKey(ianaId))
             return true;
-        if (NetworkCollector.DotNetTypeToIana.TryGetValue(value, out ianaId))
+        if (NetworkCollector.s_dotNetTypeToIana.TryGetValue(value, out ianaId))
             return true;
-        if (NetworkCollector.IanaShortToId.TryGetValue(value, out ianaId))
+        if (NetworkCollector.s_ianaShortToId.TryGetValue(value, out ianaId))
             return true;
         return false;
     }
