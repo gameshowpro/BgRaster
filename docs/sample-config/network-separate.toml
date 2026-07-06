@@ -15,8 +15,8 @@ length = "0"
 [network]
 render = true
 require_family = ""
-ip_address_format=" ◊${Address}/${CidrBits} (${Origin})<br>"
-adapter_format="•${Name}<br>${Description}<br>${MacAddress}<br>${Speed} ${Status} (${Type})<br>${IpAddresses}<br>"
+ip_address_format = [" ◊${Address}/${CidrBits}", " (${Origin})<br>"]
+adapter_format = ["•${Name}<br>", "${Description}<br>", "${MacAddress}<br>", "${Speed} ${Status} (${Type})<br>", "${IpAddresses}<br>"]
 color = ["#00a000", "#a000a0", "#900090", "#a0a0a0", "#FFFFFF"]
 size = ["2vh", "3vh", "2vh", "2vh", "3vh"]
 x = "5vw"
@@ -35,28 +35,23 @@ format = ["${MachineName}", "Output ${OutputLetter}", "${OutputWidth} x ${Output
 size = ["8vh", "3vh", "3vh", "3vh"]
 color = ["#FFFFFF", "#a000a0", "#00a000", "#a0a0a0"]
 
-
 [logo]
 x = "95vw"
 y = "33vh"
 anchor-x = "right"
 anchor-y = "top"
 
-
 [labeled-edges]
 thickness = ["0"]
 
 ########### Everything from here ownwards is for sample-building purposes. 
 ########### Remove this is you're copying this sample to a production-ready config file.
-
 [render]
 no-assignment = true
 no-discovery = true
 machine-name = "SAMPLE_MACHINE"
 simulate-network = true
 
-########### Everything from here ownwards is for sample-building purposes. 
-########### Remove this is you're copying this sample to a production-ready config file.
 [[output]]
 target = 0
 

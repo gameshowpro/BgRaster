@@ -170,9 +170,9 @@ internal static class ConfigLoader
         if (overlay.NetworkRequireFamily is not null)
         { network = network with { RequireFamily = overlay.NetworkRequireFamily }; _ = cliPaths.Add("network.require-family"); }
         if (overlay.NetworkAdapterFormat is not null)
-        { network = network with { AdapterFormat = overlay.NetworkAdapterFormat }; _ = cliPaths.Add("network.adapter-format"); }
-        if (overlay.NetworkIpAddressFormat is not null)
-        { network = network with { IpAddressFormat = overlay.NetworkIpAddressFormat }; _ = cliPaths.Add("network.ip-address-format"); }
+                { network = network with { AdapterFormat = [overlay.NetworkAdapterFormat] }; _ = cliPaths.Add("network.adapter-format"); }
+                if (overlay.NetworkIpAddressFormat is not null)
+                { network = network with { IpAddressFormat = [overlay.NetworkIpAddressFormat] }; _ = cliPaths.Add("network.ip-address-format"); }
         if (overlay.NetworkX is not null)
         { network = network with { X = ParseCliStringOrArray(overlay.NetworkX, "cli --network-x", warnings) }; _ = cliPaths.Add("network.x"); }
         if (overlay.NetworkY is not null)
@@ -682,8 +682,8 @@ internal static class ConfigLoader
         MinimumAddressCount = GetInt(t, "minimum_address_count") ?? new NetworkOptions().MinimumAddressCount,
         RequireName = GetStringArray(t, "require_name") ?? new NetworkOptions().RequireName,
         RequireDescription = GetStringArray(t, "require_description") ?? new NetworkOptions().RequireDescription,
-        IpAddressFormat = GetString(t, "ip_address_format") ?? new NetworkOptions().IpAddressFormat,
-        AdapterFormat = GetString(t, "adapter_format") ?? new NetworkOptions().AdapterFormat,
+        IpAddressFormat = GetStringArray(t, "ip_address_format") ?? new NetworkOptions().IpAddressFormat,
+                AdapterFormat = GetStringArray(t, "adapter_format") ?? new NetworkOptions().AdapterFormat,
         TextAlign = GetString(t, "text-align") ?? GetString(t, "textAlign") ?? GetString(t, "justify") ?? new NetworkOptions().TextAlign,
         AnchorX = GetString(t, "anchor-x") ?? GetString(t, "anchorX") ?? new NetworkOptions().AnchorX,
         AnchorY = GetString(t, "anchor-y") ?? GetString(t, "anchorY") ?? new NetworkOptions().AnchorY,
@@ -712,8 +712,8 @@ internal static class ConfigLoader
             MinimumAddressCount = GetInt(t, "minimum_address_count"),
             RequireName = GetStringArray(t, "require_name"),
             RequireDescription = GetStringArray(t, "require_description"),
-            IpAddressFormat = GetString(t, "ip_address_format"),
-            AdapterFormat = GetString(t, "adapter_format"),
+            IpAddressFormat = GetStringArray(t, "ip_address_format"),
+                        AdapterFormat = GetStringArray(t, "adapter_format"),
             TextAlign = GetString(t, "text-align") ?? GetString(t, "textAlign") ?? GetString(t, "justify"),
             AnchorX = GetString(t, "anchor-x") ?? GetString(t, "anchorX"),
             AnchorY = GetString(t, "anchor-y") ?? GetString(t, "anchorY"),

@@ -250,8 +250,8 @@ internal static class LastRunWriter
         _ = sb.AppendLine($"minimum_address_count = {n.MinimumAddressCount}");
         WriteTomlStringArray(sb, "require_name", n.RequireName);
         WriteTomlStringArray(sb, "require_description", n.RequireDescription);
-        _ = sb.AppendLine($"ip_address_format = \"{Escape(n.IpAddressFormat)}\"");
-        _ = sb.AppendLine($"adapter_format = \"{Escape(n.AdapterFormat)}\"");
+        WriteTomlStringArray(sb, "ip_address_format", n.IpAddressFormat);
+                WriteTomlStringArray(sb, "adapter_format", n.AdapterFormat);
         _ = sb.AppendLine($"text-align = \"{n.TextAlign}\"");
         _ = sb.AppendLine($"anchor-x = \"{n.AnchorX}\"");
         _ = sb.AppendLine($"anchor-y = \"{n.AnchorY}\"");

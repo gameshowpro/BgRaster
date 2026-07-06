@@ -14,8 +14,8 @@ internal record NetworkOverride
     internal int? MinimumAddressCount { get; init; }
     internal ImmutableArray<string>? RequireName { get; init; }
     internal ImmutableArray<string>? RequireDescription { get; init; }
-    internal string? IpAddressFormat { get; init; }
-    internal string? AdapterFormat { get; init; }
+    internal ImmutableArray<string>? IpAddressFormat { get; init; }
+        internal ImmutableArray<string>? AdapterFormat { get; init; }
     internal string? TextAlign { get; init; }
     internal string? AnchorX { get; init; }
     internal string? AnchorY { get; init; }

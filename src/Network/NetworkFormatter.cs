@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright © 2026 Barjonas LLC
+// Copyright (C) 2026 Barjonas LLC
 
 namespace GameshowPro.BgRaster.Network;
 
@@ -15,7 +15,7 @@ internal static class NetworkFormatter
         StringBuilder sb = new();
         foreach (AdapterInfo adapter in adapters)
         {
-            string ipBlock = FormatIpAddresses(adapter.IpAddresses, options);
+            string ipBlock = FormatIpAddresses(adapter.IpAddresses, options.IpAddressFormat);
             string adapterBlock = FormatAdapter(adapter, options.AdapterFormat)
                 .Replace("${IpAddresses}", ipBlock);
             _ = sb.Append(adapterBlock);
@@ -23,8 +23,38 @@ internal static class NetworkFormatter
         return sb.ToString();
     }
 
-    internal static string FormatAdapter(AdapterInfo adapter, string formatTemplate) =>
-        formatTemplate
+    internal static string FormatAdapter(AdapterInfo adapter, ImmutableArray<string> formatTemplates)
+    {
+        StringBuilder sb = new();
+        foreach (string template in formatTemplates)
+        {
+            _ = sb.Append(ApplyAdapterSubstitutions(template, adapter));
+        }
+        return sb.ToString();
+    }
+
+    internal static string FormatIpAddresses(ImmutableArray<AdapterIpAddress> ips, ImmutableArray<string> formatTemplates)
+    {
+        StringBuilder sb = new();
+        foreach (AdapterIpAddress ip in ips)
+        {
+            _ = sb.Append(FormatIpAddress(ip, formatTemplates));
+        }
+        return sb.ToString();
+    }
+
+    internal static string FormatIpAddress(AdapterIpAddress ip, ImmutableArray<string> formatTemplates)
+    {
+        StringBuilder sb = new();
+        foreach (string template in formatTemplates)
+        {
+            _ = sb.Append(ApplyIpSubstitutions(template, ip));
+        }
+        return sb.ToString();
+    }
+
+    private static string ApplyAdapterSubstitutions(string template, AdapterInfo adapter) =>
+        template
             .Replace("${Name}", adapter.Name)
             .Replace("${Description}", adapter.Description)
             .Replace("${ID}", adapter.Id)
@@ -35,19 +65,8 @@ internal static class NetworkFormatter
             .Replace("${PhysicalAddress}", adapter.MacAddress)
             .Replace("${MacAddress}", adapter.MacAddress);
 
-    internal static string FormatIpAddresses(ImmutableArray<AdapterIpAddress> ips, NetworkOptions options)
-    {
-        StringBuilder sb = new();
-        foreach (AdapterIpAddress ip in ips)
-        {
-            _ = sb.Append(FormatIpAddress(ip, options.IpAddressFormat));
-        }
-
-        return sb.ToString();
-    }
-
-    internal static string FormatIpAddress(AdapterIpAddress ip, string formatTemplate) =>
-        formatTemplate
+    private static string ApplyIpSubstitutions(string template, AdapterIpAddress ip) =>
+        template
             .Replace("${Address}", ip.Address)
             .Replace("${CidrBits}", ip.CidrBits.ToString(CultureInfo.InvariantCulture))
             .Replace("${Origin}", ip.Origin);

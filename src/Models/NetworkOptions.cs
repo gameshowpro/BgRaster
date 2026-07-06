@@ -14,8 +14,8 @@ internal record NetworkOptions
     internal int MinimumAddressCount { get; init; } = NetworkDefaults.MinimumAddressCount;
     internal ImmutableArray<string> RequireName { get; init; } = NetworkDefaults.RequireName;
     internal ImmutableArray<string> RequireDescription { get; init; } = NetworkDefaults.RequireDescription;
-    internal string IpAddressFormat { get; init; } = NetworkDefaults.IpAddressFormat;
-    internal string AdapterFormat { get; init; } = NetworkDefaults.AdapterFormat;
+    internal ImmutableArray<string> IpAddressFormat { get; init; } = NetworkDefaults.IpAddressFormat;
+        internal ImmutableArray<string> AdapterFormat { get; init; } = NetworkDefaults.AdapterFormat;
     internal string TextAlign { get; init; } = NetworkDefaults.TextAlign;
     internal string AnchorX { get; init; } = NetworkDefaults.AnchorX;
     internal string AnchorY { get; init; } = NetworkDefaults.AnchorY;
