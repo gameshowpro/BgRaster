@@ -51,6 +51,9 @@
 - Primary constructors should be used unless there is a need to run logic during construction that can't be achieved without primary constructors.
     - Parameters in primary constructors that will not be changed should be used in the class directly rather than assigning them to readonly fields.
 - Address all code analyzer messages with codes using prefixes "IDE", "CA"," RCS", and "GSP". Use the Code Fix offered by the analyzer, if it has one.
+    - **Not all IDE auto-fixers are safe.** IDE0010 (populate switch) and IDE0072 (populate switch expression) produce broken code when applied blindly. IDE0058 (explicit discard) conflicts with parameters named `_` — rename them first.
+    - Prefer `dotnet format style --severity hidden --verify-no-changes` to discover diagnostics, then apply safe diagnostics selectively with `--diagnostics`.
+    - Editorconfig should only globally suppress diagnostics that contradict project standards (e.g. `IDE0160` is suppressed because we mandate file-scoped namespaces, but the diagnostic wants block-scoped). Suppress individual instances with inline `#pragma`.
 - All regex statements should use generated regex.
 
 ## Native code

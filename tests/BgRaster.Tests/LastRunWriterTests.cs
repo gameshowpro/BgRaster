@@ -72,7 +72,7 @@ public class LastRunWriterTests
                 },
             };
 
-            StateCache.LastRunWriter.Write(path, state, "1.0.0");
+            StateCache.LastRunWriter.Write(path, state);
 
             string toml = File.ReadAllText(path);
             _ = toml.Should().Contain("[output.slice.text]");

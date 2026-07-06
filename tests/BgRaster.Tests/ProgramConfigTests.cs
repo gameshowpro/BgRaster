@@ -212,7 +212,7 @@ public class ProgramConfigTests
     {
         DllNotFoundException exception = new("Unable to load DLL 'libSkiaSharp' or one of its dependencies.");
 
-        string message = Program.BuildNativeDependencyErrorMessage(exception);
+        string message = Program.BuildNativeDependencyErrorMessage();
 
         _ = message.Should().StartWith("bg-raster: required native library 'libSkiaSharp.dll' could not be loaded.");
         _ = message.Should().Contain("BgRaster.exe and libSkiaSharp.dll are in the same folder");
