@@ -144,14 +144,19 @@ internal sealed class NetworkLayer : ILayer
 
                         if (!ipFormat.IsDefaultOrEmpty)
                         {
+                            // Save adapter element index as the base for IP color/size indexing.
+                            // Each IP address uses the same color/size sequence.
+                            int ipBaseIdx = elemIdx;
+
                             foreach (AdapterIpAddress ip in adapter.IpAddresses)
                             {
                                 for (int ipElemIdx = 0; ipElemIdx < ipFormat.Length; ipElemIdx++)
                                 {
+                                    int idx = ipBaseIdx + ipElemIdx;
                                     float ipSize = options.NetworkSizesPx.Length > 0
-                                        ? options.NetworkSizesPx[ipElemIdx % options.NetworkSizesPx.Length] : 0f;
+                                        ? options.NetworkSizesPx[idx % options.NetworkSizesPx.Length] : 0f;
                                     SKColor ipCol = options.NetworkColors.Length > 0
-                                        ? options.NetworkColors[ipElemIdx % options.NetworkColors.Length] : SKColors.Transparent;
+                                        ? options.NetworkColors[idx % options.NetworkColors.Length] : SKColors.Transparent;
 
                                     if (ipSize <= 0f)
                                         continue;
