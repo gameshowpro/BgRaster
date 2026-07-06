@@ -24,7 +24,7 @@
     <Copyright>(C) $([System.DateTime]::UtcNow.Year) Barjonas LLC</Copyright>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' != 'Debug'">
-    <WarningsNotAsErrors>$(WarningsNotAsErrors);IL2104</WarningsNotAsErrors>
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);IL2104;IL2026;IL3050</WarningsNotAsErrors>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
