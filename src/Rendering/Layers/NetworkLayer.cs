@@ -8,24 +8,16 @@ internal sealed class NetworkLayer : ILayer
     public void Render(RenderContext context, SKCanvas canvas)
     {
         if (!context.Options.NetworkOptions.Render)
-        {
             return;
-        }
 
         if (context.Options.NetworkOptions.X.Length == 0 || context.Options.NetworkOptions.Y.Length == 0)
-        {
             return;
-        }
 
         if (context.Options.NetworkOptions.AdapterFormat.IsDefaultOrEmpty)
-        {
             return;
-        }
 
         if (context.Options.NetworkAdapters.Length == 0)
-        {
             return;
-        }
 
         ImmutableArray<(string Text, float SizePx, SKColor Color)>.Builder linesBuilder =
             ImmutableArray.CreateBuilder<(string Text, float SizePx, SKColor Color)>();
@@ -35,9 +27,7 @@ internal sealed class NetworkLayer : ILayer
         ImmutableArray<(string Text, float SizePx, SKColor Color)> lines = linesBuilder.ToImmutable();
 
         if (lines.Length == 0)
-        {
             return;
-        }
 
         float cx = context.CanvasOffsetX + context.Options.NetworkXPx;
         float cy = context.CanvasOffsetY + context.Options.NetworkYPx;
@@ -65,10 +55,8 @@ internal sealed class NetworkLayer : ILayer
             (string _, float bottomSizePx, SKColor _, float bottomAscentPx, float _, float _) = measuredLines[index];
 
             float advance = TextLayer.ComputeBaselineAdvance(
-                topSizePx,
-                bottomSizePx,
-                topDescentPx,
-                bottomAscentPx,
+                topSizePx, bottomSizePx,
+                topDescentPx, bottomAscentPx,
                 TextLayer.DefaultLineHeightRatio,
                 TextLayer.DefaultCollisionGapPx);
             baselineOffsetsBuilder.Add(baselineOffsetsBuilder[index - 1] + advance);
@@ -83,7 +71,6 @@ internal sealed class NetworkLayer : ILayer
         {
             (string _, float _, SKColor _, float ascentPx, float descentPx, float widthPx) = measuredLines[index];
             float baseline = baselineOffsets[index];
-
             blockTop = Math.Min(blockTop, baseline + ascentPx);
             blockBottom = Math.Max(blockBottom, baseline + descentPx);
             blockWidth = Math.Max(blockWidth, widthPx);
@@ -106,14 +93,8 @@ internal sealed class NetworkLayer : ILayer
         {
             (string text, float sizePx, SKColor color, float _, float _, float _) = measuredLines[index];
             float y = baselineOffsets[index] + baselineShift;
-
             using SKFont font = new(FontManager.Typeface, sizePx);
-            using SKPaint paint = new()
-            {
-                Color = color,
-                IsAntialias = true,
-            };
-
+            using SKPaint paint = new() { Color = color, IsAntialias = true };
             canvas.DrawText(text, drawX, y, align, font, paint);
         }
     }
@@ -123,9 +104,7 @@ internal sealed class NetworkLayer : ILayer
         ImmutableArray<(string Text, float SizePx, SKColor Color)>.Builder linesBuilder)
     {
         if (options.NetworkAdapters.Length == 0)
-        {
             return;
-        }
 
         string ipMarker = "\0IP_MARKER\0";
         ImmutableArray<string> adapterFormat = options.NetworkOptions.AdapterFormat;
@@ -146,9 +125,7 @@ internal sealed class NetworkLayer : ILayer
                     : SKColors.Transparent;
 
                 if (sizePx <= 0f)
-                {
                     continue;
-                }
 
                 string formatted = NetworkFormatter.FormatAdapter(adapter,
                     ImmutableArray.Create(template));
@@ -158,11 +135,8 @@ internal sealed class NetworkLayer : ILayer
                 {
                     string line = subLines[subIdx];
 
-                    // Skip trailing empty from split
                     if (subIdx == subLines.Length - 1 && string.IsNullOrEmpty(line) && subIdx > 0)
-                    {
                         continue;
-                    }
 
                     if (line.Contains(ipMarker))
                     {
@@ -171,14 +145,17 @@ internal sealed class NetworkLayer : ILayer
                         string suffix = parts.Length > 1 ? parts[1] : "";
 
                         if (!string.IsNullOrWhiteSpace(prefix))
-                        {
                             linesBuilder.Add((prefix, sizePx, color));
-                        }
 
                         if (!ipFormat.IsDefaultOrEmpty)
                         {
                             foreach (AdapterIpAddress ip in adapter.IpAddresses)
                             {
+                                // Accumulate IP elements into a single text until <br>
+                                StringBuilder ipAccum = new();
+                                float ipAccumSize = 0f;
+                                SKColor ipAccumColor = SKColors.Transparent;
+
                                 for (int ipElemIdx = 0; ipElemIdx < ipFormat.Length; ipElemIdx++)
                                 {
                                     float ipSizePx = options.NetworkSizesPx.Length > 0
@@ -189,31 +166,46 @@ internal sealed class NetworkLayer : ILayer
                                         : SKColors.Transparent;
 
                                     if (ipSizePx <= 0f)
-                                    {
                                         continue;
-                                    }
 
                                     string ipFormatted = NetworkFormatter.FormatIpAddress(ip,
                                         ImmutableArray.Create(ipFormat[ipElemIdx]));
-                                    string[] ipSubLines = ipFormatted.Split(["\n", "<br>"], StringSplitOptions.None);
+                                    string[] ipSegs = ipFormatted.Split(["\n", "<br>"], StringSplitOptions.None);
 
-                                    for (int ipSubIdx = 0; ipSubIdx < ipSubLines.Length; ipSubIdx++)
+                                    for (int s = 0; s < ipSegs.Length; s++)
                                     {
-                                        string ipLine = ipSubLines[ipSubIdx];
-                                        if (ipSubIdx == ipSubLines.Length - 1 && string.IsNullOrEmpty(ipLine) && ipSubIdx > 0)
-                                        {
+                                        string seg = ipSegs[s];
+                                        bool isLast = s == ipSegs.Length - 1;
+
+                                        if (isLast && string.IsNullOrEmpty(seg) && s > 0)
                                             continue;
+
+                                        // If this is the first segment in the accumulator, capture its size/color
+                                        if (ipAccum.Length == 0)
+                                        {
+                                            ipAccumSize = ipSizePx;
+                                            ipAccumColor = ipColor;
                                         }
-                                        linesBuilder.Add((ipLine, ipSizePx, ipColor));
+
+                                        ipAccum.Append(seg);
+
+                                        // Flush on line break (not-last means there was a <br> after this segment)
+                                        if (!isLast)
+                                        {
+                                            linesBuilder.Add((ipAccum.ToString(), ipAccumSize, ipAccumColor));
+                                            ipAccum.Clear();
+                                        }
                                     }
                                 }
+
+                                // Flush remaining
+                                if (ipAccum.Length > 0)
+                                    linesBuilder.Add((ipAccum.ToString(), ipAccumSize, ipAccumColor));
                             }
                         }
 
                         if (!string.IsNullOrWhiteSpace(suffix))
-                        {
                             linesBuilder.Add((suffix, sizePx, color));
-                        }
                     }
                     else
                     {
