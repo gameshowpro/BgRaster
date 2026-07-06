@@ -1,0 +1,99 @@
+# $schema: https://raw.githubusercontent.com/gameshowpro/BgRaster/refs/heads/main/docs/schemas/bgraster-config.schema.json
+
+[text]
+format = ["${MachineName} output ${OutputIndexPlusOne}", "slice ${SliceLetterMinusOne}", "${SliceWidth}x${SliceHeight}"]
+size = ["16px", "12px", "14px"]
+x = ["50vw"]
+y = ["50vh"]
+
+[background]
+color = ["#808080", "#800080", "#008000", "#904000"]
+
+[circle]
+color = ["#ffffff"]
+stroke = ["1"]
+
+[logo]
+x = "75vw"
+y = "50vh"
+width = "40vw"
+height = "50vh"
+
+[[output]]
+target = 0
+
+[output.grid]
+size = "25vh"
+
+[[output.slice]]
+x = "0"
+y = "0"
+width = "100vw"
+height = "100vh"
+
+[output.slice.network]
+render = true
+require_subnet = "10.211.30.0/24"
+ip_address_format = [" →${Address}/${CidrBits}", " (${Origin})<br>"]
+adapter_format = ["${Name}<br>", "${MacAddress}<br>", "${Speed}<br>", "${IpAddresses}<br>"]
+color = ["#000"]
+size = ["2vh"]
+x = "33vw"
+y = "98vh"
+anchor-x = "center"
+anchor-y = "bottom"
+text-align = "center"
+
+[output.slice.text]
+size = ["0"]
+
+[output.slice.circle]
+size = "0"
+
+[output.slice.grid]
+size = "12.5vh"
+
+[[output.slice]]
+x = "0"
+y = "0"
+width = "600px"
+height = "150px"
+
+[output.slice.circle]
+x = "0"
+
+[[output.slice]]
+x = "0"
+y = "150px"
+width = "600px"
+height = "150px"
+
+[[output.slice]]
+x = "0"
+y = "300px"
+width = "600px"
+height = "150px"
+
+[output.slice.circle]
+x = "100vw"
+
+########### Everything from here ownwards is for sample-building purposes. 
+########### Remove this is you're copying this sample to a production-ready config file.
+[render]
+no-assignment = true
+no-discovery = true
+machine-name = "SAMPLE_MACHINE"
+force = true
+simulate-network = true
+
+[render.hardware_output]
+index = 0
+desktopX = 0
+desktopY = 0
+widthPx = 1200
+heightPx = 630
+dpiX = 96
+dpiY = 96
+rotation = 0
+adapterName = "Sample Adapter"
+friendlyName = "Sample Hardware Output"

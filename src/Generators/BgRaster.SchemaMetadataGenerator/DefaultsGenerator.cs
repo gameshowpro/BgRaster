@@ -361,7 +361,7 @@ public sealed class DefaultsGenerator : IIncrementalGenerator
     {
         return innerType switch
         {
-            "string" => $"\"{EscapeCSharpString(element.GetString()!)}\"",
+            "string" => $"\"{EscapeCSharpString(element.GetString()!.Replace("<br>", "\n"))}\"",
             "float" => element.GetDouble().ToString("G", System.Globalization.CultureInfo.InvariantCulture) + "f",
             "bool" => element.ValueKind switch
             {

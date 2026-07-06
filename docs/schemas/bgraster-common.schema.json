@@ -1023,14 +1023,20 @@
           "description": "Wildcard expressions for adapter descriptions. See [wildcard matching](#about-wildcard-expression-matching). Matching adapters pass immediately; non-matching are dropped."
         },
         "ip_address_format": {
-          "type": "string",
-          "default": "   \u2192${Address}/${CidrBits} (${Origin})<br>",
-          "description": "Format string for each IP address entry. See [substitution tokens](#substitution-tokens-per-ip-address)."
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [" \u2192${Address}/${CidrBits}", " (${Origin})<br>"],
+          "description": "Format strings for each IP address entry, one per array element. Each element gets its own color/size index. Use <br> for explicit linebreaks. See [substitution tokens](#substitution-tokens-per-ip-address)."
         },
         "adapter_format": {
-          "type": "string",
-          "default": "${Name}<br>  ${MacAddress}<br>   ${Speed}<br>  ${IpAddresses}<br>",
-          "description": "Format string for each network adapter entry. See [substitution tokens](#substitution-tokens-per-network-interface)."
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": ["${Name}<br>", "  ${MacAddress}<br>", "   ${Speed}<br>", "  ${IpAddresses}<br>"],
+          "description": "Format strings for each network adapter entry, one per array element. Each element gets its own color/size index. Use <br> for explicit linebreaks. See [substitution tokens](#substitution-tokens-per-network-interface)."
         },
         "text-align": {
           "type": "string",
@@ -1124,12 +1130,14 @@
           "description": "Comma-separated wildcard descriptions."
         },
         "ip_address_format": {
-          "type": "string",
-          "description": "IP address format string."
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "IP address format template array. Overrides [network].ip_address_format."
         },
         "adapter_format": {
-          "type": "string",
-          "description": "Adapter format string."
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Adapter format template array. Overrides [network].adapter_format."
         },
         "text-align": {
           "type": "string",

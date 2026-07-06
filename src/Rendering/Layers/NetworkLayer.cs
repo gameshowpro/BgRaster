@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright © 2026 Barjonas LLC
+// Copyright (C) 2026 Barjonas LLC
 
 namespace GameshowPro.BgRaster.Rendering.Layers;
 
@@ -17,7 +17,7 @@ internal sealed class NetworkLayer : ILayer
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(context.Options.NetworkOptions.AdapterFormat))
+        if (context.Options.NetworkOptions.AdapterFormat.IsDefaultOrEmpty)
         {
             return;
         }
@@ -30,8 +30,7 @@ internal sealed class NetworkLayer : ILayer
         ImmutableArray<(string Text, float SizePx, SKColor Color)>.Builder linesBuilder =
             ImmutableArray.CreateBuilder<(string Text, float SizePx, SKColor Color)>();
 
-        int lineIndex = 0;
-        BuildNetworkLines(context.Options, ref lineIndex, linesBuilder);
+        BuildNetworkLines(context.Options, linesBuilder);
 
         ImmutableArray<(string Text, float SizePx, SKColor Color)> lines = linesBuilder.ToImmutable();
 
@@ -121,7 +120,6 @@ internal sealed class NetworkLayer : ILayer
 
     internal static void BuildNetworkLines(
         ResolvedOptions options,
-        ref int lineIndex,
         ImmutableArray<(string Text, float SizePx, SKColor Color)>.Builder linesBuilder)
     {
         if (options.NetworkAdapters.Length == 0)
@@ -130,74 +128,97 @@ internal sealed class NetworkLayer : ILayer
         }
 
         string ipMarker = "\0IP_MARKER\0";
-        string adapterFormat = options.NetworkOptions.AdapterFormat.Replace("${IpAddresses}", ipMarker);
+        ImmutableArray<string> adapterFormat = options.NetworkOptions.AdapterFormat;
+        ImmutableArray<string> ipFormat = options.NetworkOptions.IpAddressFormat;
 
         foreach (AdapterInfo adapter in options.NetworkAdapters)
         {
-            string formattedAdapter = NetworkFormatter.FormatAdapter(adapter, adapterFormat);
-            string[] adapterLines = formattedAdapter.Split(["\n", "<br>"], StringSplitOptions.None);
-
-            for (int adapterLineIdx = 0; adapterLineIdx < adapterLines.Length; adapterLineIdx++)
+            for (int elemIdx = 0; elemIdx < adapterFormat.Length; elemIdx++)
             {
-                string line = adapterLines[adapterLineIdx];
+                string template = adapterFormat[elemIdx]
+                    .Replace("${IpAddresses}", ipMarker);
 
-                // Don't add trailing empty line if it's just the end of the adapter format
-                if (adapterLineIdx == adapterLines.Length - 1 && string.IsNullOrEmpty(line) && adapterLineIdx > 0)
-                {
-                    continue;
-                }
-
-                float sizePx = options.NetworkSizesPx.Length > 0 ? options.NetworkSizesPx[lineIndex % options.NetworkSizesPx.Length] : 0f;
-                SKColor color = options.NetworkColors.Length > 0 ? options.NetworkColors[lineIndex % options.NetworkColors.Length] : SKColors.Transparent;
+                float sizePx = options.NetworkSizesPx.Length > 0
+                    ? options.NetworkSizesPx[elemIdx % options.NetworkSizesPx.Length]
+                    : 0f;
+                SKColor color = options.NetworkColors.Length > 0
+                    ? options.NetworkColors[elemIdx % options.NetworkColors.Length]
+                    : SKColors.Transparent;
 
                 if (sizePx <= 0f)
                 {
-                    lineIndex++;
                     continue;
                 }
 
-                if (line.Contains(ipMarker))
-                {
-                    string[] parts = line.Split([ipMarker], StringSplitOptions.None);
-                    string prefix = parts[0];
-                    string suffix = parts.Length > 1 ? parts[1] : "";
+                string formatted = NetworkFormatter.FormatAdapter(adapter,
+                    ImmutableArray.Create(template));
+                string[] subLines = formatted.Split(["\n", "<br>"], StringSplitOptions.None);
 
-                    // Whitespace is formatting, not content - skip it
-                    if (!string.IsNullOrWhiteSpace(prefix))
+                for (int subIdx = 0; subIdx < subLines.Length; subIdx++)
+                {
+                    string line = subLines[subIdx];
+
+                    // Skip trailing empty from split
+                    if (subIdx == subLines.Length - 1 && string.IsNullOrEmpty(line) && subIdx > 0)
                     {
-                        linesBuilder.Add((prefix, sizePx, color));
+                        continue;
                     }
 
-                    if (!string.IsNullOrWhiteSpace(options.NetworkOptions.IpAddressFormat))
+                    if (line.Contains(ipMarker))
                     {
-                        foreach (AdapterIpAddress ip in adapter.IpAddresses)
+                        string[] parts = line.Split([ipMarker], StringSplitOptions.None);
+                        string prefix = parts[0];
+                        string suffix = parts.Length > 1 ? parts[1] : "";
+
+                        if (!string.IsNullOrWhiteSpace(prefix))
                         {
-                            string formattedIp = NetworkFormatter.FormatIpAddress(ip, options.NetworkOptions.IpAddressFormat);
-                            string[] ipLines = formattedIp.Split(["\n", "<br>"], StringSplitOptions.None);
+                            linesBuilder.Add((prefix, sizePx, color));
+                        }
 
-                            for (int i = 0; i < ipLines.Length; i++)
+                        if (!ipFormat.IsDefaultOrEmpty)
+                        {
+                            foreach (AdapterIpAddress ip in adapter.IpAddresses)
                             {
-                                if (i == ipLines.Length - 1 && string.IsNullOrEmpty(ipLines[i]) && i > 0)
+                                for (int ipElemIdx = 0; ipElemIdx < ipFormat.Length; ipElemIdx++)
                                 {
-                                    continue;
-                                }
+                                    float ipSizePx = options.NetworkSizesPx.Length > 0
+                                        ? options.NetworkSizesPx[ipElemIdx % options.NetworkSizesPx.Length]
+                                        : 0f;
+                                    SKColor ipColor = options.NetworkColors.Length > 0
+                                        ? options.NetworkColors[ipElemIdx % options.NetworkColors.Length]
+                                        : SKColors.Transparent;
 
-                                linesBuilder.Add((ipLines[i], sizePx, color));
+                                    if (ipSizePx <= 0f)
+                                    {
+                                        continue;
+                                    }
+
+                                    string ipFormatted = NetworkFormatter.FormatIpAddress(ip,
+                                        ImmutableArray.Create(ipFormat[ipElemIdx]));
+                                    string[] ipSubLines = ipFormatted.Split(["\n", "<br>"], StringSplitOptions.None);
+
+                                    for (int ipSubIdx = 0; ipSubIdx < ipSubLines.Length; ipSubIdx++)
+                                    {
+                                        string ipLine = ipSubLines[ipSubIdx];
+                                        if (ipSubIdx == ipSubLines.Length - 1 && string.IsNullOrEmpty(ipLine) && ipSubIdx > 0)
+                                        {
+                                            continue;
+                                        }
+                                        linesBuilder.Add((ipLine, ipSizePx, ipColor));
+                                    }
+                                }
                             }
                         }
-                    }
 
-                    if (!string.IsNullOrWhiteSpace(suffix))
+                        if (!string.IsNullOrWhiteSpace(suffix))
+                        {
+                            linesBuilder.Add((suffix, sizePx, color));
+                        }
+                    }
+                    else
                     {
-                        linesBuilder.Add((suffix, sizePx, color));
+                        linesBuilder.Add((line, sizePx, color));
                     }
-
-                    lineIndex++;
-                }
-                else
-                {
-                    linesBuilder.Add((line, sizePx, color));
-                    lineIndex++;
                 }
             }
         }
