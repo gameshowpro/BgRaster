@@ -18,13 +18,13 @@ y = "20px"
 anchor-x = "left"
 anchor-y = "top"
 text-align = "left"
-format = ["${MachineName}", "Output ${OutputLetter}", "${OutputWidth} x ${OutputHeight}", "Network text integrated", "${Network}"]
+format = ["${MachineName}<br>", "Output ${OutputLetter}<br>", "${OutputWidth} x ${OutputHeight}<br>", "Network text integrated<br>", "${Network}"]
 size = ["8vh", "3vh", "3vh", "3vh", "4vh"]
 color = ["#FFFFFF", "#a00000", "#00a000", "#a0a0a0"]
 
 [network]
 color = ["#00a000", "#a000a0", "#a0a0a0", "#FFFFFF"]
-size = ["2vh", "3vh", "2vh", "3vh"]
+size = ["2vh", "3vh", "2vh", "3vh", "3vh"]
 
 [logo]
 x = "90vw"
@@ -42,8 +42,6 @@ no-assignment = true
 no-discovery = true
 simulate-network = true
 
-########### Everything from here ownwards is for sample-building purposes. 
-########### Remove this is you're copying this sample to a production-ready config file.
 [[output]]
 target = 0
 

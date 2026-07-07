@@ -1,9 +1,12 @@
 # $schema: https://raw.githubusercontent.com/gameshowpro/BgRaster/refs/heads/main/docs/schemas/bgraster-config.schema.json
 
 [text]
-format = ["${MachineName} output ${OutputIndexPlusOne}", "slice ${SliceLetterMinusOne}", "${SliceWidth}x${SliceHeight}"]
+format = ["${MachineName} output ${OutputIndexPlusOne}<br>", "slice ${SliceLetterMinusOne}<br>", "${SliceWidth}x${SliceHeight}"]
 size = ["16px", "12px", "14px"]
-x = ["50vw"]
+anchor-x = "center"
+anchor-y = "center"
+text-align = "center"
+x = ["33vw"]
 y = ["50vh"]
 
 [background]
@@ -34,11 +37,11 @@ height = "100vh"
 [output.slice.network]
 render = true
 require_subnet = "10.211.30.0/24"
-ip_address_format = [" →${Address}/${CidrBits}", " (${Origin})<br>"]
-adapter_format = ["${Name}<br>", "${MacAddress}<br>", "${Speed}<br>", "${IpAddresses}<br>"]
-color = ["#000"]
+adapter_format = [" | ${Name} ", "${MacAddress} ", "${IpAddresses}", "| "]
+ip_address_format = ["${Address}/${CidrBits}", " (${Origin})"]
+color = ["#000", "#00ff40", "#fff", "#ff00ff"]
 size = ["2vh"]
-x = "33vw"
+x = "50vw"
 y = "98vh"
 anchor-x = "center"
 anchor-y = "bottom"

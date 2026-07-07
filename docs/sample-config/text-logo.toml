@@ -7,7 +7,7 @@ color = ["#000000"]
 size = ["0"]
 
 [text]
-format = ["BgRaster", "Text + Logo", "${OutputWidth} x ${OutputHeight}"]
+format = ["BgRaster<br>", "Text + Logo<br>", "${OutputWidth} x ${OutputHeight}"]
 size = ["8vh", "4vh", "4vh"]
 color = ["#FFFFFF", "#a0a0a0", "#FFFFFF"]
 x = ["50vw"]
@@ -37,8 +37,6 @@ side = []
 no-assignment = true
 no-discovery = true
 
-########### Everything from here ownwards is for sample-building purposes. 
-########### Remove this is you're copying this sample to a production-ready config file.
 [[output]]
 target = 0
 

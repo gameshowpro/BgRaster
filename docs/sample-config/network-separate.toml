@@ -15,10 +15,10 @@ length = "0"
 [network]
 render = true
 require_family = ""
-ip_address_format = [" ◊${Address}/${CidrBits}", " (${Origin})<br>"]
-adapter_format = ["•${Name}<br>", "${Description}<br>", "${MacAddress}<br>", "${Speed} ${Status} (${Type})<br>", "${IpAddresses}<br>"]
-color = ["#00a000", "#a000a0", "#900090", "#a0a0a0", "#FFFFFF"]
-size = ["2vh", "3vh", "2vh", "2vh", "3vh"]
+adapter_format = ["•${Name}<br>", "  ${Description}<br>", "    ${MacAddress}<br>", "    ${Speed} ${Status} (${Type})<br>", "${IpAddresses}<br>"]
+ip_address_format = ["     ◊${Address}/${CidrBits}", " (${Origin})<br>"]
+color = ["#00a000", "#a000a0", "#900090", "#ff0000", "#fff", "#a0a0a0"]
+size = ["2vh", "3vh", "2vh", "2vh", "2vh", "2vh"]
 x = "5vw"
 y = "95vh"
 anchor-x = "left"
@@ -31,7 +31,7 @@ y = "5vh"
 anchor-x = "right"
 anchor-y = "top"
 text-align = "end"
-format = ["${MachineName}", "Output ${OutputLetter}", "${OutputWidth} x ${OutputHeight}", "Network text separate"]
+format = ["${MachineName}<br>", "Output ${OutputLetter}<br>", "${OutputWidth} x ${OutputHeight}<br>", "Network text separate"]
 size = ["8vh", "3vh", "3vh", "3vh"]
 color = ["#FFFFFF", "#a000a0", "#00a000", "#a0a0a0"]
 

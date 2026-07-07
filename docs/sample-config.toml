@@ -68,7 +68,6 @@ no-assignment = false
 outputs-skip-unspecified = false
 output = ""
 force = true
-verbosity = "verbose"
 
 [[output]]
 # target = "\\\\?\\DISPLAY#SAM734D#5&214a496&0&UID135425#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}"

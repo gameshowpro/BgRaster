@@ -18,7 +18,14 @@ BgRaster is a fast console application that uses modern frameworks and APIs to g
 
 ## Sample output
 
-![Slices sample](https://bgraster.gameshow.pro/generated/slices_0.png)
+![Slices sample](https://bgraster.gameshow.pro/generated/readme-sample_0.png)
+<details>
+<summary>View sample TOML</summary>
+
+```toml
+--8<-- "sample-config/readme-sample.toml"
+```
+</details>
 
 ## Supported environments
 
@@ -95,7 +102,7 @@ coordinates = [true]
 ```toml
 [network]
 render = true
-adapter_format = "${Name}<br>${MacAddress}<br>${Speed} ${Status}<br>${IpAddresses}"
+adapter_format = "${Name}<br>", "${MacAddress}<br>", "${Speed} ${Status}<br>", "${IpAddresses}"
 color = ["#000", "#a0a0a0", "#808080", "#FFFFFF"]
 size = ["2vh", "2vh", "2vh", "3vh"]
 x = "95vw"
@@ -176,4 +183,4 @@ Hi, I'm Hamish Barjonas. I provide custom solutions for the broadcast producion,
 
 ## License
 
-This project is licensed under the [MIT License](./LICENSE).
+This project is licensed under the [MIT License](../LICENSE).
