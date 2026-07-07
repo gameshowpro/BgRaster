@@ -19,11 +19,11 @@
             "type": "string"
           },
           "default": [
-            "${MachineName} output ${OutputIndexPlusOne}",
-            "slice ${SliceLetter}",
+            "${MachineName} output ${OutputIndexPlusOne}<br>",
+            "slice ${SliceLetter}<br>",
             "${SliceWidth}x${SliceHeight}"
           ],
-          "description": "Text lines, supports tokens detailed in the [Substitution tokens](#substitution-tokens) table."
+          "description": "Text lines. Each array element gets its own color/size index and accumulates on the same visual line until the next element starts. Use <code>&lt;br&gt;</code> for explicit linebreaks. Supports substitution tokens detailed in the [Substitution tokens](#substitution-tokens) table."
         },
         "text-align": {
           "type": "string",
@@ -1028,7 +1028,7 @@
             "type": "string"
           },
           "default": [" \u2192${Address}/${CidrBits}", " (${Origin})<br>"],
-          "description": "Format strings for each IP address entry, one per array element. Each element gets its own color/size index. Use <br> for explicit linebreaks. See [substitution tokens](#substitution-tokens-per-ip-address)."
+          "description": "Format strings for each IP address entry, one per array element. Each element gets its own color/size index. Use <code>&lt;br&gt;</code> for explicit linebreaks. See [substitution tokens](#substitution-tokens-per-ip-address)."
         },
         "adapter_format": {
           "type": "array",
@@ -1036,7 +1036,7 @@
             "type": "string"
           },
           "default": ["${Name}<br>", "  ${MacAddress}<br>", "   ${Speed}<br>", "  ${IpAddresses}<br>"],
-          "description": "Format strings for each network adapter entry, one per array element. Each element gets its own color/size index. Use <br> for explicit linebreaks. See [substitution tokens](#substitution-tokens-per-network-interface)."
+          "description": "Format strings for each network adapter entry, one per array element. Each element gets its own color/size index. Use <code>&lt;br&gt;</code> for explicit linebreaks. See [substitution tokens](#substitution-tokens-per-network-interface)."
         },
         "text-align": {
           "type": "string",

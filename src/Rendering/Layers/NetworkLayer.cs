@@ -30,6 +30,7 @@ internal sealed class NetworkLayer : ILayer
         float cy = context.CanvasOffsetY + context.Options.NetworkYPx;
         float anchorX = TextLayer.ParseAnchorX(context.Options.NetworkAnchorX);
         float anchorY = TextLayer.ParseAnchorY(context.Options.NetworkAnchorY);
+        SKTextAlign align = TextLayer.ParseTextAlign(context.Options.NetworkTextAlign);
 
         // Measure
         List<(float Ascent, float Descent, float Width,
@@ -42,14 +43,17 @@ internal sealed class NetworkLayer : ILayer
 
             foreach (var s in line)
             {
+                string measureText = s.Text.Length > 0 && s.Text[^1] == ' '
+                    ? s.Text + '\u200C'
+                    : s.Text;
                 using SKFont f = new(FontManager.Typeface, s.SizePx);
                 SKFontMetrics m = f.Metrics;
-                float sw = f.MeasureText(s.Text);
+                float sw = f.MeasureText(measureText);
                 float sa = -m.Ascent;
                 float sd = m.Descent;
                 la = Math.Max(la, sa);
                 ld = Math.Max(ld, sd);
-                segs.Add((s.Text, s.SizePx, s.Color, sw, sa, sd));
+                segs.Add((measureText, s.SizePx, s.Color, sw, sa, sd));
                 lw += sw;
             }
             measured.Add((la, ld, lw, segs));
@@ -84,7 +88,12 @@ internal sealed class NetworkLayer : ILayer
         for (int i = 0; i < measured.Count; i++)
         {
             float y = baseline[i] + shift;
-            float x = left;
+            float lineStartX = left;
+            if (align == SKTextAlign.Center)
+                lineStartX += (bw - measured[i].Width) / 2f;
+            else if (align == SKTextAlign.Right)
+                lineStartX += bw - measured[i].Width;
+            float x = lineStartX;
             foreach (var seg in measured[i].Segs)
             {
                 using SKFont f = new(FontManager.Typeface, seg.SizePx);
@@ -106,22 +115,28 @@ internal sealed class NetworkLayer : ILayer
         ImmutableArray<string> adapterFormat = options.NetworkOptions.AdapterFormat;
         ImmutableArray<string> ipFormat = options.NetworkOptions.IpAddressFormat;
 
+        List<(string Text, float SizePx, SKColor Color)> currentLine = [];
+
         foreach (AdapterInfo adapter in options.NetworkAdapters)
         {
-            int fmtIdx = 0;
+            int sizeIdx = 0;
+            int colorIdx = 0;
 
             for (int elemIdx = 0; elemIdx < adapterFormat.Length; elemIdx++)
             {
                 string template = adapterFormat[elemIdx].Replace("${IpAddresses}", ipMarker);
+                bool consumedIpSlots = false;
+                int ipSlotCount = 0;
 
                 float sizePx = options.NetworkSizesPx.Length > 0
-                    ? options.NetworkSizesPx[fmtIdx % options.NetworkSizesPx.Length] : 0f;
+                    ? options.NetworkSizesPx[sizeIdx % options.NetworkSizesPx.Length] : 0f;
                 SKColor color = options.NetworkColors.Length > 0
-                    ? options.NetworkColors[fmtIdx % options.NetworkColors.Length] : SKColors.Transparent;
+                    ? options.NetworkColors[colorIdx % options.NetworkColors.Length] : SKColors.Transparent;
 
                 if (sizePx <= 0f)
                 {
-                    fmtIdx++;
+                    sizeIdx++;
+                    colorIdx++;
                     continue;
                 }
 
@@ -142,26 +157,26 @@ internal sealed class NetworkLayer : ILayer
                         string prefix = parts[0];
                         string suffix = parts.Length > 1 ? parts[1] : "";
 
-                        List<(string, float, SKColor)> currentLine = [];
-
-                        if (!string.IsNullOrWhiteSpace(prefix))
+                        if (!string.IsNullOrEmpty(prefix))
                             currentLine.Add((prefix, sizePx, color));
 
                         if (!ipFormat.IsDefaultOrEmpty)
                         {
-                            // Save current format index as the base for IP color/size indexing.
-                            // Each IP address uses the same color/size sequence.
-                            int ipBaseIdx = fmtIdx;
+                            consumedIpSlots = true;
+                            ipSlotCount = ipFormat.Length;
+                            int ipBaseSizeIdx = sizeIdx;
+                            int ipBaseColorIdx = colorIdx;
 
                             foreach (AdapterIpAddress ip in adapter.IpAddresses)
                             {
                                 for (int ipElemIdx = 0; ipElemIdx < ipFormat.Length; ipElemIdx++)
                                 {
-                                    int idx = ipBaseIdx + ipElemIdx;
+                                    int sIdx = ipBaseSizeIdx + ipElemIdx;
+                                    int cIdx = ipBaseColorIdx + ipElemIdx;
                                     float ipSize = options.NetworkSizesPx.Length > 0
-                                        ? options.NetworkSizesPx[idx % options.NetworkSizesPx.Length] : 0f;
+                                        ? options.NetworkSizesPx[sIdx % options.NetworkSizesPx.Length] : 0f;
                                     SKColor ipCol = options.NetworkColors.Length > 0
-                                        ? options.NetworkColors[idx % options.NetworkColors.Length] : SKColors.Transparent;
+                                        ? options.NetworkColors[cIdx % options.NetworkColors.Length] : SKColors.Transparent;
 
                                     if (ipSize <= 0f)
                                         continue;
@@ -188,25 +203,46 @@ internal sealed class NetworkLayer : ILayer
                                     }
                                 }
                             }
-
-                            // Advance past the IP format slots (even if no addresses were rendered)
-                            fmtIdx += ipFormat.Length;
                         }
 
-                        if (!string.IsNullOrWhiteSpace(suffix))
-                            currentLine.Add((suffix, sizePx, color));
-
-                        if (currentLine.Count > 0)
-                            visualLines.Add(currentLine);
+                        if (!string.IsNullOrEmpty(suffix))
+                        {
+                            // Suffix inherits the last IP sub-element's index so it visually belongs
+                            int suffixSIdx = sizeIdx + (ipFormat.IsDefaultOrEmpty ? 0 : ipFormat.Length - 1);
+                            int suffixCIdx = colorIdx + (ipFormat.IsDefaultOrEmpty ? 0 : ipFormat.Length - 1);
+                            float suffixSize = options.NetworkSizesPx.Length > 0
+                                ? options.NetworkSizesPx[suffixSIdx % options.NetworkSizesPx.Length] : 0f;
+                            SKColor suffixColor = options.NetworkColors.Length > 0
+                                ? options.NetworkColors[suffixCIdx % options.NetworkColors.Length] : SKColors.Transparent;
+                            currentLine.Add((suffix, suffixSize, suffixColor));
+                        }
                     }
                     else
                     {
-                        visualLines.Add([(line, sizePx, color)]);
-                        fmtIdx++;
+                        currentLine.Add((line, sizePx, color));
                     }
+
+                    if (subIdx < subLines.Length - 1 && currentLine.Count > 0)
+                    {
+                        visualLines.Add(currentLine);
+                        currentLine = [];
+                    }
+                }
+                if (consumedIpSlots)
+                {
+                    sizeIdx += ipSlotCount;
+                    colorIdx += ipSlotCount;
+                }
+                else
+                {
+                    sizeIdx++;
+                    colorIdx++;
                 }
             }
         }
+
+        if (currentLine.Count > 0)
+            visualLines.Add(currentLine);
     }
 
     // Legacy overload for TextLayer inline network rendering — flattens to simple lines

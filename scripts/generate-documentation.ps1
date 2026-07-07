@@ -439,10 +439,10 @@ try {
 
         function Get-HeadingAnchor {
             param([string]$Heading)
-            # Strip backticks, brackets, parens. Lowercase. Non-alnum → hyphen. Collapse hyphens.
-            $slug = $Heading -replace '[`\[\]()]', ''
-            $slug = $slug.ToLowerInvariant() -replace '[^a-z0-9]+', '-'
-            $slug = $slug.Trim('-')
+            # Strip backticks, brackets, parens. Lowercase. Non-(alnum/./_/~/-) → hyphen.
+                        $slug = $Heading -replace '[`\[\]()]', ''
+                        $slug = $slug.ToLowerInvariant() -replace '[^a-z0-9._~-]+', '-'
+                        $slug = $slug.Trim('-')
             return $slug
         }
 

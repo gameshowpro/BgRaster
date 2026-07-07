@@ -136,7 +136,12 @@ internal sealed class TextLayer : ILayer
         for (int i = 0; i < measuredLines.Count; i++)
         {
             float y = baselineOffsets[i] + baselineShift;
-            float x = blockLeft;
+            float lineStartX = blockLeft;
+            if (align == SKTextAlign.Center)
+                lineStartX += (blockWidth - measuredLines[i].LineWidth) / 2f;
+            else if (align == SKTextAlign.Right)
+                lineStartX += blockWidth - measuredLines[i].LineWidth;
+            float x = lineStartX;
             foreach (var seg in measuredLines[i].Segs)
             {
                 using SKFont font = new(FontManager.Typeface, seg.SizePx);
