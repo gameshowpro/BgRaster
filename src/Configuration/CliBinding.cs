@@ -1,72 +1,87 @@
 // SPDX-License-Identifier: MIT
 // Copyright © 2026 Barjonas LLC
 
+using System.CommandLine;
+using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
+using System.Reflection;
+
 namespace GameshowPro.BgRaster.Configuration;
 
 internal static class CliBinding
 {
+    private const string CBold = "\x1b[1m";
+    private const string CDim = "\x1b[2m";
+    private const string CReset = "\x1b[0m";
+    private const string CGreen = "\x1b[32m";
+    private const string CCyan = "\x1b[36m";
+
     internal static RootCommand BuildRootCommand(Func<string?, CliOverlay, Task<int>> handler)
     {
-        Option<string?> configOption = CreateStringOption("--config");
-        Option<string?> machineNameOption = CreateStringOption("--machine-name");
-        Option<string?> textFormatOption = CreateStringOption("--text-format");
-        Option<string?> textSizeOption = CreateStringOption("--text-size");
-        Option<string?> textColorOption = CreateStringOption("--text-color");
-        Option<string?> textXOption = CreateStringOption("--text-x");
-        Option<string?> textYOption = CreateStringOption("--text-y");
-        Option<string?> bgColorOption = CreateStringOption("--background-color");
-        Option<string?> bgImageOption = CreateStringOption("--background-image");
-        Option<string?> bgFitOption = CreateStringOption("--background-fit");
+        Option<string?> configOption = CreateOption("--config");
+        Option<string?> machineNameOption = CreateOption("--machine-name");
+        Option<string?> textFormatOption = CreateOption("--text-format");
+        Option<string?> textSizeOption = CreateOption("--text-size");
+        Option<string?> textColorOption = CreateOption("--text-color");
+        Option<string?> textXOption = CreateOption("--text-x");
+        Option<string?> textYOption = CreateOption("--text-y");
+        Option<string?> bgColorOption = CreateOption("--background-color");
+        Option<string?> bgImageOption = CreateOption("--background-image");
+        Option<string?> bgFitOption = CreateOption("--background-fit");
         Option<bool?> bgAlternatingOption = CreateNullableBoolOption("--background-alternating");
         Option<bool?> bgBorderOption = CreateNullableBoolOption("--background-border");
-        Option<string?> bgBorderColorOption = CreateStringOption("--background-border-color");
-        Option<string?> gridSizeOption = CreateStringOption("--grid-size");
-        Option<string?> gridOddColorOption = CreateStringOption("--grid-odd-color");
-        Option<string?> gridEvenColorOption = CreateStringOption("--grid-even-color");
-        Option<string?> gridStrokeOption = CreateStringOption("--grid-stroke");
-        Option<string?> gridOffsetXOption = CreateStringOption("--grid-offset-x");
-        Option<string?> gridOffsetYOption = CreateStringOption("--grid-offset-y");
+        Option<string?> bgBorderColorOption = CreateOption("--background-border-color");
+        Option<string?> gridSizeOption = CreateOption("--grid-size");
+        Option<string?> gridOddColorOption = CreateOption("--grid-odd-color");
+        Option<string?> gridEvenColorOption = CreateOption("--grid-even-color");
+        Option<string?> gridStrokeOption = CreateOption("--grid-stroke");
+        Option<string?> gridOffsetXOption = CreateOption("--grid-offset-x");
+        Option<string?> gridOffsetYOption = CreateOption("--grid-offset-y");
         Option<bool?> gridCoordinatesOption = CreateNullableBoolOption("--grid-coordinates");
-        Option<string?> circleSizeOption = CreateStringOption("--circle-size");
-        Option<string?> circleXOption = CreateStringOption("--circle-x");
-        Option<string?> circleYOption = CreateStringOption("--circle-y");
-        Option<string?> circleColorOption = CreateStringOption("--circle-color");
-        Option<string?> circleStrokeOption = CreateStringOption("--circle-stroke");
-        Option<string?> crosshairLengthOption = CreateStringOption("--crosshair-length");
-        Option<string?> crosshairXOption = CreateStringOption("--crosshair-x");
-        Option<string?> crosshairYOption = CreateStringOption("--crosshair-y");
-        Option<string?> crosshairColorOption = CreateStringOption("--crosshair-color");
-        Option<string?> crosshairStrokeOption = CreateStringOption("--crosshair-stroke");
-        Option<string?> logoSourceOption = CreateStringOption("--logo-source");
-        Option<string?> logoXOption = CreateStringOption("--logo-x");
-        Option<string?> logoYOption = CreateStringOption("--logo-y");
-        Option<string?> logoAnchorXOption = CreateStringOption("--logo-anchor-x");
-        Option<string?> logoAnchorYOption = CreateStringOption("--logo-anchor-y");
-        Option<string?> logoWidthOption = CreateStringOption("--logo-width");
-        Option<string?> logoHeightOption = CreateStringOption("--logo-height");
-        Option<string?> logoOpacityOption = CreateStringOption("--logo-opacity");
+        Option<string?> circleSizeOption = CreateOption("--circle-size");
+        Option<string?> circleXOption = CreateOption("--circle-x");
+        Option<string?> circleYOption = CreateOption("--circle-y");
+        Option<string?> circleColorOption = CreateOption("--circle-color");
+        Option<string?> circleStrokeOption = CreateOption("--circle-stroke");
+        Option<string?> crosshairLengthOption = CreateOption("--crosshair-length");
+        Option<string?> crosshairXOption = CreateOption("--crosshair-x");
+        Option<string?> crosshairYOption = CreateOption("--crosshair-y");
+        Option<string?> crosshairColorOption = CreateOption("--crosshair-color");
+        Option<string?> crosshairStrokeOption = CreateOption("--crosshair-stroke");
+        Option<string?> logoSourceOption = CreateOption("--logo-source");
+        Option<string?> logoXOption = CreateOption("--logo-x");
+        Option<string?> logoYOption = CreateOption("--logo-y");
+        Option<string?> logoAnchorXOption = CreateOption("--logo-anchor-x");
+        Option<string?> logoAnchorYOption = CreateOption("--logo-anchor-y");
+        Option<string?> logoWidthOption = CreateOption("--logo-width");
+        Option<string?> logoHeightOption = CreateOption("--logo-height");
+        Option<string?> logoOpacityOption = CreateOption("--logo-opacity");
         Option<bool?> dryRunOption = CreateNullableBoolOption("--no-assignment");
         Option<bool?> noDiscoveryOption = CreateNullableBoolOption("--no-discovery");
         Option<bool?> outputsSkipUnspecifiedOption = CreateNullableBoolOption("--outputs-skip-unspecified");
-        Option<string?> outputDirOption = CreateStringOption("--render-output");
+        Option<string?> outputDirOption = CreateOption("--render-output");
         Option<bool?> continueAfterUnchangedOption = CreateNullableBoolOption("--render-force");
-        Option<string?> verbosityOption = CreateStringOption("--verbosity");
+        Option<string?> verbosityOption = CreateOption("--verbosity");
 
-        Option<string?> NetworkRequireAdapterTypeOption = CreateStringOption("--network-require-adapter-type");
+        Option<string?> NetworkRequireAdapterTypeOption = CreateOption("--network-require-adapter-type");
         Option<bool?> networkRequireUpOption = CreateNullableBoolOption("--network-require-up");
-        Option<string?> networkRequireFamilyOption = CreateStringOption("--network-require-family");
-        Option<string?> networkAdapterFormatOption = CreateStringOption("--network-adapter-format");
-        Option<string?> networkIpAddressFormatOption = CreateStringOption("--network-ip-address-format");
-        Option<string?> networkXOption = CreateStringOption("--network-x");
-        Option<string?> networkYOption = CreateStringOption("--network-y");
-        Option<string?> networkSizeOption = CreateStringOption("--network-size");
-        Option<string?> networkColorOption = CreateStringOption("--network-color");
+        Option<string?> networkRequireFamilyOption = CreateOption("--network-require-family");
+        Option<string?> networkAdapterFormatOption = CreateOption("--network-adapter-format");
+        Option<string?> networkIpAddressFormatOption = CreateOption("--network-ip-address-format");
+        Option<string?> networkXOption = CreateOption("--network-x");
+        Option<string?> networkYOption = CreateOption("--network-y");
+        Option<string?> networkSizeOption = CreateOption("--network-size");
+        Option<string?> networkColorOption = CreateOption("--network-color");
         Option<bool?> networkRenderOption = CreateNullableBoolOption("--network-render");
 
-        RootCommand root = new("BgRaster - per-output wallpaper renderer")
+        // Category mapping for help output
+        Dictionary<string, List<Option>> categorized = new()
         {
-            configOption,
-            machineNameOption,
+            ["Frequent"] = new() { configOption, verbosityOption, continueAfterUnchangedOption, dryRunOption, outputDirOption },
+            ["Advanced"] = new() { machineNameOption, noDiscoveryOption, outputsSkipUnspecifiedOption },
+            ["Appearance"] = new()
+        };
+        Option[] appearanceOptions = {
             textFormatOption, textSizeOption, textColorOption, textXOption, textYOption,
             bgColorOption, bgImageOption, bgFitOption, bgAlternatingOption, bgBorderOption, bgBorderColorOption,
             gridSizeOption, gridOddColorOption, gridEvenColorOption, gridStrokeOption,
@@ -74,10 +89,66 @@ internal static class CliBinding
             circleSizeOption, circleXOption, circleYOption, circleColorOption, circleStrokeOption,
             crosshairLengthOption, crosshairXOption, crosshairYOption, crosshairColorOption, crosshairStrokeOption,
             logoSourceOption, logoXOption, logoYOption, logoAnchorXOption, logoAnchorYOption, logoWidthOption, logoHeightOption, logoOpacityOption,
-            dryRunOption, noDiscoveryOption, outputsSkipUnspecifiedOption, outputDirOption, verbosityOption, continueAfterUnchangedOption,
             NetworkRequireAdapterTypeOption, networkRequireUpOption, networkRequireFamilyOption, networkAdapterFormatOption, networkIpAddressFormatOption,
-            networkXOption, networkYOption, networkSizeOption, networkColorOption, networkRenderOption,
+            networkXOption, networkYOption, networkSizeOption, networkColorOption, networkRenderOption
         };
+        categorized["Appearance"].AddRange(appearanceOptions);
+
+        RootCommand root = new($"BgRaster - per-output wallpaper renderer{CDim}  https://bgraster.gameshow.pro{CReset}");
+                root.Options.Add(configOption);
+                root.Options.Add(verbosityOption);
+                root.Options.Add(continueAfterUnchangedOption);
+                root.Options.Add(dryRunOption);
+                root.Options.Add(outputDirOption);
+                root.Options.Add(machineNameOption);
+                root.Options.Add(noDiscoveryOption);
+                root.Options.Add(outputsSkipUnspecifiedOption);
+                root.Options.Add(textFormatOption);
+                root.Options.Add(textSizeOption);
+                root.Options.Add(textColorOption);
+                root.Options.Add(textXOption);
+                root.Options.Add(textYOption);
+                root.Options.Add(bgColorOption);
+                root.Options.Add(bgImageOption);
+                root.Options.Add(bgFitOption);
+                root.Options.Add(bgAlternatingOption);
+                root.Options.Add(bgBorderOption);
+                root.Options.Add(bgBorderColorOption);
+                root.Options.Add(gridSizeOption);
+                root.Options.Add(gridOddColorOption);
+                root.Options.Add(gridEvenColorOption);
+                root.Options.Add(gridStrokeOption);
+                root.Options.Add(gridOffsetXOption);
+                root.Options.Add(gridOffsetYOption);
+                root.Options.Add(gridCoordinatesOption);
+                root.Options.Add(circleSizeOption);
+                root.Options.Add(circleXOption);
+                root.Options.Add(circleYOption);
+                root.Options.Add(circleColorOption);
+                root.Options.Add(circleStrokeOption);
+                root.Options.Add(crosshairLengthOption);
+                root.Options.Add(crosshairXOption);
+                root.Options.Add(crosshairYOption);
+                root.Options.Add(crosshairColorOption);
+                root.Options.Add(crosshairStrokeOption);
+                root.Options.Add(logoSourceOption);
+                root.Options.Add(logoXOption);
+                root.Options.Add(logoYOption);
+                root.Options.Add(logoAnchorXOption);
+                root.Options.Add(logoAnchorYOption);
+                root.Options.Add(logoWidthOption);
+                root.Options.Add(logoHeightOption);
+                root.Options.Add(logoOpacityOption);
+                root.Options.Add(NetworkRequireAdapterTypeOption);
+                root.Options.Add(networkRequireUpOption);
+                root.Options.Add(networkRequireFamilyOption);
+                root.Options.Add(networkAdapterFormatOption);
+                root.Options.Add(networkIpAddressFormatOption);
+                root.Options.Add(networkXOption);
+                root.Options.Add(networkYOption);
+                root.Options.Add(networkSizeOption);
+                root.Options.Add(networkColorOption);
+                root.Options.Add(networkRenderOption);
 
         root.SetAction(async (parseResult, ct) =>
         {
@@ -143,15 +214,119 @@ internal static class CliBinding
 
         return root;
 
-        static Option<string?> CreateStringOption(string alias) =>
-            new(alias) { Description = GetByAlias(alias).HelpDescription };
+        static Option<string?> CreateOption(string alias)
+                {
+                    CliOptionDefinition def = GetByAlias(alias);
+                    string desc = ColorizeDescription(def.HelpDescription);
+                    return new Option<string?>(alias) { Description = desc };
+                }
 
-        static Option<bool?> CreateNullableBoolOption(string alias) =>
-            new(alias) { Description = GetByAlias(alias).HelpDescription };
+                static Option<bool?> CreateNullableBoolOption(string alias)
+                {
+                    CliOptionDefinition def = GetByAlias(alias);
+                    string desc = ColorizeDescription(def.HelpDescription);
+                    return new Option<bool?>(alias) { Description = desc };
+                }
+
+                /// <summary>
+                /// Colors a description string: base text in magenta, backtick-wrapped values in green.
+                /// Backtick characters are suppressed — color serves as the visual delimiter.
+                /// </summary>
+                static string ColorizeDescription(string desc)
+                {
+                    const string CMagenta = "\x1b[35m";
+                    // Replace `value` with green-colored value (no backticks)
+                    string colored = System.Text.RegularExpressions.Regex.Replace(
+                        desc, @"`([^`]+)`", $"{CGreen}$1{CMagenta}");
+                    // Wrap entire description in magenta
+                    return $"{CMagenta}{colored}{CReset}";
+                }
 
         static CliOptionDefinition GetByAlias(string alias) =>
             GeneratedCliOptionCatalog.Definitions.First(definition =>
                 string.Equals(definition.Alias, alias, StringComparison.Ordinal));
+    }
+
+    /// <summary>
+    /// Writes categorized help output with section headers.
+    /// Call this from Program.cs when --help is detected.
+    /// </summary>
+    internal static void WriteCategorizedHelp(RootCommand root, Dictionary<string, List<Option>> categorized)
+    {
+        TextWriter output = Console.Out;
+                int maxWidth;
+                try { maxWidth = Console.WindowWidth; } catch (IOException) { maxWidth = 120; }
+                if (maxWidth <= 0) maxWidth = 120;
+
+        // Description
+        output.WriteLine($"{CBold}{root.Description}{CReset}");
+        output.WriteLine();
+        output.WriteLine($"{CBold}Usage:{CReset}");
+        output.WriteLine($"  BgRaster [options]");
+        output.WriteLine();
+
+        string[] catOrder = ["Frequent", "Advanced", "Appearance"];
+        int maxOptionLen = 0;
+        foreach (var cat in catOrder)
+        {
+            if (!categorized.TryGetValue(cat, out var opts)) continue;
+            foreach (var opt in opts)
+            {
+                string name = GetOptionDisplayName(opt);
+                if (name.Length > maxOptionLen) maxOptionLen = name.Length;
+            }
+                    }
+                    // Built-in options
+                    maxOptionLen = Math.Max(maxOptionLen, "-?, -h, --help".Length);
+                    maxOptionLen = Math.Max(maxOptionLen, "--version".Length);
+                    maxOptionLen = Math.Min(maxOptionLen + 2, 62);
+
+        foreach (string cat in catOrder)
+        {
+            if (!categorized.TryGetValue(cat, out var opts) || opts.Count == 0) continue;
+
+            output.WriteLine();
+            output.WriteLine($"  {CBold}{CCyan}{cat} options:{CReset}");
+
+            foreach (var opt in opts)
+            {
+                string name = GetOptionDisplayName(opt);
+                string desc = opt.Description ?? "";
+                string pad = name.Length < maxOptionLen
+                    ? new string(' ', maxOptionLen - name.Length)
+                    : " ";
+                output.WriteLine($"  {name}{pad}{desc}");
+            }
+        }
+
+        output.WriteLine();
+                string[] builtins = ["-?, -h, --help", "--version"];
+                        string[] builtinDescs = ["Show help and usage information", "Show version information"];
+                        const string CMagenta = "\x1b[35m";
+                        for (int i = 0; i < builtins.Length; i++)
+                        {
+                            string name = builtins[i];
+                            string pad = name.Length < maxOptionLen
+                                ? new string(' ', maxOptionLen - name.Length)
+                                : " ";
+                            output.WriteLine($"  {name}{pad}{CMagenta}{builtinDescs[i]}{CReset}");
+                                                    }
+
+                                    output.WriteLine();
+                                    output.WriteLine($"{CBold}{CCyan}Examples:{CReset}");
+                                    output.WriteLine($"{CMagenta}  BgRaster --config ./wallpaper.toml --render-output ./out/ --text-format \"${{MachineName}}<br>Hello from BgRaster \"{CReset}");
+                                }
+
+    private static string GetOptionDisplayName(Option opt)
+    {
+        string name = "--" + opt.Name.TrimStart('-');
+        // Check for value syntax from CliOptionDefinition
+        var def = GeneratedCliOptionCatalog.Definitions.FirstOrDefault(
+            d => string.Equals("--" + d.Alias.TrimStart('-'), opt.Name, StringComparison.OrdinalIgnoreCase)
+              || string.Equals(d.Alias, opt.Name, StringComparison.OrdinalIgnoreCase));
+        if (def?.ValueSyntax is { } vs)
+            return $"{name} {vs}";
+        return name;
     }
 
     internal static string GetVersionString()

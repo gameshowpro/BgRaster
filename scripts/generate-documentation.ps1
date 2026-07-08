@@ -67,7 +67,22 @@ try {
         Copy-Item -Path $sourceGsp -Destination (Join-Path $docsImageDirectory "gsp.svg") -Force
     }
 
-    function ConvertTo-CliOptionsTable {
+        function Format-DefaultResolution {
+                    param([string]$Value)
+                    # Wrap config paths
+                    $v = $Value -replace '\b(config\.toml)\b', '`$1`'
+                    # Wrap TOML property paths: [section].key-name, [section].key.sub
+                    $v = $v -replace '(\[[^\]]+\]\.[a-z_-]+(?:\.[a-z_-]+)*)', '`$1`'
+                    # Wrap booleans
+                    $v = $v -replace '\b(true|false)\b', '`$1`'
+                    # Wrap JSON-like array literals (greedy but stops at first ])
+                    $v = $v -replace '(\["[^]]*"\])', '`$1`'
+                    # Wrap path patterns like %TEMP%/... 
+                                        $v = $v -replace '(%\w+%[^\s,;.]*)', '`$1`'
+                                        return $v
+                }
+
+        function ConvertTo-CliOptionsTable {
         param(
             [object]$Schema,
             [object]$CommonSchema
@@ -89,44 +104,54 @@ try {
             throw "Schema metadata for CLI options is missing in docs/schemas/bgraster-config.schema.json (x-bgraster.cliOptions / x-bgraster.cliOnlyOptions)."
         }
 
-        $lines = @(
-            '| Option | Type | TOML equivalent | Description | Default resolution |',
-            '|---|---|---|---|---|'
-        )
+        $lines = @()
+                $groups = $options | Where-Object { $null -ne $_.PSObject.Properties['category'] } | Group-Object { [string]$_.category }
+                $categoryOrder = @('Frequent', 'Advanced', 'Appearance')
 
-        foreach ($option in $options) {
-            $optionSyntax = if ([string]::IsNullOrWhiteSpace([string]$option.valueSyntax)) {
-                [string]$option.alias
-            }
-            else {
-                '{0} {1}' -f $option.alias, $option.valueSyntax
-            }
+                foreach ($cat in $categoryOrder) {
+                    $group = $groups | Where-Object { $_.Name -eq $cat } | Select-Object -First 1
+                    if ($null -eq $group) { continue }
 
-            $tomlEquivalent = if ([string]::IsNullOrWhiteSpace([string]$option.tomlEquivalent)) {
-                if ([string]::IsNullOrWhiteSpace([string]$option.tomlPath)) { '-' } else { [string]$option.tomlPath }
-            }
-            else {
-                [string]$option.tomlEquivalent
-            }
+                    $lines += ''
+                    $lines += ('### {0} options' -f $cat)
+                    $lines += ''
+                    $lines += '| Option | Type | TOML equivalent | Description | Default resolution |'
+                    $lines += '|---|---|---|---|---|'
 
-            $typeName = if ([string]::IsNullOrWhiteSpace([string]$option.typeName)) { '-' } else { [string]$option.typeName }
-            $description = if ([string]::IsNullOrWhiteSpace([string]$option.description)) { '-' } else { [string]$option.description }
-            $tomlPath = [string]$option.tomlPath
-            if (-not [string]::IsNullOrWhiteSpace($tomlPath)) {
-                $pathNode = Resolve-TomlPathSchemaNode -TomlPath $tomlPath -ConfigSchema $Schema -CommonSchema $CommonSchema
-                $enumSuffix = Get-EnumDescriptionSuffix -PrimaryNode $pathNode -ResolvedNode $pathNode
-                if (-not [string]::IsNullOrWhiteSpace($enumSuffix)) {
-                    if (-not $description.EndsWith('.', [StringComparison]::Ordinal)) {
-                        $description += '.'
-                    }
-                    $description = ('{0}{1}' -f $description, $enumSuffix)
-                }
-            }
+                    foreach ($option in $group.Group) {
+                                $optionSyntax = if ([string]::IsNullOrWhiteSpace([string]$option.valueSyntax)) {
+                                    [string]$option.alias
+                                }
+                                else {
+                                    '{0} {1}' -f $option.alias, $option.valueSyntax
+                                }
 
-            $defaultResolution = if ([string]::IsNullOrWhiteSpace([string]$option.defaultResolution)) { '-' } else { [string]$option.defaultResolution }
+                                $tomlEquivalent = if ([string]::IsNullOrWhiteSpace([string]$option.tomlEquivalent)) {
+                                    if ([string]::IsNullOrWhiteSpace([string]$option.tomlPath)) { '-' } else { [string]$option.tomlPath }
+                                }
+                                else {
+                                    [string]$option.tomlEquivalent
+                                }
 
-            $lines += ('| `{0}` | `{1}` | `{2}` | {3} | {4} |' -f $optionSyntax, $typeName, $tomlEquivalent, $description, $defaultResolution)
-        }
+                                $typeName = if ([string]::IsNullOrWhiteSpace([string]$option.typeName)) { '-' } else { [string]$option.typeName }
+                                $description = if ([string]::IsNullOrWhiteSpace([string]$option.description)) { '-' } else { [string]$option.description }
+                                $tomlPath = [string]$option.tomlPath
+                                if (-not [string]::IsNullOrWhiteSpace($tomlPath)) {
+                                    $pathNode = Resolve-TomlPathSchemaNode -TomlPath $tomlPath -ConfigSchema $Schema -CommonSchema $CommonSchema
+                                    $enumSuffix = Get-EnumDescriptionSuffix -PrimaryNode $pathNode -ResolvedNode $pathNode
+                                    if (-not [string]::IsNullOrWhiteSpace($enumSuffix)) {
+                                        if (-not $description.EndsWith('.', [StringComparison]::Ordinal)) {
+                                            $description += '.'
+                                        }
+                                        $description = ('{0}{1}' -f $description, $enumSuffix)
+                                    }
+                                }
+
+                                $defaultResolution = if ([string]::IsNullOrWhiteSpace([string]$option.defaultResolution)) { '-' } else { Format-DefaultResolution ([string]$option.defaultResolution) }
+
+                                                                $lines += ('| `{0}` | `{1}` | `{2}` | {3} | {4} |' -f $optionSyntax, $typeName, $tomlEquivalent, $description, $defaultResolution)
+                            }
+                        }
 
         return $lines -join "`n"
     }

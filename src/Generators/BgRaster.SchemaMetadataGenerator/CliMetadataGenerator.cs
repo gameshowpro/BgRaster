@@ -161,12 +161,13 @@ public sealed class CliMetadataGenerator : IIncrementalGenerator
             string enumSuffix = BuildEnumDescriptionSuffix(tomlPath, configRoot, commonRoot);
 
             destination.Add(new OptionMetadata(
-                aliasValue,
-                ReadString(optionElement, "valueSyntax"),
-                ReadString(optionElement, "typeName") ?? "-",
-                ReadString(optionElement, "tomlEquivalent") ?? (tomlPath ?? "-"),
-                string.Concat(description, enumSuffix),
-                ReadString(optionElement, "defaultResolution") ?? "-"));
+                            aliasValue,
+                            ReadString(optionElement, "valueSyntax"),
+                            ReadString(optionElement, "typeName") ?? "-",
+                            ReadString(optionElement, "tomlEquivalent") ?? (tomlPath ?? "-"),
+                            string.Concat(description, enumSuffix),
+                            ReadString(optionElement, "defaultResolution") ?? "-",
+                            ReadString(optionElement, "category") ?? "Appearance"));
         }
     }
 
@@ -465,7 +466,9 @@ public sealed class CliMetadataGenerator : IIncrementalGenerator
             sb.Append(Escape(option.Description));
             sb.Append(", ");
             sb.Append(Escape(option.DefaultResolution));
-            sb.AppendLine("),");
+                        sb.Append(", ");
+                        sb.Append(Escape(option.Category));
+                        sb.AppendLine("),");
         }
 
         sb.AppendLine("    ];");
@@ -486,33 +489,37 @@ public sealed class CliMetadataGenerator : IIncrementalGenerator
     }
 
     sealed class OptionMetadata
-    {
-        internal OptionMetadata(
-            string alias,
-            string? valueSyntax,
-            string typeName,
-            string tomlEquivalent,
-            string description,
-            string defaultResolution)
         {
-            Alias = alias;
-            ValueSyntax = valueSyntax;
-            TypeName = typeName;
-            TomlEquivalent = tomlEquivalent;
-            Description = description;
-            DefaultResolution = defaultResolution;
+            internal OptionMetadata(
+                string alias,
+                string? valueSyntax,
+                string typeName,
+                string tomlEquivalent,
+                string description,
+                string defaultResolution,
+                string category)
+            {
+                Alias = alias;
+                ValueSyntax = valueSyntax;
+                TypeName = typeName;
+                TomlEquivalent = tomlEquivalent;
+                Description = description;
+                DefaultResolution = defaultResolution;
+                Category = category;
+            }
+
+            internal string Alias { get; }
+
+            internal string? ValueSyntax { get; }
+
+            internal string TypeName { get; }
+
+            internal string TomlEquivalent { get; }
+
+            internal string Description { get; }
+
+            internal string DefaultResolution { get; }
+
+            internal string Category { get; }
         }
-
-        internal string Alias { get; }
-
-        internal string? ValueSyntax { get; }
-
-        internal string TypeName { get; }
-
-        internal string TomlEquivalent { get; }
-
-        internal string Description { get; }
-
-        internal string DefaultResolution { get; }
-    }
 }
