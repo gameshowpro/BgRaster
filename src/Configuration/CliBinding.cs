@@ -262,18 +262,23 @@ internal static class CliBinding
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
 
-        /// <summary>Returns true when the output console supports ANSI escape sequences.</summary>
-        private static bool ConsoleSupportsAnsi()
-        {
-            if (Console.IsOutputRedirected) return false;
-            const int STD_OUTPUT_HANDLE = -11;
-            const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
-            IntPtr handle = GetStdHandle(STD_OUTPUT_HANDLE);
-            if (handle == new IntPtr(-1)) return false;
-            if (!GetConsoleMode(handle, out uint mode)) return false;
-            return (mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING) != 0 ||
-                SetConsoleMode(handle, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
-        }
+        /// <summary>Returns true when the output console supports ANSI escape sequences.
+                /// Tries to enable VT processing on the Windows console handle; returns true
+                /// even when the handle is unavailable (piped to modern terminals that render ANSI).</summary>
+                private static bool ConsoleSupportsAnsi()
+                {
+                    const int STD_OUTPUT_HANDLE = -11;
+                    const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
+                    IntPtr handle = GetStdHandle(STD_OUTPUT_HANDLE);
+                    if (handle != new IntPtr(-1) && GetConsoleMode(handle, out uint mode))
+                    {
+                        SetConsoleMode(handle, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+                    }
+                    // Always emit ANSI — modern terminals and debug consoles handle them natively.
+                    // If the output target doesn't understand ANSI, the raw codes are visible but
+                    // never garbled (no partial escape sequences).
+                    return true;
+                }
 
         internal static void WriteCategorizedHelp(RootCommand root, Dictionary<string, List<Option>> categorized)
     {
