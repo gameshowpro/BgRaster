@@ -229,18 +229,19 @@ internal static class CliBinding
                 }
 
                 /// <summary>
-                /// Colors a description string: base text in magenta, backtick-wrapped values in green.
-                /// Backtick characters are suppressed — color serves as the visual delimiter.
-                /// </summary>
-                static string ColorizeDescription(string desc)
-                {
-                    const string CMagenta = "\x1b[35m";
-                    // Replace `value` with green-colored value (no backticks)
-                    string colored = System.Text.RegularExpressions.Regex.Replace(
-                        desc, @"`([^`]+)`", $"{CGreen}$1{CMagenta}");
-                    // Wrap entire description in magenta
-                    return $"{CMagenta}{colored}{CReset}";
-                }
+                                /// Colors a description string: base text in magenta, backtick-wrapped values in green.
+                                /// Backtick characters are suppressed — color serves as the visual delimiter.
+                                /// Returns uncolored text when stdout is redirected.
+                                /// </summary>
+                                static string ColorizeDescription(string desc)
+                                                                {
+                                                                    if (!ConsoleSupportsAnsi())
+                                                                        return desc.Replace("`", "");
+                                    const string CMagenta = "\x1b[35m";
+                                    string colored = System.Text.RegularExpressions.Regex.Replace(
+                                        desc, @"`([^`]+)`", $"{CGreen}$1{CMagenta}");
+                                    return $"{CMagenta}{colored}{CReset}";
+                                }
 
         static CliOptionDefinition GetByAlias(string alias) =>
             GeneratedCliOptionCatalog.Definitions.First(definition =>
@@ -248,20 +249,49 @@ internal static class CliBinding
     }
 
     /// <summary>
-    /// Writes categorized help output with section headers.
-    /// Call this from Program.cs when --help is detected.
-    /// </summary>
-    internal static void WriteCategorizedHelp(RootCommand root, Dictionary<string, List<Option>> categorized)
-    {
-        TextWriter output = Console.Out;
-                int maxWidth;
-                try { maxWidth = Console.WindowWidth; } catch (IOException) { maxWidth = 120; }
-                if (maxWidth <= 0) maxWidth = 120;
+        /// Writes categorized help output with section headers.
+        /// Call this from Program.cs when --help is detected.
+        /// </summary>
 
-        // Description
-        output.WriteLine($"{CBold}{root.Description}{CReset}");
-        output.WriteLine();
-        output.WriteLine($"{CBold}Usage:{CReset}");
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern IntPtr GetStdHandle(int nStdHandle);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern bool GetConsoleMode(IntPtr hConsoleHandle, out uint lpMode);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
+
+        /// <summary>Returns true when the output console supports ANSI escape sequences.</summary>
+        private static bool ConsoleSupportsAnsi()
+        {
+            if (Console.IsOutputRedirected) return false;
+            const int STD_OUTPUT_HANDLE = -11;
+            const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
+            IntPtr handle = GetStdHandle(STD_OUTPUT_HANDLE);
+            if (handle == new IntPtr(-1)) return false;
+            if (!GetConsoleMode(handle, out uint mode)) return false;
+            return (mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING) != 0 ||
+                SetConsoleMode(handle, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+        }
+
+        internal static void WriteCategorizedHelp(RootCommand root, Dictionary<string, List<Option>> categorized)
+    {
+            TextWriter output = Console.Out;
+                        bool useColor = ConsoleSupportsAnsi();
+                        string cBold = useColor ? CBold : "";
+            string cDim = useColor ? CDim : "";
+            string cReset = useColor ? CReset : "";
+            string cCyan = useColor ? CCyan : "";
+            string cMagenta = useColor ? "\x1b[35m" : "";
+            int maxWidth;
+            try { maxWidth = Console.WindowWidth; } catch (IOException) { maxWidth = 120; }
+            if (maxWidth <= 0) maxWidth = 120;
+
+            // Description
+            output.WriteLine($"{cBold}{root.Description}{cReset}");
+            output.WriteLine();
+            output.WriteLine($"{cBold}Usage:{cReset}");
         output.WriteLine($"  BgRaster [options]");
         output.WriteLine();
 
@@ -286,7 +316,7 @@ internal static class CliBinding
             if (!categorized.TryGetValue(cat, out var opts) || opts.Count == 0) continue;
 
             output.WriteLine();
-            output.WriteLine($"  {CBold}{CCyan}{cat} options:{CReset}");
+            output.WriteLine($"  {cBold}{cCyan}{cat} options:{cReset}");
 
             foreach (var opt in opts)
             {
@@ -302,19 +332,18 @@ internal static class CliBinding
         output.WriteLine();
                 string[] builtins = ["-?, -h, --help", "--version"];
                         string[] builtinDescs = ["Show help and usage information", "Show version information"];
-                        const string CMagenta = "\x1b[35m";
                         for (int i = 0; i < builtins.Length; i++)
                         {
                             string name = builtins[i];
                             string pad = name.Length < maxOptionLen
                                 ? new string(' ', maxOptionLen - name.Length)
                                 : " ";
-                            output.WriteLine($"  {name}{pad}{CMagenta}{builtinDescs[i]}{CReset}");
-                                                    }
+                            output.WriteLine($"  {name}{pad}{cMagenta}{builtinDescs[i]}{cReset}");
+                        }
 
-                                    output.WriteLine();
-                                    output.WriteLine($"{CBold}{CCyan}Examples:{CReset}");
-                                    output.WriteLine($"{CMagenta}  BgRaster --config ./wallpaper.toml --render-output ./out/ --text-format \"${{MachineName}}<br>Hello from BgRaster \"{CReset}");
+                        output.WriteLine();
+                        output.WriteLine($"{cBold}{cCyan}Examples:{cReset}");
+                        output.WriteLine($"{cMagenta}  BgRaster --config ./wallpaper.toml --render-output ./out/ --text-format \"Hello from BgRaster\"{cReset}");
                                 }
 
     private static string GetOptionDisplayName(Option opt)
