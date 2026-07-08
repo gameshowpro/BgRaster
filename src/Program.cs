@@ -3,6 +3,7 @@
 
 
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace GameshowPro.BgRaster;
 
@@ -12,6 +13,7 @@ internal static class Program
     {
         try
         {
+            EnableAnsiEscapeSequences();
             if (args.Any(a => a == "--version"))
             {
                 Console.WriteLine(CliBinding.GetVersionString());
@@ -727,4 +729,27 @@ internal static class Program
                     return name[1..];
                 return name;
             }
+
+            private static void EnableAnsiEscapeSequences()
+            {
+                const int STD_OUTPUT_HANDLE = -11;
+                const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
+
+                IntPtr handle = GetStdHandle(STD_OUTPUT_HANDLE);
+                if (handle == new IntPtr(-1)) return;
+
+                if (GetConsoleMode(handle, out uint mode))
+                {
+                    SetConsoleMode(handle, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+                }
+            }
+
+            [DllImport("kernel32.dll", SetLastError = true)]
+            private static extern IntPtr GetStdHandle(int nStdHandle);
+
+            [DllImport("kernel32.dll", SetLastError = true)]
+            private static extern bool GetConsoleMode(IntPtr hConsoleHandle, out uint lpMode);
+
+            [DllImport("kernel32.dll", SetLastError = true)]
+            private static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
         }
