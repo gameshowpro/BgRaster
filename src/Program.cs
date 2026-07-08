@@ -19,7 +19,42 @@ internal static class Program
             }
 
             RootCommand root = CliBinding.BuildRootCommand(RunAsync);
-            return await root.Parse(args).InvokeAsync();
+
+                        // Intercept --help / -h / -? before System.CommandLine processes it
+                                    if (args.Any(a => a is "-h" or "--help" or "-?"))
+                                    {
+                                        string[] frequentNames = ["config", "verbosity", "render-force", "no-assignment", "render-output"];
+                                        string[] advancedNames = ["machine-name", "no-discovery", "outputs-skip-unspecified"];
+                                        string[] builtinNames = ["help", "version"];
+
+                                        var frequent = new List<Option>();
+                                        var advanced = new List<Option>();
+                                        var appearance = new List<Option>();
+
+                                        foreach (var sym in root.Options)
+                                        {
+                                            if (sym is not Option opt) continue;
+                                            string name = GetOptionShortName(opt);
+                                            if (frequentNames.Contains(name))
+                                                frequent.Add(opt);
+                                            else if (advancedNames.Contains(name))
+                                                advanced.Add(opt);
+                                            else if (!builtinNames.Contains(name))
+                                                appearance.Add(opt);
+                                        }
+
+                                        var categorized = new Dictionary<string, List<Option>>
+                                        {
+                                            ["Frequent"] = frequent,
+                                            ["Advanced"] = advanced,
+                                            ["Appearance"] = appearance,
+                                        };
+
+                                        CliBinding.WriteCategorizedHelp(root, categorized);
+                                        return 0;
+                                    }
+
+                        return await root.Parse(args).InvokeAsync();
         }
         catch (Exception ex) when (IsSkiaNativeDependencyFailure(ex))
         {
@@ -681,5 +716,15 @@ internal static class Program
         Rotation = 0,
         AdapterName = "FIXED",
         FriendlyName = "Unspecified",
-    };
-}
+            };
+
+            private static string GetOptionShortName(Option opt)
+            {
+                string name = opt.Name;
+                if (name.StartsWith("--", StringComparison.Ordinal))
+                    return name[2..];
+                if (name.StartsWith("-", StringComparison.Ordinal))
+                    return name[1..];
+                return name;
+            }
+        }

@@ -6,7 +6,7 @@
     <title>BgRaster</title>
     <authors>Hamish Barjonas</authors>
     <owners>Hamish Barjonas</owners>
-    <copyright>(C) $copyrightYear$ Barjonas LLC</copyright>
+    <copyright>© $copyrightYear$ Barjonas LLC</copyright>
     <licenseUrl>https://github.com/gameshowpro/BgRaster/blob/main/LICENSE</licenseUrl>
     <projectUrl>https://github.com/gameshowpro/BgRaster</projectUrl>
     <docsUrl>https://bgraster.gameshow.pro</docsUrl>
@@ -20,20 +20,35 @@
 ## BgRaster
 
 A fast, single-file console application that generates per-output wallpapers
-and assigns them directly to every display using the Windows `IDesktopWallpaper` COM interface.
+and assigns them directly to every Windows display. Inspired by Sysinternals BgInfo,
+built for creative professionals: AV technicians, video engineers, and real-time
+graphics specialists.
 
-### Features
+### Highlights
 
-- Per-output wallpaper rendering with independent configuration per display
-- Crosshair, grid, circle, labeled edges, logo, and text layers
-- TOML configuration with CLI overrides
-- ASUS ProArt color space support
-- No runtime dependencies - a single AOT-compiled executable
+- **One PNG per display** — each monitor gets a wallpaper sized to its native
+  resolution, anchored to its desktop position.
+- **Multiple layers** — text, network adapter info, labeled edges, custom logos
+  (SVG), alignment grids, crosshairs, and solid backgrounds, each with independent
+  positioning and styling.
+- **Format strings** — `${tokens}` for dynamic substitution with independent
+  line-by-line size and color cycling.
+- **Slices** — split any output into multiple regions, each with different settings.
+- **Short-lived and idempotent** — runs until done then exits. Skips re-rendering
+  when configuration, version, and hardware fingerprint all match the previous run.
+- **TOML-first** — full power via `config.toml` with CLI overrides for quick
+  experiments. Auto-seeds a config from defaults on first run.
+- **Portable** — single-file `.exe` with no runtime dependencies, built for speed
+  via NativeAOT compilation.
 
 ### Quick start
 
 ```powershell
-BgRaster --text "Hello World" --grid-size 64 --circle-size 200
+# Install via Chocolatey
+choco install BgRaster -y
+
+# Or download from GitHub Releases and run
+BgRaster --config .\wallpaper.toml --render-output .\out\ --text-format "Hello World"
 ```
     ]]></description>
     <dependencies />

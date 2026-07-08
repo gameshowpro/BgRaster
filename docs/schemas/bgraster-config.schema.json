@@ -50,7 +50,8 @@
         "tomlPath": "[render].machine-name",
         "surface": "both",
         "description": "Override the framework-supplied host name used by ${MachineName} substitutions.",
-        "defaultResolution": "if omitted, searches for config.toml in this order: next to the executable, %ProgramData%\\BgRaster, %LocalAppData%\\BgRaster, %AppData%\\BgRaster; if none exist, starts from built-in defaults."
+        "defaultResolution": "if omitted, searches for `config.toml` in this order: next to the executable, `%ProgramData%\\BgRaster`, `%LocalAppData%\\BgRaster`, `%AppData%\\BgRaster`; if none exist, starts from built-in defaults.",
+        "category": "Advanced"
       },
       {
         "key": "text-format",
@@ -62,7 +63,8 @@
         "tomlPath": "[text].format",
         "surface": "both",
         "description": "Text line(s); accepts a single string or a TOML string array literal.",
-        "defaultResolution": "if omitted, defers to config.toml [text].format; if missing there, uses [\"${MachineName} output ${OutputIndexPlusOne}\", \"slice ${SliceLetter}\", \"${SliceWidth}x${SliceHeight}\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[text].format`; if missing there, uses `[\"${MachineName} output ${OutputIndexPlusOne}\", \"slice ${SliceLetter}\", \"${SliceWidth}x${SliceHeight}\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "text-size",
@@ -74,7 +76,8 @@
         "tomlPath": "[text].size",
         "surface": "both",
         "description": "Text line height(s); accepts a single dimension or a TOML string array literal.",
-        "defaultResolution": "if omitted, defers to config.toml [text].size; if missing there, uses [\"3vh\", \"2vh\", \"4vh\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[text].size`; if missing there, uses `[\"3vh\", \"2vh\", \"4vh\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "text-color",
@@ -86,7 +89,8 @@
         "tomlPath": "[text].color",
         "surface": "both",
         "description": "Text color(s); accepts a single color or a TOML string array literal.",
-        "defaultResolution": "if omitted, defers to config.toml [text].color; if missing there, uses [\"#fff\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[text].color`; if missing there, uses `[\"#fff\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "text-x",
@@ -98,7 +102,8 @@
         "tomlPath": "[text].x",
         "surface": "both",
         "description": "Anchor X.",
-        "defaultResolution": "if omitted, defers to config.toml [text].x; if missing there, uses [\"75vw\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[text].x`; if missing there, uses `[\"75vw\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "text-y",
@@ -110,7 +115,8 @@
         "tomlPath": "[text].y",
         "surface": "both",
         "description": "Anchor Y.",
-        "defaultResolution": "if omitted, defers to config.toml [text].y; if missing there, uses [\"75vh\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[text].y`; if missing there, uses `[\"75vh\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "background-color",
@@ -122,7 +128,8 @@
         "tomlPath": "[background].color",
         "surface": "both",
         "description": "Background fill color.",
-        "defaultResolution": "if omitted, defers to config.toml [background].color; if missing there, uses [\"#FF0000\", \"#00FF00\", \"#0000FF\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[background].color`; if missing there, uses `[\"#FF0000\", \"#00FF00\", \"#0000FF\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "background-image",
@@ -134,7 +141,8 @@
         "tomlPath": "[background].image",
         "surface": "both",
         "description": "Path to background bitmap. Relative CLI paths resolve against the current working directory.",
-        "defaultResolution": "if omitted, defers to config.toml [background].image; if missing there, uses [\"\"] (disabled)."
+        "defaultResolution": "if omitted, defers to `config.toml` `[background].image`; if missing there, uses `[\"\"]` (disabled).",
+        "category": "Appearance"
       },
       {
         "key": "background-fit",
@@ -146,7 +154,8 @@
         "tomlPath": "[background].fit",
         "surface": "both",
         "description": "Background fit mode.",
-        "defaultResolution": "if omitted, defers to config.toml [background].fit; if missing there, uses [\"CropToFill\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[background].fit`; if missing there, uses `[\"CropToFill\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "background-alternating",
@@ -158,7 +167,8 @@
         "tomlPath": "[background].alternating",
         "surface": "both",
         "description": "Enable alternating-pixel pattern.",
-        "defaultResolution": "if omitted, defers to config.toml [background].alternating; if missing there, uses [false]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[background].alternating`; if missing there, uses [false].",
+        "category": "Appearance"
       },
       {
         "key": "background-border",
@@ -170,7 +180,8 @@
         "tomlPath": "[background].border",
         "surface": "both",
         "description": "Enable viewport border.",
-        "defaultResolution": "if omitted, defers to config.toml [background].border; if missing there, uses [false]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[background].border`; if missing there, uses [false].",
+        "category": "Appearance"
       },
       {
         "key": "background-border-color",
@@ -182,7 +193,8 @@
         "tomlPath": "[background].border-color",
         "surface": "both",
         "description": "Border color.",
-        "defaultResolution": "if omitted, defers to config.toml [background].border-color; if missing there, uses [\"#FFFFFF\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[background].border-color`; if missing there, uses `[\"#FFFFFF\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "grid-size",
@@ -194,7 +206,8 @@
         "tomlPath": "[grid].size",
         "surface": "both",
         "description": "Grid cell side length.",
-        "defaultResolution": "if omitted, defers to config.toml [grid].size; if missing there, uses [\"100px\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[grid].size`; if missing there, uses `[\"100px\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "grid-odd-color",
@@ -206,7 +219,8 @@
         "tomlPath": "[grid].odd-color",
         "surface": "both",
         "description": "Odd-cell color.",
-        "defaultResolution": "if omitted, defers to config.toml [grid].odd-color; if missing there, uses [\"#00000080\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[grid].odd-color`; if missing there, uses `[\"#00000080\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "grid-even-color",
@@ -218,7 +232,8 @@
         "tomlPath": "[grid].even-color",
         "surface": "both",
         "description": "Even-cell color.",
-        "defaultResolution": "if omitted, defers to config.toml [grid].even-color; if missing there, uses [\"transparent\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[grid].even-color`; if missing there, uses `[\"transparent\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "grid-stroke",
@@ -230,7 +245,8 @@
         "tomlPath": "[grid].stroke",
         "surface": "both",
         "description": "Cell stroke width.",
-        "defaultResolution": "if omitted, defers to config.toml [grid].stroke; if missing there, uses [\"0\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[grid].stroke`; if missing there, uses `[\"0\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "grid-offset-x",
@@ -242,7 +258,8 @@
         "tomlPath": "[grid].offset-x",
         "surface": "both",
         "description": "Grid origin X.",
-        "defaultResolution": "if omitted, defers to config.toml [grid].offset-x; if missing there, uses [\"0\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[grid].offset-x`; if missing there, uses `[\"0\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "grid-offset-y",
@@ -254,7 +271,8 @@
         "tomlPath": "[grid].offset-y",
         "surface": "both",
         "description": "Grid origin Y.",
-        "defaultResolution": "if omitted, defers to config.toml [grid].offset-y; if missing there, uses [\"0\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[grid].offset-y`; if missing there, uses `[\"0\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "grid-coordinates",
@@ -266,7 +284,8 @@
         "tomlPath": "[grid].coordinates",
         "surface": "both",
         "description": "Enable per-cell coordinate labels.",
-        "defaultResolution": "if omitted, defers to config.toml [grid].coordinates; if missing there, uses [false]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[grid].coordinates`; if missing there, uses [false].",
+        "category": "Appearance"
       },
       {
         "key": "circle-size",
@@ -278,7 +297,8 @@
         "tomlPath": "[circle].size",
         "surface": "both",
         "description": "Circle diameter.",
-        "defaultResolution": "if omitted, defers to config.toml [circle].size; if missing there, uses [\"100vmin\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[circle].size`; if missing there, uses `[\"100vmin\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "circle-x",
@@ -290,7 +310,8 @@
         "tomlPath": "[circle].x",
         "surface": "both",
         "description": "Circle center X.",
-        "defaultResolution": "if omitted, defers to config.toml [circle].x; if missing there, uses [\"50vw\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[circle].x`; if missing there, uses `[\"50vw\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "circle-y",
@@ -302,7 +323,8 @@
         "tomlPath": "[circle].y",
         "surface": "both",
         "description": "Circle center Y.",
-        "defaultResolution": "if omitted, defers to config.toml [circle].y; if missing there, uses [\"50vh\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[circle].y`; if missing there, uses `[\"50vh\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "circle-color",
@@ -314,7 +336,8 @@
         "tomlPath": "[circle].color",
         "surface": "both",
         "description": "Circle color.",
-        "defaultResolution": "if omitted, defers to config.toml [circle].color; if missing there, uses [\"#ffffff40\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[circle].color`; if missing there, uses `[\"#ffffff40\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "circle-stroke",
@@ -326,7 +349,8 @@
         "tomlPath": "[circle].stroke",
         "surface": "both",
         "description": "Circle stroke width.",
-        "defaultResolution": "if omitted, defers to config.toml [circle].stroke; if missing there, uses [\"0\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[circle].stroke`; if missing there, uses `[\"0\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "crosshair-length",
@@ -338,7 +362,8 @@
         "tomlPath": "[crosshair].length",
         "surface": "both",
         "description": "Crosshair half-arm length.",
-        "defaultResolution": "if omitted, defers to config.toml [crosshair].length; if missing there, uses [\"5vmin\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[crosshair].length`; if missing there, uses `[\"5vmin\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "crosshair-x",
@@ -350,7 +375,8 @@
         "tomlPath": "[crosshair].x",
         "surface": "both",
         "description": "Crosshair center X.",
-        "defaultResolution": "if omitted, defers to config.toml [crosshair].x; if missing there, uses [\"50vw\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[crosshair].x`; if missing there, uses `[\"50vw\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "crosshair-y",
@@ -362,7 +388,8 @@
         "tomlPath": "[crosshair].y",
         "surface": "both",
         "description": "Crosshair center Y.",
-        "defaultResolution": "if omitted, defers to config.toml [crosshair].y; if missing there, uses [\"50vh\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[crosshair].y`; if missing there, uses `[\"50vh\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "crosshair-color",
@@ -374,7 +401,8 @@
         "tomlPath": "[crosshair].color",
         "surface": "both",
         "description": "Crosshair color.",
-        "defaultResolution": "if omitted, defers to config.toml [crosshair].color; if missing there, uses [\"#ffffff80\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[crosshair].color`; if missing there, uses `[\"#ffffff80\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "crosshair-stroke",
@@ -386,7 +414,8 @@
         "tomlPath": "[crosshair].stroke",
         "surface": "both",
         "description": "Crosshair stroke width.",
-        "defaultResolution": "if omitted, defers to config.toml [crosshair].stroke; if missing there, uses [\"1px\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[crosshair].stroke`; if missing there, uses `[\"1px\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "logo-source",
@@ -398,7 +427,8 @@
         "tomlPath": "[logo].source",
         "surface": "both",
         "description": "Path to logo file (PNG/JPG/SVG) or pack URI. Empty string suppresses logo. Relative CLI file paths resolve against the current working directory.",
-        "defaultResolution": "if omitted, defers to config.toml [logo].source; if missing there, uses the embedded logo via pack URI."
+        "defaultResolution": "if omitted, defers to `config.toml` `[logo].source`; if missing there, uses the embedded logo via pack URI.",
+        "category": "Appearance"
       },
       {
         "key": "logo-x",
@@ -410,7 +440,8 @@
         "tomlPath": "[logo].x",
         "surface": "both",
         "description": "Logo center X.",
-        "defaultResolution": "if omitted, defers to config.toml [logo].x; if missing there, uses [\"85vw\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[logo].x`; if missing there, uses `[\"85vw\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "logo-y",
@@ -422,7 +453,8 @@
         "tomlPath": "[logo].y",
         "surface": "both",
         "description": "Logo center Y.",
-        "defaultResolution": "if omitted, defers to config.toml [logo].y; if missing there, uses [\"15vh\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[logo].y`; if missing there, uses `[\"15vh\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "logo-anchor-x",
@@ -434,7 +466,8 @@
         "tomlPath": "[logo].anchor-x",
         "surface": "both",
         "description": "Anchor X.",
-        "defaultResolution": "if omitted, defers to config.toml [logo].anchor-x; if missing there, uses [\"center\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[logo].anchor-x`; if missing there, uses `[\"center\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "logo-anchor-y",
@@ -446,7 +479,8 @@
         "tomlPath": "[logo].anchor-y",
         "surface": "both",
         "description": "Anchor Y.",
-        "defaultResolution": "if omitted, defers to config.toml [logo].anchor-y; if missing there, uses [\"center\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[logo].anchor-y`; if missing there, uses `[\"center\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "logo-width",
@@ -458,7 +492,8 @@
         "tomlPath": "[logo].width",
         "surface": "both",
         "description": "Logo rect width.",
-        "defaultResolution": "if omitted, defers to config.toml [logo].width; if missing there, uses [\"20vw\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[logo].width`; if missing there, uses `[\"20vw\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "logo-height",
@@ -470,7 +505,8 @@
         "tomlPath": "[logo].height",
         "surface": "both",
         "description": "Logo rect height.",
-        "defaultResolution": "if omitted, defers to config.toml [logo].height; if missing there, uses [\"20vh\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[logo].height`; if missing there, uses `[\"20vh\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "logo-opacity",
@@ -481,8 +517,9 @@
         "tomlEquivalent": "[logo].opacity",
         "tomlPath": "[logo].opacity",
         "surface": "both",
-        "description": "Logo alpha multiplier(s) in range [0, 1]; accepts a single float or a TOML float array literal.",
-        "defaultResolution": "if omitted, defers to config.toml [logo].opacity; if missing there, uses [1.0]."
+        "description": "Logo alpha multiplier(s) in range `[0, 1]`; accepts a single float or a TOML float array literal.",
+        "defaultResolution": "if omitted, defers to `config.toml` `[logo].opacity`; if missing there, uses `[1.0]`.",
+        "category": "Appearance"
       },
       {
         "key": "no-assignment",
@@ -494,7 +531,8 @@
         "tomlPath": "[render].no-assignment",
         "surface": "both",
         "description": "Generate PNGs without assigning wallpaper.",
-        "defaultResolution": "if omitted, defers to config.toml [render].no-assignment; if missing there, uses false."
+        "defaultResolution": "if omitted, defers to `config.toml` `[render].no-assignment`; if missing there, uses `false`.",
+        "category": "Frequent"
       },
       {
         "key": "no-discovery",
@@ -505,8 +543,9 @@
         "tomlEquivalent": "[render].no-discovery",
         "tomlPath": "[render].no-discovery",
         "surface": "both",
-        "description": "Skip display discovery and render only configured [[output]] entries using each [output.hardware_output]. Implies --no-assignment.",
-        "defaultResolution": "if omitted, defers to config.toml [render].no-discovery; if missing there, uses false."
+        "description": "Skip display discovery and render only configured `[[output]]` entries using each `[output.hardware_output]`. Implies `--no-assignment`.",
+        "defaultResolution": "if omitted, defers to `config.toml` `[render].no-discovery`; if missing there, uses `false`.",
+        "category": "Advanced"
       },
       {
         "key": "outputs-skip-unspecified",
@@ -517,8 +556,9 @@
         "tomlEquivalent": "[render].outputs-skip-unspecified",
         "tomlPath": "[render].outputs-skip-unspecified",
         "surface": "both",
-        "description": "Skip discovered displays that have no explicit [[output]] target.",
-        "defaultResolution": "if omitted, defers to config.toml [render].outputs-skip-unspecified; if missing there, uses false."
+        "description": "Skip discovered displays that have no explicit `[[output]]` target.",
+        "defaultResolution": "if omitted, defers to `config.toml` `[render].outputs-skip-unspecified`; if missing there, uses `false`.",
+        "category": "Advanced"
       },
       {
         "key": "render-output",
@@ -530,7 +570,8 @@
         "tomlPath": "[render].output",
         "surface": "both",
         "description": "Output path template (directory + filename stem) for generated PNGs. `${ }` field substitution tokens and `{now}`, `{index}`, `{friendlyName}` file-naming tokens are both supported. Relative CLI paths resolve against the current working directory.",
-        "defaultResolution": "if omitted, defers to config.toml [render].output; if missing there, defaults to %TEMP%/BgRaster/{now}_{index}."
+        "defaultResolution": "if omitted, defers to `config.toml` `[render].output`; if missing there, defaults to `%TEMP%\\BgRaster\\{now}_{index}`.",
+        "category": "Frequent"
       },
       {
         "key": "render-force",
@@ -542,7 +583,8 @@
         "tomlPath": "[render].force",
         "surface": "both",
         "description": "Continue rendering even after emitting run-skipped-unchanged.",
-        "defaultResolution": "if omitted, defers to config.toml [render].force; if missing there, uses false."
+        "defaultResolution": "if omitted, defers to `config.toml` `[render].force`; if missing there, uses `false`.",
+        "category": "Frequent"
       },
       {
         "key": "verbosity",
@@ -554,7 +596,8 @@
         "tomlPath": "[render].verbosity",
         "surface": "both",
         "description": "Logging verbosity: quiet, normal, verbose.",
-        "defaultResolution": "if omitted, defers to config.toml [render].verbosity; if missing there, uses \"normal\"."
+        "defaultResolution": "if omitted, defers to `config.toml` `[render].verbosity`; if missing there, uses `normal`.",
+        "category": "Frequent"
       },
       {
         "key": "network-render",
@@ -566,7 +609,8 @@
         "tomlPath": "[network].render",
         "surface": "both",
         "description": "Set to true to enable the dedicated network block.",
-        "defaultResolution": "if omitted, defers to config.toml [network].render; if missing there, uses false."
+        "defaultResolution": "if omitted, defers to `config.toml` `[network].render`; if missing there, uses `false`.",
+        "category": "Appearance"
       },
       {
         "key": "network-require-adapter-type",
@@ -578,7 +622,8 @@
         "tomlPath": "[network].require_adapter_type",
         "surface": "both",
         "description": "Adapter types to include. Accepts a single string or a TOML string array literal.",
-        "defaultResolution": "if omitted, defers to config.toml [network].require_adapter_type; if missing there, uses [\"Wireless80211\", \"Ethernet\"]."
+        "defaultResolution": "if omitted, defers to `config.toml` `[network].require_adapter_type`; if missing there, uses `[\"Wireless80211\", \"Ethernet\"]`.",
+        "category": "Appearance"
       },
       {
         "key": "network-require-up",
@@ -590,7 +635,8 @@
         "tomlPath": "[network].require_up",
         "surface": "both",
         "description": "If true, interfaces that are down will be dropped.",
-        "defaultResolution": "if omitted, defers to config.toml [network].require_up; if missing there, uses true."
+        "defaultResolution": "if omitted, defers to `config.toml` `[network].require_up`; if missing there, uses `true`.",
+        "category": "Appearance"
       },
       {
         "key": "network-require-family",
@@ -601,8 +647,9 @@
         "tomlEquivalent": "[network].require_family",
         "tomlPath": "[network].require_family",
         "surface": "both",
-        "description": "IP address family filter: IPv4, IPv6, or empty for both.",
-        "defaultResolution": "if omitted, defers to config.toml [network].require_family; if missing there, uses \"IPv4\"."
+        "description": "IP address family filter: `IPv4`, `IPv6`, or empty for both.",
+        "defaultResolution": "if omitted, defers to `config.toml` `[network].require_family`; if missing there, uses `IPv4`.",
+        "category": "Appearance"
       },
       {
         "key": "network-adapter-format",
@@ -614,7 +661,8 @@
         "tomlPath": "[network].adapter_format",
         "surface": "both",
         "description": "Format string for each network adapter entry.",
-        "defaultResolution": "if omitted, defers to config.toml [network].adapter_format; if missing there, uses ${Name}<br>${MacAddress}<br>${Speed}<br>${IpAddresses}<br><br>."
+        "defaultResolution": "if omitted, defers to `config.toml` `[network].adapter_format`; if missing there, uses `${Name}<br>${MacAddress}<br>${Speed}<br>${IpAddresses}<br><br>`.",
+        "category": "Appearance"
       },
       {
         "key": "network-ip-address-format",
@@ -626,7 +674,8 @@
         "tomlPath": "[network].ip_address_format",
         "surface": "both",
         "description": "Format string for each IP address entry.",
-        "defaultResolution": "if omitted, defers to config.toml [network].ip_address_format; if missing there, uses ' ${Address}/${CidrBits} (${Origin})\\n'."
+        "defaultResolution": "if omitted, defers to `config.toml` `[network].ip_address_format`; if missing there, uses ` ${Address}/${CidrBits} (${Origin})<br>`.",
+        "category": "Appearance"
       },
       {
         "key": "network-x",
@@ -638,7 +687,8 @@
         "tomlPath": "[network].x",
         "surface": "both",
         "description": "X position of the network block.",
-        "defaultResolution": "if omitted, defers to config.toml [network].x"
+        "defaultResolution": "if omitted, defers to `config.toml` `[network].x`",
+        "category": "Appearance"
       },
       {
         "key": "network-y",
@@ -650,7 +700,8 @@
         "tomlPath": "[network].y",
         "surface": "both",
         "description": "Y position of the network block.",
-        "defaultResolution": "if omitted, defers to config.toml [network].y"
+        "defaultResolution": "if omitted, defers to `config.toml` `[network].y`",
+        "category": "Appearance"
       },
       {
         "key": "network-size",
@@ -662,7 +713,8 @@
         "tomlPath": "[network].size",
         "surface": "both",
         "description": "Text sizes for the network block.",
-        "defaultResolution": "if omitted, defers to config.toml [network].size"
+        "defaultResolution": "if omitted, defers to `config.toml` `[network].size`",
+        "category": "Appearance"
       },
       {
         "key": "network-color",
@@ -674,7 +726,8 @@
         "tomlPath": "[network].color",
         "surface": "both",
         "description": "Text colors for the network block.",
-        "defaultResolution": "if omitted, defers to config.toml [network].color"
+        "defaultResolution": "if omitted, defers to `config.toml` `[network].color`",
+        "category": "Appearance"
       }
     ],
     "cliOnlyOptions": [
@@ -688,7 +741,8 @@
         "tomlPath": "",
         "surface": "cli",
         "description": "Path to a TOML config file. If the path does not exist, BgRaster starts from built-in defaults for that run, then after a successful execution writes a seeded config template at that path.",
-        "defaultResolution": "if omitted, searches for config.toml in this order: next to the executable, %ProgramData%\\\\BgRaster, %LocalAppData%\\\\BgRaster, %AppData%\\\\BgRaster; if none exist, starts from built-in defaults."
+        "defaultResolution": "if omitted, searches for `config.toml` in this order: next to the executable, `%ProgramData%\\BgRaster`, `%LocalAppData%\\BgRaster`, `%AppData%\\BgRaster`; if none exist, starts from built-in defaults.",
+        "category": "Frequent"
       }
     ],
     "tomlReference": {

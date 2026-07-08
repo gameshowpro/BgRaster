@@ -9,7 +9,8 @@ internal sealed record CliOptionDefinition(
     string TypeName,
     string TomlEquivalent,
     string Description,
-    string DefaultResolution)
+    string DefaultResolution,
+    string Category)
 {
     internal string OptionSyntax => ValueSyntax is null ? Alias : $"{Alias} {ValueSyntax}";
 
