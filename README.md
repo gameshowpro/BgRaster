@@ -9,7 +9,7 @@ BgRaster is a fast console application that uses modern frameworks and APIs to g
 ## Highlights
 
 - **One PNG per video output** - each Windows monitor receives a wallpaper sized to its native resolution, anchored to its desktop position.
-- **Multiple layers** - text, network adapter info, labeled edges, custom logos (SVG), alignment grids, crosshairs, and solid backgrounds, each with independent positioning and styling.
+- **Multiple layers** - text, network adapter info, labeled edges, custom logos (SVG/PNG), alignment grids, crosshairs, and solid backgrounds, each with independent positioning and styling.
 - **Format strings** - `${tokens}` for dynamic substitution in text and network layers, with `<br>` line breaks and independent size/color cycling per rendered line.
 - **Slices** - outputs have one slice by default, but can be split into any number, each with different settings.
 - **Short-lived** - BgRaster runs until its work is done then exits. No lingering processes, no HTML rendering overhead, no OS hooks.
