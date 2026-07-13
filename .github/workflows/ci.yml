@@ -44,6 +44,7 @@ jobs:
               - 'scripts/generate-documentation.ps1'
               - 'resources/**'
               - '.github/workflows/ci.yml'
+              - 'README.md'
       - name: Resolve change outputs
         id: resolve
         shell: bash
