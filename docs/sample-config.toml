@@ -1,7 +1,7 @@
 # $schema: https://raw.githubusercontent.com/gameshowpro/BgRaster/refs/heads/main/docs/schemas/bgraster-config.schema.json
 
 [text]
-format = ["${MachineName} output ${OutputIndexPlusOne}", "slice ${SliceLetter}", "${SliceWidth}x${SliceHeight}"]
+format = ["${MachineName} output ${OutputIndexPlusOne}<br>", "slice ${SliceLetter}<br>", "${SliceWidth}x${SliceHeight}<br>"]
 size = ["3vh", "2vh", "4vh"]
 color = ["#fff"]
 x = ["85vw"]
@@ -56,10 +56,12 @@ scope = ["Desktop"]
 side = ["TL", "T", "TR", "R", "BR", "B", "BL", "L"]
 
 [logo]
-source = [""]
-x = ["85vw"]
-y = ["15vh"]
-width = ["20vw"]
+#source = [""]
+x = ["5vw"]
+y = ["95vh"]
+x-anchor = ["left"]
+y-anchor = ["bottom"]
+width = []
 height = ["20vh"]
 opacity = [1]
 
@@ -74,8 +76,8 @@ force = true
 target = 0  # Numeric index fallback for this output
 
 [output.logo]
-x = "50vw"
-y = "20vh"
+x = "5vw"
+y = "95vh"
 width = "30vw"
 height = "30vh"
 opacity = 1
@@ -87,7 +89,7 @@ size = "25vh"
 x = "50vw"
 y = "50vh"
 size = ["5vh", "6vh", "7vh"]
-format = ["${MachineName} output ${OutputIndexPlusOne}", "slice ${SliceLetterMinusOne}", "${SliceWidth}x${SliceHeight}"]
+format = ["${MachineName} output ${OutputIndexPlusOne}<br>", "slice ${SliceLetterMinusOne}<br>", "${SliceWidth}x${SliceHeight}"]
 
 [[output.slice]]
 x = "0"
@@ -96,7 +98,7 @@ width = "100vw"
 height = "100vh"
 
 [output.slice.text]
-format = ["${MachineName} ${OutputIndexPlusOne}", "${OutputName}", "${SliceWidth}x${SliceHeight}"]
+format = ["${MachineName} ${OutputIndexPlusOne}<br>", "${OutputName}<br>", "${SliceWidth}x${SliceHeight}"]
 x = "85vw"
 size = ["3vh", "5vh", "4vh"]
 
