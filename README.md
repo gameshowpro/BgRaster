@@ -1,5 +1,16 @@
 # <img src="resources/BgRaster.svg" alt="BgRaster logo" width="32" height="32" style="vertical-align: top" /> BgRaster
 
+<!-- md-exclude-start -->
+[![Build Status](https://img.shields.io/github/actions/workflow/status/gameshowpro/BgRaster/ci.yml?branch=main&logo=github&style=flat-square)](https://github.com/gameshowpro/BgRaster/actions)
+[![Latest Release](https://img.shields.io/github/v/release/gameshowpro/BgRaster?logo=github&style=flat-square)](https://github.com/gameshowpro/BgRaster/releases)
+[![Chocolatey](https://img.shields.io/chocolatey/v/BgRaster?logo=chocolatey&style=flat-square)](https://community.chocolatey.org/packages/BgRaster)
+[![License](https://img.shields.io/github/license/gameshowpro/BgRaster?style=flat-square)](https://github.com/gameshowpro/BgRaster/blob/main/LICENSE)
+[![Sponsor on GitHub](https://img.shields.io/badge/sponsor-GitHub-EA4AAA?style=flat-square&logo=github-sponsors)](https://github.com/sponsors/gameshowpro)
+[![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square&logo=paypal)](https://paypal.me/barjonas)
+
+---
+<!-- md-exclude-end -->
+
 ## Inspiration
 BgRaster is inspired by the classic Sysinternals utility [BgInfo](https://learn.microsoft.com/en-us/sysinternals/downloads/bginfo). It was executed perfectly in 2000, but its structure and features feel dated today. In particular, it's focussed on the needs of an IT administrator from that era. It's missing many features that would be valuable to a creative professional in the 2020s.
 
@@ -49,6 +60,9 @@ With [Chocolatey](https://chocolatey.org/) installed and the [default repository
 ```pwsh
 choco install BgRaster -y
 ```
+
+> [!NOTE]
+> Chocolatey packages undergo a moderation process which can take several days to a week. If the Chocolatey badge shows a version older than the latest GitHub release and you want the new version immediately, please use the manual installation option below.
 
 ### Option 2 - Manual Install
 Download the latest `BgRaster.zip` from the [Releases](https://github.com/gameshowpro/BgRaster/releases) page, unzip it, and place the extracted files anywhere on disk. `BgRaster.exe` and `libSkiaSharp.dll` need to stay in the same folder. If you want debugging symbols, download `BgRaster.pdb` separately.

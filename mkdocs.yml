@@ -80,5 +80,15 @@ hooks:
 extra:
   version: !ENV [BGRASTER_DOCS_VERSION]
   generator: false
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/gameshowpro/BgRaster
+      name: GitHub Repository
+    - icon: fontawesome/solid/heart
+      link: https://github.com/sponsors/gameshowpro
+      name: Sponsor BgRaster on GitHub
+    - icon: fontawesome/brands/paypal
+      link: https://paypal.me/barjonas
+      name: Donate via PayPal
 
 copyright: © 2026 Barjonas LLC

@@ -50,6 +50,14 @@ choco install BgRaster -y
 # Or download from GitHub Releases and run
 BgRaster --config .\wallpaper.toml --render-output .\out\ --text-format "Hello World"
 ```
+
+### Support & Donation
+
+If you find BgRaster useful in your professional workflow, please consider supporting development:
+- **GitHub Sponsors**: [gameshowpro](https://github.com/sponsors/gameshowpro)
+- **PayPal**: [paypal.me/barjonas](https://paypal.me/barjonas)
+
+*Note: Chocolatey package updates go through a moderation process and can be delayed by several days. For immediate access to the latest release, please check [GitHub Releases](https://github.com/gameshowpro/BgRaster/releases).*
     ]]></description>
     <dependencies />
   </metadata>

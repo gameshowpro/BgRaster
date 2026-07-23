@@ -1,0 +1,1 @@
+If you have an idea to improve existing code, feel free to send a pull request. If you want to add a new feature, it's probably worth opening a ticket first so we can discuss the specification in advance, to prevent wasted effort.
