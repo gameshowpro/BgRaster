@@ -773,6 +773,8 @@ try {
     # Generate docs/index.md from README.md, rewriting repo-root-relative paths to docs/-relative paths.
     $readmePath = Join-Path $repoRoot "README.md"
     $indexContent = Get-Content -Raw -Path $readmePath
+    # Strip content wrapped in <!-- md-exclude-start --> and <!-- md-exclude-end -->
+    $indexContent = $indexContent -replace '(?s)<!--\s*md-exclude-start\s*-->.*?<!--\s*md-exclude-end\s*-->\s*', ''
     # Strip the docs/ prefix from markdown links and image references so paths resolve correctly in MkDocs.
     $indexContent = $indexContent -replace '\]\(docs/', ']('
     $docsIndexPath = Join-Path $repoRoot "docs/index.md"
