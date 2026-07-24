@@ -1,13 +1,14 @@
 # <img src="resources/BgRaster.svg" alt="BgRaster logo" width="32" height="32" style="vertical-align: top" /> BgRaster
 
-<!-- md-exclude-start -->
 [![Build Status](https://img.shields.io/github/actions/workflow/status/gameshowpro/BgRaster/ci.yml?branch=main&logo=github&style=flat-square)](https://github.com/gameshowpro/BgRaster/actions)
 [![Latest Release](https://img.shields.io/github/v/release/gameshowpro/BgRaster?logo=github&style=flat-square)](https://github.com/gameshowpro/BgRaster/releases)
 [![Chocolatey](https://img.shields.io/chocolatey/v/BgRaster?logo=chocolatey&style=flat-square)](https://community.chocolatey.org/packages/BgRaster)
+[![winget](https://img.shields.io/winget/v/GameshowPro.BgRaster?logo=windows&style=flat-square)](https://github.com/microsoft/winget-pkgs/tree/master/manifests/g/GameshowPro/BgRaster)
 [![License](https://img.shields.io/github/license/gameshowpro/BgRaster?style=flat-square)](https://github.com/gameshowpro/BgRaster/blob/main/LICENSE)
 [![Sponsor on GitHub](https://img.shields.io/badge/sponsor-GitHub-EA4AAA?style=flat-square&logo=github-sponsors)](https://github.com/sponsors/gameshowpro)
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square&logo=paypal)](https://paypal.me/barjonas)
 
+<!-- md-exclude-start -->
 ---
 <!-- md-exclude-end -->
 
@@ -54,26 +55,54 @@ Like the original BgInfo, BgRaster runs gets its work done as fast as possible a
 
 ## Quick start
 
+<!-- docs-tabs-start -->
 ### Option 1 - Chocolatey
-With [Chocolatey](https://chocolatey.org/) installed and the [default repository](https://community.chocolatey.org/) in your sources list, run:
+
+[![Latest Release](https://img.shields.io/github/v/release/gameshowpro/BgRaster?logo=github&label=latest&style=flat-square)](https://github.com/gameshowpro/BgRaster/releases) [![Chocolatey](https://img.shields.io/chocolatey/v/BgRaster?logo=chocolatey&style=flat-square)](https://community.chocolatey.org/packages/BgRaster)
+
+With [Chocolatey](https://chocolatey.org/) installed and the [default repository](https://community.chocolatey.org/) in your sources list, run the following from an **administrative** PowerShell session (Chocolatey installs machine-wide and requires elevation):
 
 ```pwsh
 choco install BgRaster -y
 ```
 
 > [!NOTE]
-> Chocolatey packages undergo a moderation process which can take several days to a week. If the Chocolatey badge shows a version older than the latest GitHub release and you want the new version immediately, please use the manual installation option below.
+> Chocolatey packages undergo a moderation process which can take several days to a week. If the Chocolatey badge shows a version older than the latest GitHub release and you want the new version immediately, please use winget or the manual installation option below.
 
-### Option 2 - Manual Install
+### Option 2 - winget
+
+[![Latest Release](https://img.shields.io/github/v/release/gameshowpro/BgRaster?logo=github&label=latest&style=flat-square)](https://github.com/gameshowpro/BgRaster/releases) [![winget](https://img.shields.io/winget/v/GameshowPro.BgRaster?logo=windows&style=flat-square)](https://github.com/microsoft/winget-pkgs/tree/master/manifests/g/GameshowPro/BgRaster)
+
+With the [Windows Package Manager](https://learn.microsoft.com/windows/package-manager/) (`winget`, included in Windows 10 1809+ and Windows 11), run:
+
+```pwsh
+winget install GameshowPro.BgRaster
+```
+
+This unzips BgRaster into winget's package store and exposes it as a `BgRaster` command on your `PATH`.
+
+> [!NOTE]
+> Running this command in an **administrative** shell is recommended so that later you can run `BgRaster` from any directory without specifying its full path.
+>
+> Like Chocolatey, winget submissions are moderated and can lag the latest GitHub release by a few days.
+
+### Option 3 - Manual Install
+
+[![Latest Release](https://img.shields.io/github/v/release/gameshowpro/BgRaster?logo=github&label=latest&style=flat-square)](https://github.com/gameshowpro/BgRaster/releases)
+
 Download the latest `BgRaster.zip` from the [Releases](https://github.com/gameshowpro/BgRaster/releases) page, unzip it, and place the extracted files anywhere on disk. `BgRaster.exe` and `libSkiaSharp.dll` need to stay in the same folder. If you want debugging symbols, download `BgRaster.pdb` separately.
 
-### Option 3 - Build from source
+### Option 4 - Build from source
+
+[![Last commit](https://img.shields.io/github/last-commit/gameshowpro/BgRaster?logo=github&style=flat-square)](https://github.com/gameshowpro/BgRaster/commits/main) [![Commits since release](https://img.shields.io/github/commits-since/gameshowpro/BgRaster/latest?logo=github&style=flat-square)](https://github.com/gameshowpro/BgRaster/commits/main)
+
 ```pwsh
 git clone https://github.com/gameshowpro/GameshowPro.git
 cd GameshowPro/BgRaster
 dotnet publish src/BgRaster.csproj -c Release -r win-x64 /p:PublishAot=true
 ```
 The published binary lands in `src/bin/Release/net10.0/win-x64/publish/BgRaster.exe`.
+<!-- docs-tabs-end -->
 
 ### First run, no arguments
 ```pwsh
@@ -197,4 +226,4 @@ Hi, I'm Hamish Barjonas. I provide custom solutions for the broadcast producion,
 
 ## License
 
-This project is licensed under the [MIT License](../LICENSE).
+This project is licensed under the [MIT License](LICENSE).

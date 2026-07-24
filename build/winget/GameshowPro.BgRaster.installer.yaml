@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.9.0.schema.json
+# Token-replaced by .github/workflows/push-winget.yml before submission.
+# BgRaster ships as a portable, self-contained NativeAOT executable delivered
+# inside the GitHub release zip (BgRaster.exe + libSkiaSharp.dll), so winget
+# extracts the zip and aliases the exe rather than running an installer.
+PackageIdentifier: GameshowPro.BgRaster
+PackageVersion: $version$
+Platform:
+  - Windows.Desktop
+MinimumOSVersion: 10.0.0.0
+InstallerType: zip
+NestedInstallerType: portable
+NestedInstallerFiles:
+  - RelativeFilePath: BgRaster.exe
+    PortableCommandAlias: BgRaster
+Commands:
+  - BgRaster
+UpgradeBehavior: uninstallPrevious
+ReleaseDate: $releaseDate$
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://github.com/gameshowpro/BgRaster/releases/download/v$version$/BgRaster.zip
+    InstallerSha256: $installerSha256$
+ManifestType: installer
+ManifestVersion: 1.9.0

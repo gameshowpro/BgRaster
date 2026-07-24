@@ -1,0 +1,108 @@
+name: Push to winget Community Repository
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release tag (e.g. v1.0.47)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  push:
+    name: Submit to winget-pkgs
+    runs-on: windows-latest
+
+    env:
+      RELEASE_TAG: ${{ github.event.inputs.release_tag }}
+
+    steps:
+      - name: Validate tag
+        shell: pwsh
+        run: |
+          $tag = "$env:RELEASE_TAG"
+          if ($tag -notmatch '^v\d+\.\d+\.\d+$') {
+            throw "Release tag must be a stable release of the form 'vX.Y.Z'. Got: '$tag'"
+          }
+
+      - name: Checkout (for manifest templates)
+        uses: actions/checkout@v5
+
+      - name: Resolve release metadata and installer hash
+        id: meta
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = "$env:RELEASE_TAG"
+          $repo = "$env:GITHUB_REPOSITORY"
+          $version = $tag.TrimStart('v')
+
+          # Confirm the release exists and grab its publish date for ReleaseDate.
+          $publishedAt = gh release view $tag -R $repo --json publishedAt -q '.publishedAt' 2>&1
+          if ($LASTEXITCODE -ne 0) {
+            throw "Failed to find release for tag '$tag'. gh exit code: $LASTEXITCODE. Output: $publishedAt"
+          }
+          $releaseDate = ([datetimeoffset]$publishedAt).ToString('yyyy-MM-dd')
+          $copyrightYear = ([datetimeoffset]$publishedAt).Year
+
+          # Download the same BgRaster.zip that winget users will install, then hash it.
+          New-Item -Path installer -ItemType Directory -Force | Out-Null
+          gh release download $tag -R $repo --pattern 'BgRaster.zip' --dir installer 2>&1
+          if ($LASTEXITCODE -ne 0) { throw "Failed to download BgRaster.zip from release '$tag'." }
+
+          $zip = Get-ChildItem -Path 'installer\BgRaster.zip'
+          $sha256 = (Get-FileHash -Path $zip.FullName -Algorithm SHA256).Hash
+
+          "version=$version"             >> $env:GITHUB_OUTPUT
+          "installerSha256=$sha256"      >> $env:GITHUB_OUTPUT
+          "releaseDate=$releaseDate"     >> $env:GITHUB_OUTPUT
+          "copyrightYear=$copyrightYear" >> $env:GITHUB_OUTPUT
+
+          Write-Host "version=$version releaseDate=$releaseDate sha256=$sha256"
+
+      - name: Render manifests from templates
+        shell: pwsh
+        run: |
+          $src = 'build/winget'
+          $out = 'manifests'
+          New-Item -Path $out -ItemType Directory -Force | Out-Null
+
+          $tokens = @{
+            '$version$'         = '${{ steps.meta.outputs.version }}'
+            '$installerSha256$' = '${{ steps.meta.outputs.installerSha256 }}'
+            '$releaseDate$'     = '${{ steps.meta.outputs.releaseDate }}'
+            '$copyrightYear$'   = '${{ steps.meta.outputs.copyrightYear }}'
+          }
+
+          Get-ChildItem -Path $src -Filter '*.yaml' | ForEach-Object {
+            $content = Get-Content $_.FullName -Raw
+            foreach ($key in $tokens.Keys) {
+              $content = $content.Replace($key, $tokens[$key])
+            }
+            Set-Content -Path (Join-Path $out $_.Name) -Value $content -NoNewline
+          }
+
+          if (Select-String -Path "$out\*.yaml" -Pattern '\$(version|installerSha256|releaseDate|copyrightYear)\$' -Quiet) {
+            throw "Unreplaced tokens remain in rendered manifests."
+          }
+
+          Get-ChildItem -Path $out | ForEach-Object { Write-Host $_.Name }
+
+      - name: Submit manifests to winget-pkgs
+        shell: pwsh
+        env:
+          WINGET_PAT: ${{ secrets.WINGET_PAT }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:WINGET_PAT)) {
+            throw "WINGET_PAT secret is not set. It must be a classic PAT (public_repo scope) on an account that has a fork of microsoft/winget-pkgs."
+          }
+
+          Invoke-WebRequest -Uri https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
+          .\wingetcreate.exe submit manifests `
+            --token $env:WINGET_PAT `
+            --prtitle "New version: GameshowPro.BgRaster version ${{ steps.meta.outputs.version }}"
+          if ($LASTEXITCODE -ne 0) { throw "wingetcreate submit failed with exit code $LASTEXITCODE." }
