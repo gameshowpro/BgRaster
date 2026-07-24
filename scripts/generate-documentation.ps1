@@ -464,9 +464,13 @@ try {
 
         function Get-HeadingAnchor {
             param([string]$Heading)
-            # Strip backticks, brackets, parens. Lowercase. Non-(alnum/./_/~/-) → hyphen.
-                        $slug = $Heading -replace '[`\[\]()]', ''
-                        $slug = $slug.ToLowerInvariant() -replace '[^a-z0-9._~-]+', '-'
+            # Mirror Python-Markdown's default toc slugify (mkdocs.yml configures no custom
+            # slugify): drop every character except ASCII word chars, whitespace and hyphens
+            # - so backticks, brackets and dots are removed (e.g. [output.hardware_output]
+            # becomes outputhardware_output, not output.hardware_output) - lowercase, then
+            # collapse any run of whitespace/hyphens to a single hyphen.
+                        $slug = $Heading -replace '[^a-zA-Z0-9_\s-]', ''
+                        $slug = $slug.ToLowerInvariant() -replace '[\s-]+', '-'
                         $slug = $slug.Trim('-')
             return $slug
         }
@@ -770,6 +774,88 @@ try {
     Write-GeneratedMarkdownFile -FileName "network-sections.md" -Content (ConvertTo-NetworkSectionsMarkdown -ConfigSchema $schema -CommonSchema $commonSchema)
     Sync-BrandingAssets
 
+    function Convert-GitHubAlertsToAdmonitions {
+        param([string]$Markdown)
+        # GitHub alert blockquotes (> [!NOTE] ...) render as literal text in MkDocs; rewrite them to
+        # Material admonitions so docs/index.md (generated from README.md) looks right on the docs site.
+        $map = @{ 'NOTE' = 'note'; 'TIP' = 'tip'; 'IMPORTANT' = 'info'; 'WARNING' = 'warning'; 'CAUTION' = 'danger' }
+        $lines = ($Markdown -replace "`r`n", "`n") -split "`n"
+        $out = [System.Collections.Generic.List[string]]::new()
+        $i = 0
+        while ($i -lt $lines.Count) {
+            $match = [regex]::Match($lines[$i], '^>\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*$')
+            if ($match.Success) {
+                $out.Add('!!! ' + $map[$match.Groups[1].Value])
+                $out.Add('')
+                $i++
+                while ($i -lt $lines.Count -and $lines[$i] -match '^>') {
+                    $body = $lines[$i] -replace '^>\s?', ''
+                    if ([string]::IsNullOrEmpty($body)) { $out.Add('') } else { $out.Add('    ' + $body) }
+                    $i++
+                }
+            }
+            else {
+                $out.Add($lines[$i])
+                $i++
+            }
+        }
+        return ($out -join "`n")
+    }
+
+    function Add-DocTab {
+        param(
+            [string]$Label,
+            [System.Collections.Generic.List[string]]$BodyLines,
+            [System.Collections.Generic.List[string]]$Sink
+        )
+        if ([string]::IsNullOrEmpty($Label)) { return }
+        while ($BodyLines.Count -gt 0 -and [string]::IsNullOrWhiteSpace($BodyLines[0])) { $BodyLines.RemoveAt(0) }
+        while ($BodyLines.Count -gt 0 -and [string]::IsNullOrWhiteSpace($BodyLines[$BodyLines.Count - 1])) { $BodyLines.RemoveAt($BodyLines.Count - 1) }
+        if ($Sink.Count -gt 0) { $Sink.Add('') }
+        $Sink.Add('=== "' + $Label + '"')
+        $Sink.Add('')
+        foreach ($line in $BodyLines) {
+            if ([string]::IsNullOrEmpty($line)) { $Sink.Add('') } else { $Sink.Add('    ' + $line) }
+        }
+    }
+
+    function Convert-InstallOptionsToTabs {
+        param([string]$Markdown)
+        # Between the docs-tabs markers, turn each "### Option N - Title" subsection into a Material
+        # content tab (pymdownx.tabbed). The markers are HTML comments, so they are invisible on GitHub.
+        $startMarker = '<!-- docs-tabs-start -->'
+        $endMarker = '<!-- docs-tabs-end -->'
+        $start = $Markdown.IndexOf($startMarker)
+        $end = $Markdown.IndexOf($endMarker)
+        if ($start -lt 0 -or $end -lt 0 -or $end -lt $start) {
+            return ($Markdown.Replace($startMarker, '').Replace($endMarker, ''))
+        }
+
+        $before = $Markdown.Substring(0, $start).TrimEnd("`n", "`r")
+        $block = $Markdown.Substring($start + $startMarker.Length, $end - ($start + $startMarker.Length))
+        $after = $Markdown.Substring($end + $endMarker.Length).TrimStart("`n", "`r")
+
+        $lines = ($block -replace "`r`n", "`n") -split "`n"
+        $tabs = [System.Collections.Generic.List[string]]::new()
+        $label = $null
+        $body = [System.Collections.Generic.List[string]]::new()
+
+        foreach ($line in $lines) {
+            $heading = [regex]::Match($line, '^###\s+(?:Option\s+\d+\s*-\s*)?(.+?)\s*$')
+            if ($heading.Success) {
+                Add-DocTab -Label $label -BodyLines $body -Sink $tabs
+                $label = $heading.Groups[1].Value
+                $body = [System.Collections.Generic.List[string]]::new()
+            }
+            elseif ($null -ne $label) {
+                $body.Add($line)
+            }
+        }
+        Add-DocTab -Label $label -BodyLines $body -Sink $tabs
+
+        return ($before + "`n`n" + ($tabs -join "`n") + "`n`n" + $after)
+    }
+
     # Generate docs/index.md from README.md, rewriting repo-root-relative paths to docs/-relative paths.
     $readmePath = Join-Path $repoRoot "README.md"
     $indexContent = Get-Content -Raw -Path $readmePath
@@ -777,10 +863,15 @@ try {
     $indexContent = $indexContent -replace '(?s)<!--\s*md-exclude-start\s*-->.*?<!--\s*md-exclude-end\s*-->\s*', ''
     # Strip the docs/ prefix from markdown links and image references so paths resolve correctly in MkDocs.
     $indexContent = $indexContent -replace '\]\(docs/', ']('
+    # The LICENSE file lives at the repo root, outside the docs tree, so point the docs link at GitHub.
+    $indexContent = $indexContent -replace '\]\(LICENSE\)', '](https://github.com/gameshowpro/BgRaster/blob/main/LICENSE)'
     $docsIndexPath = Join-Path $repoRoot "docs/index.md"
     # Rewrite README resource paths to the images synced by Sync-BrandingAssets.
     $indexContent = $indexContent -replace 'src="resources/BgRaster\.svg"', 'src="assets/images/favicon.svg"'
     $indexContent = $indexContent -replace 'src="resources/gsp\.svg"', 'src="assets/images/gsp.svg"'
+    # Convert GitHub-only markdown (alert blockquotes, sequential install options) to Material equivalents.
+    $indexContent = Convert-GitHubAlertsToAdmonitions $indexContent
+    $indexContent = Convert-InstallOptionsToTabs $indexContent
     [System.IO.File]::WriteAllText($docsIndexPath, "<!-- This file is generated by scripts/generate-documentation.ps1 from README.md. Do not edit directly. -->`n`n" + $indexContent, [System.Text.UTF8Encoding]::new($false))
     Write-Host "Generated docs/index.md from README.md"
 
