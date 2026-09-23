@@ -37,14 +37,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.*" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.*" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.*" />
-    <PackageReference Include="SkiaSharp" Version="4.148.0" />
-    <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="4.148.0" />
-    <PackageReference Include="Svg.Skia" Version="5.1.1" />
-    <PackageReference Include="System.CommandLine" Version="3.0.0-preview.3.26207.106" />
-    <PackageReference Include="Tomlyn" Version="0.17.*" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.10.94" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.12" />
+    <PackageReference Include="SkiaSharp" Version="4.152.1" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="4.152.1" />
+    <PackageReference Include="Svg.Skia" Version="5.2.3" />
+    <PackageReference Include="System.CommandLine" Version="3.0.0-rc.1.26425.128" />
+    <PackageReference Include="Tomlyn" Version="0.20.0" />
   </ItemGroup>
 
   <ItemGroup>
