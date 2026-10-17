@@ -52,3 +52,9 @@ Every official release reaches users through three channels, and every one of th
 - **The winget package `GameshowPro.BgRaster`** installs that same zip. Its locale manifest carries the maintenance-fee message as `InstallationNotes`, which winget shows after installing. It deliberately has no `Agreements`: those would force `--accept-package-agreements` on every install, and the fee works on the honor system.
 
 Because every published release carries the EULA, publishing a release is what makes the fee apply to that version. Do not publish one without `OSMFEULA.txt`. Builds compiled from source are not official builds, and the EULA does not apply to them. See [Maintenance fee](../maintenance-fee.md#building-from-source-instead).
+
+Every release also carries build provenance attestations for `BgRaster.zip`, the `.nupkg`, `BgRaster.pdb`, and the extracted `BgRaster.exe` and `libSkiaSharp.dll`. Each is a signed statement, held by GitHub, that the file was built by the CI workflow from a specific commit. Check any of them, including a file installed by Chocolatey or winget, with:
+
+```pwsh
+gh attestation verify BgRaster.exe --repo gameshowpro/BgRaster
+```
