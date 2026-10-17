@@ -39,7 +39,7 @@ flowchart TD
 - **`ConfigLoader.ApplyCliOverlay`** wraps each non-null CLI scalar into a single-element array (CLI overrides are intentionally array-replacing, not array-appending) and merges into `GlobalOptions`.
 
 ### 2. Settings hashing (`src/Hashing/SettingsHasher.cs`)
-A canonical text serialiser walks the resolved `GlobalOptions` in fixed section/property order, builds a UTF-8 byte stream, and hashes it with `SHA256.HashData`. The resulting hex digest is stored in `lastRun.toml`. Any semantic change to settings flips the hash and forces a re-render.
+A canonical text serializer walks the resolved `GlobalOptions` in fixed section/property order, builds a UTF-8 byte stream, and hashes it with `SHA256.HashData`. The resulting hex digest is stored in `lastRun.toml`. Any semantic change to settings flips the hash and forces a re-render.
 
 ### 3. Hardware discovery (`src/Discovery/`)
 - **`DisplayDiscovery`** uses `EnumDisplayDevicesW`, `EnumDisplaySettingsExW`, `MonitorFromPoint` + `GetDpiForMonitor`, and `QueryDisplayConfig` + `DisplayConfigGetDeviceInfo` to enumerate physical outputs and produce one `OutputRecord` each.
@@ -98,7 +98,7 @@ The bitmap is encoded to PNG (`SKEncodedImageFormat.Png`, quality 100) and writt
 
 ### 10. State persistence (`src/StateCache/`)
 - **`LastRunWriter.Write`** hand-emits TOML (Tomlyn's comment API on `[[array_of_tables]]` headers is fragile in 0.17.x). It writes to `<path>.tmp`, parses it back via `LastRunReader.Read`, and only `File.Move`'s into place if the round-trip matches the in-memory state field-by-field. On mismatch it deletes the temp and preserves the previous file - diagnostic, not a hard failure.
-- Each `[[hardware_output]]`, `[[output]]`, and `[[output.slice]]` is preceded by a `# bg-raster: status=...` comment summarising the run's outcome for that block.
+- Each `[[hardware_output]]`, `[[output]]`, and `[[output.slice]]` is preceded by a `# bg-raster: status=...` comment summarizing the run's outcome for that block.
 - **`LastRunReader.Read`** returns `null` on missing file, parse failure, or schema mismatch; the caller treats that as "no previous run".
 
 ## Cross-cutting concerns
@@ -130,7 +130,7 @@ Two resources are embedded into the AOT binary: `resources/gidole/Gidolinya-Regu
 | `src/Discovery/` | Win32 / Display Config display enumeration. |
 | `src/FileLifecycle/` | Filename generation, stale-file detection. |
 | `src/Hashing/` | Canonical settings hash. |
-| `src/Models/` | Plain `record` types - no behaviour. |
+| `src/Models/` | Plain `record` types - no behavior. |
 | `src/Parsing/` | Unit, color, fit-mode parsing. |
 | `src/Rendering/` | SkiaSharp layer pipeline, font, SVG renderer. |
 | `src/Resolution/` | Override merging, target matching, substitution. |

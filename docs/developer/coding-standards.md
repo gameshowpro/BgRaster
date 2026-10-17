@@ -16,7 +16,7 @@
         1. `System`
         1. `Microsoft`
         1. Other third-parties
-        1. `GameShowPro`
+        1. `GameshowPro`
         1. Local namespaces
 - All code is in a nullable context.
 - Nullable value types are used as appropriate.

@@ -217,8 +217,8 @@ internal static class ColorParser
     {
         if (s == 0f)
         {
-            byte grey = ClampByte(l * 255f);
-            return (grey, grey, grey);
+            byte gray = ClampByte(l * 255f);
+            return (gray, gray, gray);
         }
 
         float q = l < 0.5f ? l * (1f + s) : l + s - l * s;

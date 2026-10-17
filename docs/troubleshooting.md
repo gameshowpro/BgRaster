@@ -40,7 +40,7 @@ The most common causes:
 - **Per-monitor wallpaper unsupported.** Older Windows builds (pre-1809) lack the necessary COM contract. Verify Windows version.
 - **Wallpaper slideshow active.** Windows Personalization "slideshow" mode periodically overwrites per-monitor assignments. Disable it.
 - **Group Policy lockdown.** "Prevent changing desktop background" blocks the assignment. Look for `wallpaper-assignment-failed` in stdout - the run will exit 1.
-- **Stretched / spanned wallpaper mode.** Even if `SetWallpaper` succeeds, Windows can render the per-monitor PNG stretched. Set `IDesktopWallpaper::SetPosition` to `DWPOS_FILL` from Personalisation, or right-click desktop → Personalize → Background → Picture position → "Fill".
+- **Stretched / spanned wallpaper mode.** Even if `SetWallpaper` succeeds, Windows can render the per-monitor PNG stretched. Set `IDesktopWallpaper::SetPosition` to `DWPOS_FILL` from Personalization, or right-click desktop → Personalize → Background → Picture position → "Fill".
 
 If `lastRun.toml` shows `output-rendered` but the wallpaper visibly didn't change, the failure is downstream of BgRaster - check the points above.
 
@@ -89,7 +89,7 @@ Adjust dimensions to fit, or use `vw`/`vh` instead of `px` so the slice scales w
 The orange diagonal cross is the ultimate fallback. If you're seeing it instead of your logo:
 
 - **PNG/JPG**: confirm the path is correct and the file is readable. Substitution tokens (`${MachineName}`, etc.) are applied to `logo.source`, so a malformed token will produce a missing-file path.
-- **SVG**: BgRaster's SVG renderer supports a deliberately small subset - `<rect>`, `<line>`, `<path>` (M/m/L/l/H/h/V/v/Z only), plus `fill`, `stroke`, `stroke-width`, `opacity`. Curves (C/Q/A/S/T) are not yet implemented, and unrecognised elements are skipped. Re-author the SVG with straight segments, or convert to PNG.
+- **SVG**: BgRaster's SVG renderer supports a deliberately small subset - `<rect>`, `<line>`, `<path>` (M/m/L/l/H/h/V/v/Z only), plus `fill`, `stroke`, `stroke-width`, `opacity`. Curves (C/Q/A/S/T) are not yet implemented, and unrecognized elements are skipped. Re-author the SVG with straight segments, or convert to PNG.
 - The first fallback before the orange cross is the embedded `resources/BgRaster.svg`. If you also see the orange cross, the embedded fallback failed to render too - this should never happen and indicates an SkiaSharp issue worth reporting.
 
 ---
@@ -106,7 +106,7 @@ The "stale file" heuristic only matches files whose names follow the BgRaster ti
 
 If you see `LastRunWriter: round-trip verification failed for '...'; previous file kept.`, the writer produced TOML that did not parse back to the same in-memory state. The previous `lastRun.toml` is preserved untouched, so this is a diagnostic - the run otherwise completed.
 
-This indicates a serialisation bug. To capture diagnostics:
+This indicates a serialization bug. To capture diagnostics:
 
 1. Re-run with `--render-output <fresh-dir>` to isolate state.
 2. Inspect the leftover `<path>.tmp` file (if it survived) against the in-memory expectation.

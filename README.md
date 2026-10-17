@@ -13,10 +13,10 @@
 <!-- md-exclude-end -->
 
 ## Inspiration
-BgRaster is inspired by the classic Sysinternals utility [BgInfo](https://learn.microsoft.com/en-us/sysinternals/downloads/bginfo). It was executed perfectly in 2000, but its structure and features feel dated today. In particular, it's focussed on the needs of an IT administrator from that era. It's missing many features that would be valuable to a creative professional in the 2020s.
+BgRaster is inspired by the classic Sysinternals utility [BgInfo](https://learn.microsoft.com/en-us/sysinternals/downloads/bginfo). It was executed perfectly in 2000, but its structure and features feel dated today. In particular, it's focused on the needs of an IT administrator from that era. It's missing many features that would be valuable to a creative professional in the 2020s.
 
 ## Summary
-BgRaster is a fast console application that uses modern frameworks and APIs to generate and assign wallpapers for any displays it finds. It has many [features](https://bgraster.gameshow.pro/features/) targetted at creative professionals like AV technicians, video engineers, and real time graphics specialists. It has a rich set of command-line options, but its full power lies in its [TOML](https://bgraster.gameshow.pro/toml-schema/) configuration files.
+BgRaster is a fast console application that uses modern frameworks and APIs to generate and assign wallpapers for any displays it finds. It has many [features](https://bgraster.gameshow.pro/features/) targeted at creative professionals like AV technicians, video engineers, and real time graphics specialists. It has a rich set of command-line options, but its full power lies in its [TOML](https://bgraster.gameshow.pro/toml-schema/) configuration files.
 
 ## Highlights
 
@@ -97,8 +97,8 @@ Download the latest `BgRaster.zip` from the [Releases](https://github.com/gamesh
 [![Last commit](https://img.shields.io/github/last-commit/gameshowpro/BgRaster?logo=github&style=flat-square)](https://github.com/gameshowpro/BgRaster/commits/main) [![Commits since release](https://img.shields.io/github/commits-since/gameshowpro/BgRaster/latest?logo=github&style=flat-square)](https://github.com/gameshowpro/BgRaster/commits/main)
 
 ```pwsh
-git clone https://github.com/gameshowpro/GameshowPro.git
-cd GameshowPro/BgRaster
+git clone https://github.com/gameshowpro/BgRaster.git
+cd BgRaster
 dotnet publish src/BgRaster.csproj -c Release -r win-x64 /p:PublishAot=true
 ```
 The published binary lands in `src/bin/Release/net10.0/win-x64/publish/BgRaster.exe`.
@@ -211,18 +211,18 @@ thickness = ["3px"]
 - [CLI schema reference](https://bgraster.gameshow.pro/cli-schema/) - every command-line option mapped to its TOML equivalent.
 
 ## AI Disclosure
-As a project started in 2026, yes, substantial parts of this application were built using AI tools. I could never have acheived the the application scope, automation, test framework, and quality of documentation in my spare time without it. Be assured that the design, concept, functional testing, and documentation proof-reading burned many human neuron hours.
+As a project started in 2026, yes, substantial parts of this application were built using AI tools. I could never have achieved the application scope, automation, test framework, and quality of documentation in my spare time without it. Be assured that the design, concept, functional testing, and documentation proof-reading burned many human neuron hours.
 
-I also built BgRaster to make it easy to have your LLM of choice help you with your complex configuations. Just point it as this documenation, describe what you're looking for, and have it generate the config file for you.
+I also built BgRaster to make it easy to have your LLM of choice help you with your complex configurations. Just point it at this documentation, describe what you're looking for, and have it generate the config file for you.
 
 ## Authors
 
 <div style="display: flex; align-items: center; gap: 12px;">
-	<img src="resources/gsp.svg" alt="Game Show Pro logo." style="height: 60px"/>
+	<img src="resources/gsp.svg" alt="GameshowPro logo." style="height: 60px"/>
 	<img src="https://www.barjonas.com/assets/img/barjonas.svg" alt="Barjonas LLC logo." style="height: 30px"/>
 </div>
 
-Hi, I'm Hamish Barjonas. I provide custom solutions for the broadcast producion, live entertainment, and sports industries. Yes, including game shows. See more details [here](https://www.barjonas.com). As a keen FOSS advocate, I try to keep as much non-customer-specific code open for the wider community as possible, under the Game Show Pro umbrella. If you're in a related industry, I'd love to colloborate! You can contact me [here](https://barjonas.com/contact).
+Hi, I'm Hamish Barjonas. I provide custom solutions for the broadcast production, live entertainment, and sports industries. Yes, including game shows. See more details [here](https://www.barjonas.com). As a keen FOSS advocate, I try to keep as much non-customer-specific code open for the wider community as possible, under the GameshowPro umbrella. If you're in a related industry, I'd love to collaborate! You can contact me [here](https://barjonas.com/contact).
 
 ## License
 

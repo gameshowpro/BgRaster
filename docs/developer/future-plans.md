@@ -45,4 +45,4 @@ Although not the focus of this application, there are some features from BgInfo 
 * Network adapters and IP addresses
 
 ## Named template "super switches"
-Develop a list set of rich templates targetted at different use-cases. The local config can be seeded by including running once with the switch, like `--template-led` or `--template-projector`.
+Develop a list set of rich templates targeted at different use-cases. The local config can be seeded by including running once with the switch, like `--template-led` or `--template-projector`.
