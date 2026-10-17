@@ -43,6 +43,7 @@ edit_uri: edit/main/docs/
 exclude_docs: |
   plan.md
   generated/*.md
+  assets/osmf/SOURCE.md
 not_in_nav: |
   generated/**
 
@@ -52,6 +53,7 @@ nav:
   - TOML Schema: toml-schema.md
   - CLI Schema: cli-schema.md
   - Troubleshooting: troubleshooting.md
+  - Maintenance fee: maintenance-fee.md
   - Developer:
       - Architecture: developer/architecture.md
       - Config File Logic: developer/config-file-logic.md
@@ -62,6 +64,10 @@ nav:
 
 markdown_extensions:
   - admonition
+  # attr_list and md_in_html let pages attach classes to images and links,
+  # such as `{ .osmf-wide }` and `{ .md-button }` on the maintenance-fee page.
+  - attr_list
+  - md_in_html
   - pymdownx.snippets:
       base_path: docs
   - pymdownx.superfences:
@@ -88,10 +94,13 @@ extra:
       link: https://github.com/gameshowpro/BgRaster
       name: GitHub Repository
     - icon: fontawesome/solid/heart
-      link: https://github.com/sponsors/gameshowpro
+      link: https://github.com/sponsors/gameshowpro?metadata_project=bgraster&metadata_source=docs-footer
       name: Sponsor BgRaster on GitHub
     - icon: fontawesome/brands/paypal
       link: https://paypal.me/barjonas
       name: Donate via PayPal
 
-copyright: © 2026 Barjonas LLC
+# Material renders HTML here. The link is absolute because this text is
+# copied verbatim into every page, where a relative one would resolve
+# against that page's own directory.
+copyright: '© 2026 Barjonas LLC · MPL-2.0 · <a href="https://bgraster.gameshow.pro/maintenance-fee/">Maintenance fee</a>'

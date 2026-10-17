@@ -36,6 +36,8 @@ jobs:
               - 'tests/**'
               - 'version.json'
               - 'build/**'
+              - 'OSMFEULA.txt'
+              - 'LICENSE'
               - 'scripts/run-publish-smoke-test.ps1'
             docs:
               - 'docs/**'
@@ -155,7 +157,7 @@ jobs:
           /p:TreatWarningsAsErrors=true
           -o publish/win-x64
 
-      - name: Stage release artifacts (zip, nupkg binaries, symbols)
+      - name: Stage release artifacts (zip with EULA, nupkg binaries, symbols)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         shell: pwsh
         env:
@@ -177,6 +179,10 @@ jobs:
 
           Copy-Item -Path (Join-Path $env:CHOCO_ASSETS_PATH 'LICENSE.txt') -Destination $env:STAGING_PATH -Force
           Copy-Item -Path (Join-Path $env:CHOCO_ASSETS_PATH 'VERIFICATION.txt') -Destination $env:STAGING_PATH -Force
+
+          # Maintenance fee terms and the short README ship in the zip and the Chocolatey package
+          Copy-Item -Path 'OSMFEULA.txt' -Destination $env:STAGING_PATH -Force
+          Copy-Item -Path 'build/release/README.txt' -Destination $env:STAGING_PATH -Force
 
           # Append SHA256 hashes for the shipped binaries to VERIFICATION.txt
           $verificationPath = Join-Path $env:STAGING_PATH 'VERIFICATION.txt'
@@ -200,10 +206,10 @@ jobs:
 
           Copy-Item (Join-Path $env:CHOCO_ASSETS_PATH 'chocolateyinstall.ps1') -Destination $env:TOOLS_PATH
 
-          # --- Release zip ---
+          # --- Release zip: exe, native library, license (reused from the Chocolatey folder), EULA, README ---
           $zipPath = Join-Path $PWD 'publish/BgRaster.zip'
           if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
-          Compress-Archive -Path "$env:STAGING_PATH/BgRaster.exe","$env:STAGING_PATH/libSkiaSharp.dll" -DestinationPath $zipPath -Force
+          Compress-Archive -Path "$env:STAGING_PATH/BgRaster.exe","$env:STAGING_PATH/libSkiaSharp.dll","$env:STAGING_PATH/LICENSE.txt","$env:STAGING_PATH/OSMFEULA.txt","$env:STAGING_PATH/README.txt" -DestinationPath $zipPath -Force
 
       - name: Pack Chocolatey nupkg
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -275,6 +281,12 @@ jobs:
           tag_name: ${{ steps.docs_version.outputs.tag }}
           name: BgRaster ${{ steps.docs_version.outputs.tag }}
           generate_release_notes: true
+          body: |
+            BgRaster participates in the [Open Source Maintenance Fee](https://bgraster.gameshow.pro/maintenance-fee/).
+            The source is free under MPL-2.0. Organizations that use these official builds as part of
+            revenue-generating activities pay a small monthly fee that funds maintenance. The terms are in
+            `OSMFEULA.txt`, inside `BgRaster.zip`.
+            [Pay via GitHub Sponsors](https://github.com/sponsors/gameshowpro?metadata_project=bgraster&metadata_source=release)
           files: |
             publish/BgRaster.zip
             publish/staging/BgRaster.pdb

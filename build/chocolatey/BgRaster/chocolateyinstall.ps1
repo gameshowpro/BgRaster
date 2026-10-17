@@ -19,3 +19,8 @@ foreach ($file in $files) {
 }
 
 Write-Host "BgRaster installed successfully. Run 'BgRaster --help' to get started."
+
+Write-Host ""
+Write-Host "BgRaster participates in the Open Source Maintenance Fee. Organizations that"
+Write-Host "use it as part of revenue-generating activities pay a small monthly fee that"
+Write-Host "funds maintenance. Who pays and how: https://bgraster.gameshow.pro/maintenance-fee/"

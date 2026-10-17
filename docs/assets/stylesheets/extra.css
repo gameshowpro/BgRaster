@@ -52,3 +52,6 @@
         display: block;
     }
 }
+
+/* Open Source Maintenance Fee wide logo on the maintenance-fee page. */
+.md-typeset img.osmf-wide { height: 56px; width: auto; margin: 0 0 1rem; }

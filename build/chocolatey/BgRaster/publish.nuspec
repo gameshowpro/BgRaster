@@ -51,11 +51,13 @@ choco install BgRaster -y
 BgRaster --config .\wallpaper.toml --render-output .\out\ --text-format "Hello World"
 ```
 
-### Support & Donation
+### Maintenance fee
 
-If you find BgRaster useful in your professional workflow, please consider supporting development:
-- **GitHub Sponsors**: [gameshowpro](https://github.com/sponsors/gameshowpro)
-- **PayPal**: [paypal.me/barjonas](https://paypal.me/barjonas)
+BgRaster participates in the Open Source Maintenance Fee: the source is free under MPL-2.0, and organizations that use the official builds as part of revenue-generating activities pay a small monthly fee that funds maintenance.
+- **Who pays and how**: [bgraster.gameshow.pro/maintenance-fee](https://bgraster.gameshow.pro/maintenance-fee/)
+- **Pay via GitHub Sponsors**: [gameshowpro](https://github.com/sponsors/gameshowpro?metadata_project=bgraster&metadata_source=chocolatey)
+
+Donations are also welcome via [PayPal](https://paypal.me/barjonas).
 
 *Note: Chocolatey package updates go through a moderation process and can be delayed by several days. For immediate access to the latest release, please check [GitHub Releases](https://github.com/gameshowpro/BgRaster/releases).*
     ]]></description>
@@ -66,6 +68,7 @@ If you find BgRaster useful in your professional workflow, please consider suppo
     <file src="..\publish\staging\BgRaster.exe" target="binaries" />
     <file src="..\publish\staging\libSkiaSharp.dll" target="binaries" />
     <file src="..\publish\staging\LICENSE.txt" target="binaries" />
+    <file src="..\publish\staging\OSMFEULA.txt" target="binaries" />
     <file src="..\publish\staging\VERIFICATION.txt" target="binaries" />
   </files>
 </package>

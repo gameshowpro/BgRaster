@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MPL-2.0
 // Copyright © 2026 Barjonas LLC
 
 using System.CommandLine;
@@ -349,6 +349,8 @@ internal static class CliBinding
                         output.WriteLine();
                         output.WriteLine($"{cBold}{cCyan}Examples:{cReset}");
                         output.WriteLine($"{cMagenta}  BgRaster --config ./wallpaper.toml --render-output ./out/ --text-format \"Hello from BgRaster\"{cReset}");
+                        output.WriteLine();
+                        output.WriteLine($"{cDim}{MaintenanceFeeNotice.Footer}{cReset}");
                                 }
 
     private static string GetOptionDisplayName(Option opt)

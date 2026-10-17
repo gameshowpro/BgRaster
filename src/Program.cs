@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MPL-2.0
 // Copyright © 2026 Barjonas LLC
 
 
@@ -17,6 +17,7 @@ internal static class Program
             if (args.Any(a => a == "--version"))
             {
                 Console.WriteLine(CliBinding.GetVersionString());
+                Console.WriteLine(MaintenanceFeeNotice.Footer);
                 return 0;
             }
 
@@ -56,7 +57,13 @@ internal static class Program
                                         return 0;
                                     }
 
-                        return await root.Parse(args).InvokeAsync();
+                        int exitCode = await root.Parse(args).InvokeAsync();
+                        if (s_runExecuted)
+                        {
+                            MaintenanceFeeNotice.ShowIfDue();
+                        }
+
+                        return exitCode;
         }
         catch (Exception ex) when (IsSkiaNativeDependencyFailure(ex))
         {
@@ -65,8 +72,12 @@ internal static class Program
         }
     }
 
+    // Set when a real run started (as opposed to --help, --version or a parse error).
+    private static bool s_runExecuted;
+
     private static async Task<int> RunAsync(string? configPath, CliOverlay cliOverlay)
     {
+        s_runExecuted = true;
         Stopwatch executionTimer = Stopwatch.StartNew();
 
         List<string> configurationWarnings = [];

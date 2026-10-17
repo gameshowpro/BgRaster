@@ -20,6 +20,8 @@ mono_crash.*
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
+# build/release holds the README that ships in the release zip
+!build/release/
 [Rr]eleases/
 x64/
 x86/

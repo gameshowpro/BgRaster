@@ -10,7 +10,7 @@ PublisherSupportUrl: https://github.com/gameshowpro/BgRaster/issues
 Author: Hamish Barjonas
 PackageName: BgRaster
 PackageUrl: https://github.com/gameshowpro/BgRaster
-License: MIT
+License: MPL-2.0
 LicenseUrl: https://github.com/gameshowpro/BgRaster/blob/main/LICENSE
 Copyright: © $copyrightYear$ Barjonas LLC
 CopyrightUrl: https://github.com/gameshowpro/BgRaster/blob/main/LICENSE
@@ -29,6 +29,10 @@ Description: |-
   - Short-lived and idempotent: runs until done then exits, skipping re-rendering when config, version, and hardware fingerprint all match.
   - TOML-first configuration with CLI overrides, auto-seeding a config from defaults on first run.
   - Portable single-file executable with no runtime dependencies, built for speed via NativeAOT compilation.
+InstallationNotes: |-
+  BgRaster participates in the Open Source Maintenance Fee. Organizations that
+  use it as part of revenue-generating activities pay a small monthly fee that
+  funds maintenance. Who pays and how: https://bgraster.gameshow.pro/maintenance-fee/
 Moniker: bgraster
 Tags:
   - wallpaper

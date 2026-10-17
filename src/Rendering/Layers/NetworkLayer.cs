@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (C) 2026 Barjonas LLC
 
 namespace GameshowPro.BgRaster.Rendering.Layers;

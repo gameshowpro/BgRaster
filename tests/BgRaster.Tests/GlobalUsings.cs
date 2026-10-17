@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MPL-2.0
 // Copyright © 2026 Barjonas LLC
 
 global using System.Collections.Frozen;

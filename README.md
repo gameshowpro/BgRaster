@@ -4,8 +4,9 @@
 [![Latest Release](https://img.shields.io/github/v/release/gameshowpro/BgRaster?logo=github&style=flat-square)](https://github.com/gameshowpro/BgRaster/releases)
 [![Chocolatey](https://img.shields.io/chocolatey/v/BgRaster?logo=chocolatey&style=flat-square)](https://community.chocolatey.org/packages/BgRaster)
 [![winget](https://img.shields.io/winget/v/GameshowPro.BgRaster?logo=windows&style=flat-square)](https://github.com/microsoft/winget-pkgs/tree/master/manifests/g/GameshowPro/BgRaster)
-[![License](https://img.shields.io/github/license/gameshowpro/BgRaster?style=flat-square)](https://github.com/gameshowpro/BgRaster/blob/main/LICENSE)
-[![Sponsor on GitHub](https://img.shields.io/badge/sponsor-GitHub-EA4AAA?style=flat-square&logo=github-sponsors)](https://github.com/sponsors/gameshowpro)
+[![License](https://img.shields.io/badge/license-MPL--2.0-blue?style=flat-square)](LICENSE)
+[![Open Source Maintenance Fee](https://img.shields.io/badge/OSMF-participant-37660D?style=flat-square)](https://github.com/gameshowpro/BgRaster/blob/main/OSMFEULA.txt)
+[![Sponsor on GitHub](https://img.shields.io/badge/sponsor-GitHub-EA4AAA?style=flat-square&logo=github-sponsors)](https://github.com/sponsors/gameshowpro?metadata_project=bgraster&metadata_source=readme-badge)
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square&logo=paypal)](https://paypal.me/barjonas)
 
 <!-- md-exclude-start -->
@@ -17,6 +18,18 @@ BgRaster is inspired by the classic Sysinternals utility [BgInfo](https://learn.
 
 ## Summary
 BgRaster is a fast console application that uses modern frameworks and APIs to generate and assign wallpapers for any displays it finds. It has many [features](https://bgraster.gameshow.pro/features/) targeted at creative professionals like AV technicians, video engineers, and real time graphics specialists. It has a rich set of command-line options, but its full power lies in its [TOML](https://bgraster.gameshow.pro/toml-schema/) configuration files.
+
+## Open Source Maintenance Fee
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://bgraster.gameshow.pro/assets/osmf/osmf-wide-on-dark.svg">
+  <img src="https://bgraster.gameshow.pro/assets/osmf/osmf-wide-on-light.svg" alt="Open Source Maintenance Fee" height="56" align="right">
+</picture>
+
+This project participates in the [Open Source Maintenance Fee](https://opensourcemaintenancefee.org).
+
+The source is free under the MPL-2.0. Using the official builds (`BgRaster.zip` from GitHub Releases, and the Chocolatey and winget packages) in revenue-generating activities, by an organization or self-employed professional with at least USD 10,000 in annual gross revenue, requires the fee under [OSMFEULA.txt](https://github.com/gameshowpro/BgRaster/blob/main/OSMFEULA.txt). Whoever owns the computers that run BgRaster pays, once, not per computer or per job: USD 10, 40 or 60 per month for fewer than 10, 10 to 100, or more than 100 employees, with one-time annual tiers available. The fee is per application: it covers BgRaster, and other GameshowPro applications have their own. Hobbyists, schools, charities, anyone below the threshold and organizations that have engaged Barjonas LLC owe nothing. The fee funds maintenance, not support. Prefer not to pay? Build from source instead. To pay, [become a Sponsor](https://github.com/sponsors/gameshowpro?metadata_project=bgraster&metadata_source=readme).
+Full details: <https://bgraster.gameshow.pro/maintenance-fee/>
 
 ## Highlights
 
@@ -54,6 +67,9 @@ Linux and macOS are not supported - the project is intentionally Windows-specifi
 Like the original BgInfo, BgRaster runs gets its work done as fast as possible and shuts down. Depending on your use case, you might want to automate its execution with a login script, scheduled task or simply a desktop shortcut.
 
 ## Quick start
+
+> [!NOTE]
+> Options 1 to 3 install official builds, which the [maintenance fee](https://bgraster.gameshow.pro/maintenance-fee/) covers for revenue-generating use. Option 4 builds BgRaster yourself, and no fee applies to that.
 
 <!-- docs-tabs-start -->
 ### Option 1 - Chocolatey
@@ -226,4 +242,12 @@ Hi, I'm Hamish Barjonas. I provide custom solutions for the broadcast production
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+BgRaster is open source under the [Mozilla Public License 2.0](LICENSE). You can use it, modify it, embed it in your own products and redistribute it. If you distribute changes to BgRaster's own files, those changes must be published under the MPL. Combining BgRaster with your own proprietary code is fine.
+
+The official builds are covered by the maintenance fee described [above](#open-source-maintenance-fee); the source itself is not.
+
+"BgRaster" is a trademark; the license covers copyright and patents, not the name. See [TRADEMARKS.md](https://github.com/gameshowpro/BgRaster/blob/main/TRADEMARKS.md) for what that does and does not allow, which is more permissive than people usually expect.
+
+Contributions are welcome. See [CONTRIBUTING.md](https://github.com/gameshowpro/BgRaster/blob/main/.github/CONTRIBUTING.md) for the grant that is asked for and why.
+
+Copyright © 2026 Barjonas LLC. Support, custom work and fee waivers: <https://barjonas.com/#contact>
