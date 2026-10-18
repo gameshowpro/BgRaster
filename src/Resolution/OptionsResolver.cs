@@ -7,8 +7,8 @@ internal static class OptionsResolver
 {
     private static readonly ImmutableArray<string> s_implicitFullOutputSliceDefaultText =
     [
-        "${MachineName} ${OutputIndex}",
-        "${OutputName}",
+        "${MachineName} ${OutputIndex}<br>",
+        "${OutputName}<br>",
         "${OutputWidth}x${OutputHeight}",
     ];
 

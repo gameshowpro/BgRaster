@@ -404,8 +404,9 @@ public class OptionsResolverTests
             sliceIndex: 0,
             isImplicitSlice: true);
 
-        _ = resolved.TextLines[0].Should().Contain("2");
-        _ = resolved.TextLines[1].Should().Be("Display 2");
+        // Line breaks are explicit, so each element must end with one or the three render on a single line.
+        _ = resolved.TextLines[0].Should().Contain("2").And.EndWith("<br>");
+        _ = resolved.TextLines[1].Should().Be("Display 2<br>");
         _ = resolved.TextLines[2].Should().Be("1920x1080");
     }
 
