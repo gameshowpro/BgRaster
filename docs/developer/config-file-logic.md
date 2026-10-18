@@ -45,6 +45,8 @@ Search in this order and use the first existing file:
 
 If none exist, use built-in defaults.
 
+These locations are only ever read. BgRaster never writes a config to them unless the same path was passed with `--config`. The first location exists for portable installs where a user placed `config.toml` next to the executable by hand. Under Chocolatey or winget it is the package's own install folder, which an upgrade or uninstall can replace.
+
 ## Decision table: render/assignment skip vs config write
 
 `U` = unchanged run, `F` = continue after unchanged, `E` = explicit `--config` provided, `X` = explicit config exists at startup, `D` = dry-run

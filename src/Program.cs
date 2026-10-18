@@ -449,7 +449,7 @@ internal static class Program
 
         logger.LastRunWrite(lastRunPath, assignedFiles.Count, unrecycled.Length);
         WriteLastRun(lastRunPath, settingsHash, hardware, options, assignedFiles, unrecycled, runStatus, logger);
-        SeedExplicitConfigFromDefaults(resolvedConfigPath, configExists, isDryRun, options, hardware, configurationWarnings);
+        SeedExplicitConfigFromDefaults(GetSeedConfigPath(configPath, resolvedConfigPath), configExists, isDryRun, options, hardware, configurationWarnings);
         logger.RunComplete();
         return ReturnWithTiming(0);
     }
@@ -558,6 +558,12 @@ internal static class Program
         File.WriteAllText(destinationConfigPath, seededToml, Encoding.UTF8);
         warnings?.Add($"Config file '{destinationConfigPath}' did not exist at startup; wrote a config template seeded from effective defaults and detected outputs after successful execution.");
     }
+
+    // Only a path the user named with --config is ever seeded. Without one, the resolved path falls back to
+    // config.toml next to the executable, which is for configs placed there by hand in portable installs and
+    // must never be written by BgRaster (under Chocolatey it is the package's own tools folder).
+    internal static string? GetSeedConfigPath(string? cliConfigPath, string resolvedConfigPath) =>
+        string.IsNullOrWhiteSpace(cliConfigPath) ? null : resolvedConfigPath;
 
     internal static bool ShouldSeedExplicitConfigFromDefaults(string? explicitConfigPath, bool configExistedAtStartup, bool isDryRun) =>
         !string.IsNullOrWhiteSpace(explicitConfigPath)

@@ -106,6 +106,16 @@ public class ProgramConfigTests
     }
 
     [Fact]
+    public void GetSeedConfigPath_NeverSeedsTheFallbackPathNextToTheExecutable()
+    {
+        string fallback = Program.ResolveConfigPath(null, Program.GetDefaultConfigSearchPaths(@"C:\app", @"C:\pd", @"C:\lad", @"C:\ad"));
+
+        _ = Program.GetSeedConfigPath(null, fallback).Should().BeNull();
+        _ = Program.GetSeedConfigPath("  ", fallback).Should().BeNull();
+        _ = Program.GetSeedConfigPath("cfg.toml", @"C:\work\cfg.toml").Should().Be(@"C:\work\cfg.toml");
+    }
+
+    [Fact]
     public void ShouldWriteExplicitConfigOnUnchangedSkip_ReturnsTrueOnlyWhenMissingExplicitAndSkipping()
     {
         _ = Program.ShouldWriteExplicitConfigOnUnchangedSkip(@"C:\cfg.toml", configExistedAtStartup: false, isDryRun: false, continueAfterUnchanged: false).Should().BeTrue();
