@@ -11,17 +11,17 @@ public class ProgramConfigTests
     [Fact]
     public void GetDefaultConfigSearchPaths_ReturnsRequestedHierarchy()
     {
-        ImmutableArray<string> paths = Program.GetDefaultConfigSearchPaths(
+        ImmutableArray<ConfigSearchCandidate> candidates = Program.GetDefaultConfigSearchPaths(
             executableDirectory: @"C:\Apps\BgRaster",
             commonApplicationDataDirectory: @"C:\ProgramData",
             localApplicationDataDirectory: @"C:\Users\User\AppData\Local",
             applicationDataDirectory: @"C:\Users\User\AppData\Roaming");
 
-        _ = paths.Should().Equal(
-            @"C:\Apps\BgRaster\config.toml",
-            @"C:\ProgramData\BgRaster\config.toml",
-            @"C:\Users\User\AppData\Local\BgRaster\config.toml",
-            @"C:\Users\User\AppData\Roaming\BgRaster\config.toml");
+        _ = candidates.Should().Equal(
+            new ConfigSearchCandidate(@"C:\Apps\BgRaster\config.toml", RequiresAdministratorControl: false),
+            new ConfigSearchCandidate(@"C:\Users\User\AppData\Local\BgRaster\config.toml", RequiresAdministratorControl: false),
+            new ConfigSearchCandidate(@"C:\Users\User\AppData\Roaming\BgRaster\config.toml", RequiresAdministratorControl: false),
+            new ConfigSearchCandidate(@"C:\ProgramData\BgRaster\config.toml", RequiresAdministratorControl: true));
     }
 
     [Fact]
@@ -30,23 +30,132 @@ public class ProgramConfigTests
         string tempRoot = CreateTempDirectory();
         try
         {
-            string exeDir = Path.Combine(tempRoot, "exe");
-            string programData = Path.Combine(tempRoot, "programData");
-            string localAppData = Path.Combine(tempRoot, "localAppData");
-            string appData = Path.Combine(tempRoot, "appData");
+            ImmutableArray<ConfigSearchCandidate> candidates = CreateCandidates(tempRoot);
+            WriteConfig(candidates[2].Path);
+            List<string> warnings = [];
 
-            _ = Directory.CreateDirectory(exeDir);
-            _ = Directory.CreateDirectory(programData);
-            _ = Directory.CreateDirectory(localAppData);
-            _ = Directory.CreateDirectory(appData);
+            string resolvedPath = Program.ResolveConfigPath(null, candidates, ThrowIfTrustChecked, warnings);
 
-            ImmutableArray<string> paths = Program.GetDefaultConfigSearchPaths(exeDir, programData, localAppData, appData);
-            _ = Directory.CreateDirectory(Path.GetDirectoryName(paths[2])!);
-            File.WriteAllText(paths[2], "[render]\nverbosity = \"normal\"\n");
+            _ = resolvedPath.Should().Be(candidates[2].Path);
+            _ = warnings.Should().BeEmpty();
+        }
+        finally
+        {
+            Directory.Delete(tempRoot, recursive: true);
+        }
+    }
 
-            string resolvedPath = Program.ResolveConfigPath(null, paths);
+    [Fact]
+    public void ResolveConfigPath_PrefersUserConfigOverMachineWideConfig()
+    {
+        string tempRoot = CreateTempDirectory();
+        try
+        {
+            ImmutableArray<ConfigSearchCandidate> candidates = CreateCandidates(tempRoot);
+            WriteConfig(candidates[1].Path);
+            WriteConfig(candidates[3].Path);
+            List<string> warnings = [];
 
-            _ = resolvedPath.Should().Be(paths[2]);
+            string resolvedPath = Program.ResolveConfigPath(null, candidates, ThrowIfTrustChecked, warnings);
+
+            _ = resolvedPath.Should().Be(candidates[1].Path);
+            _ = warnings.Should().BeEmpty();
+        }
+        finally
+        {
+            Directory.Delete(tempRoot, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void ResolveConfigPath_UsesMachineWideConfig_WhenAdministratorsControlIt()
+    {
+        string tempRoot = CreateTempDirectory();
+        try
+        {
+            ImmutableArray<ConfigSearchCandidate> candidates = CreateCandidates(tempRoot);
+            WriteConfig(candidates[3].Path);
+            List<string> checkedPaths = [];
+            List<string> warnings = [];
+
+            string resolvedPath = Program.ResolveConfigPath(
+                null,
+                candidates,
+                path =>
+                {
+                    checkedPaths.Add(path);
+                    return true;
+                },
+                warnings);
+
+            _ = resolvedPath.Should().Be(candidates[3].Path);
+            _ = checkedPaths.Should().Equal(candidates[3].Path);
+            _ = warnings.Should().BeEmpty();
+        }
+        finally
+        {
+            Directory.Delete(tempRoot, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void ResolveConfigPath_SkipsMachineWideConfigAndWarns_WhenAdministratorsDoNotControlIt()
+    {
+        string tempRoot = CreateTempDirectory();
+        try
+        {
+            ImmutableArray<ConfigSearchCandidate> candidates = CreateCandidates(tempRoot);
+            WriteConfig(candidates[3].Path);
+            List<string> warnings = [];
+
+            string resolvedPath = Program.ResolveConfigPath(null, candidates, _ => false, warnings);
+
+            // Falls through to built-in defaults: the fallback path next to the executable does not exist.
+            _ = resolvedPath.Should().Be(candidates[0].Path);
+            _ = File.Exists(resolvedPath).Should().BeFalse();
+            _ = warnings.Should().Equal(
+                $"Ignored '{candidates[3].Path}': it is not controlled by administrators, so another account on this computer could have written it. See https://bgraster.gameshow.pro/developer/config-file-logic/#machine-wide-config");
+        }
+        finally
+        {
+            Directory.Delete(tempRoot, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void ResolveConfigPath_DoesNotCheckTrustOrWarn_WhenMachineWideConfigIsMissing()
+    {
+        string tempRoot = CreateTempDirectory();
+        try
+        {
+            ImmutableArray<ConfigSearchCandidate> candidates = CreateCandidates(tempRoot);
+            List<string> warnings = [];
+
+            string resolvedPath = Program.ResolveConfigPath(null, candidates, ThrowIfTrustChecked, warnings);
+
+            _ = resolvedPath.Should().Be(candidates[0].Path);
+            _ = warnings.Should().BeEmpty();
+        }
+        finally
+        {
+            Directory.Delete(tempRoot, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void ResolveConfigPath_DoesNotCheckTrust_ForExplicitPath()
+    {
+        string tempRoot = CreateTempDirectory();
+        try
+        {
+            ImmutableArray<ConfigSearchCandidate> candidates = CreateCandidates(tempRoot);
+            WriteConfig(candidates[3].Path);
+            List<string> warnings = [];
+
+            string resolvedPath = Program.ResolveConfigPath(candidates[3].Path, candidates, ThrowIfTrustChecked, warnings);
+
+            _ = resolvedPath.Should().Be(candidates[3].Path);
+            _ = warnings.Should().BeEmpty();
         }
         finally
         {
@@ -66,9 +175,9 @@ public class ProgramConfigTests
             Environment.SetEnvironmentVariable(environmentVariableName, tempRoot);
 
             string explicitPath = $"%{environmentVariableName}%\\BgRaster\\config.toml";
-            ImmutableArray<string> defaultPaths = [Path.Combine(tempRoot, "fallback.toml")];
+            ImmutableArray<ConfigSearchCandidate> defaultPaths = [new(Path.Combine(tempRoot, "fallback.toml"), RequiresAdministratorControl: false)];
 
-            string resolvedPath = Program.ResolveConfigPath(explicitPath, defaultPaths);
+            string resolvedPath = Program.ResolveConfigPath(explicitPath, defaultPaths, ThrowIfTrustChecked, []);
 
             _ = resolvedPath.Should().Be(Path.GetFullPath(Path.Combine(tempRoot, "BgRaster", "config.toml")));
         }
@@ -85,8 +194,8 @@ public class ProgramConfigTests
         string tempRoot = CreateTempDirectory();
         try
         {
-            ImmutableArray<string> defaultPaths = [Path.Combine(tempRoot, "fallback.toml")];
-            string resolvedPath = Program.ResolveConfigPath(tempRoot, defaultPaths);
+            ImmutableArray<ConfigSearchCandidate> defaultPaths = [new(Path.Combine(tempRoot, "fallback.toml"), RequiresAdministratorControl: false)];
+            string resolvedPath = Program.ResolveConfigPath(tempRoot, defaultPaths, ThrowIfTrustChecked, []);
 
             _ = resolvedPath.Should().Be(Path.Combine(tempRoot, "config.toml"));
         }
@@ -108,7 +217,7 @@ public class ProgramConfigTests
     [Fact]
     public void GetSeedConfigPath_NeverSeedsTheFallbackPathNextToTheExecutable()
     {
-        string fallback = Program.ResolveConfigPath(null, Program.GetDefaultConfigSearchPaths(@"C:\app", @"C:\pd", @"C:\lad", @"C:\ad"));
+        string fallback = Program.ResolveConfigPath(null, Program.GetDefaultConfigSearchPaths(@"C:\app", @"C:\pd", @"C:\lad", @"C:\ad"), _ => true, []);
 
         _ = Program.GetSeedConfigPath(null, fallback).Should().BeNull();
         _ = Program.GetSeedConfigPath("  ", fallback).Should().BeNull();
@@ -227,6 +336,22 @@ public class ProgramConfigTests
         _ = message.Should().StartWith("bg-raster: required native library 'libSkiaSharp.dll' could not be loaded.");
         _ = message.Should().Contain("BgRaster.exe and libSkiaSharp.dll are in the same folder");
     }
+
+    private static ImmutableArray<ConfigSearchCandidate> CreateCandidates(string tempRoot) =>
+        Program.GetDefaultConfigSearchPaths(
+            Path.Combine(tempRoot, "exe"),
+            Path.Combine(tempRoot, "programData"),
+            Path.Combine(tempRoot, "localAppData"),
+            Path.Combine(tempRoot, "appData"));
+
+    private static void WriteConfig(string path)
+    {
+        _ = Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        File.WriteAllText(path, "[render]\nverbosity = \"normal\"\n");
+    }
+
+    private static bool ThrowIfTrustChecked(string path) =>
+        throw new InvalidOperationException($"The trust check must not run for '{path}'.");
 
     private static string CreateTempDirectory()
     {

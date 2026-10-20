@@ -13,7 +13,7 @@ There are no sub-commands. There is no positional argument.
 ## Resolution order
 
 1. Built-in defaults (see [TOML schema](toml-schema.md))
-2. Values from `config.toml` (resolved via `--config`, or if omitted searched in this order: `<exe-dir>\config.toml`, `%ProgramData%\BgRaster\config.toml`, `%LocalAppData%\BgRaster\config.toml`, `%AppData%\BgRaster\config.toml`)
+2. Values from `config.toml` (resolved via `--config`, or if omitted searched in this order: `<exe-dir>\config.toml`, `%LocalAppData%\BgRaster\config.toml`, `%AppData%\BgRaster\config.toml`, `%ProgramData%\BgRaster\config.toml`; the last is used only if administrators control it, see [Machine-wide config](developer/config-file-logic.md#machine-wide-config))
 3. CLI overrides
 
 CLI overrides accept either scalar values or TOML array literals, depending on the option type. Example: `--background-color "#000"` becomes `color = ["#000"]`, `--text-size "[\"3vh\",\"2vh\",\"4vh\"]"` preserves all elements, and `--logo-opacity "[0.5,1.0]"` sets numeric opacity values.

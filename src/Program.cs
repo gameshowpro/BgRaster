@@ -82,8 +82,12 @@ internal static class Program
 
         List<string> configurationWarnings = [];
 
-        ImmutableArray<string> defaultConfigSearchPaths = GetDefaultConfigSearchPaths();
-        string resolvedConfigPath = ResolveConfigPath(configPath, defaultConfigSearchPaths);
+        ImmutableArray<ConfigSearchCandidate> defaultConfigSearchPaths = GetDefaultConfigSearchPaths();
+        string resolvedConfigPath = ResolveConfigPath(
+            configPath,
+            defaultConfigSearchPaths,
+            ConfigLocationTrust.IsAdministratorControlled,
+            configurationWarnings);
         bool configExists = File.Exists(resolvedConfigPath);
 
         if (!string.IsNullOrWhiteSpace(configPath) && !configExists)
@@ -476,38 +480,51 @@ internal static class Program
         LastRunWriter.Write(path, state, runStatus, logger);
     }
 
-    internal static ImmutableArray<string> GetDefaultConfigSearchPaths() =>
+    internal static ImmutableArray<ConfigSearchCandidate> GetDefaultConfigSearchPaths() =>
         GetDefaultConfigSearchPaths(
             AppContext.BaseDirectory,
             Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
 
-    internal static ImmutableArray<string> GetDefaultConfigSearchPaths(
+    // A user's own config beats the machine-wide one, so the %ProgramData% location is searched last.
+    internal static ImmutableArray<ConfigSearchCandidate> GetDefaultConfigSearchPaths(
         string executableDirectory,
         string commonApplicationDataDirectory,
         string localApplicationDataDirectory,
         string applicationDataDirectory)
     {
-        ImmutableArray<string>.Builder builder = ImmutableArray.CreateBuilder<string>(4);
-        builder.Add(Path.Combine(executableDirectory, "config.toml"));
-        AddSearchPath(builder, commonApplicationDataDirectory);
-        AddSearchPath(builder, localApplicationDataDirectory);
-        AddSearchPath(builder, applicationDataDirectory);
+        ImmutableArray<ConfigSearchCandidate>.Builder builder = ImmutableArray.CreateBuilder<ConfigSearchCandidate>(4);
+        builder.Add(new ConfigSearchCandidate(Path.Combine(executableDirectory, "config.toml"), RequiresAdministratorControl: false));
+        AddSearchPath(builder, localApplicationDataDirectory, requiresAdministratorControl: false);
+        AddSearchPath(builder, applicationDataDirectory, requiresAdministratorControl: false);
+        AddSearchPath(builder, commonApplicationDataDirectory, requiresAdministratorControl: true);
         return builder.ToImmutable();
 
-        static void AddSearchPath(ImmutableArray<string>.Builder builder, string rootDirectory)
+        static void AddSearchPath(ImmutableArray<ConfigSearchCandidate>.Builder builder, string rootDirectory, bool requiresAdministratorControl)
         {
             if (string.IsNullOrWhiteSpace(rootDirectory))
             {
                 return;
             }
 
-            builder.Add(Path.Combine(rootDirectory, "BgRaster", "config.toml"));
+            builder.Add(new ConfigSearchCandidate(Path.Combine(rootDirectory, "BgRaster", "config.toml"), requiresAdministratorControl));
         }
     }
 
-    internal static string ResolveConfigPath(string? explicitConfigPath, ImmutableArray<string> defaultConfigSearchPaths)
+    internal static string BuildUntrustedMachineConfigWarning(string configPath) =>
+        $"Ignored '{configPath}': it is not controlled by administrators, so another account on this computer could have written it. See https://bgraster.gameshow.pro/developer/config-file-logic/#machine-wide-config";
+
+    /// <summary>
+    /// Returns the explicit config path if one was given, otherwise the first existing default candidate.
+    /// A candidate that requires administrator control is skipped, with a warning, when
+    /// <paramref name="isAdministratorControlled"/> rejects it. Falls back to the first candidate's path.
+    /// </summary>
+    internal static string ResolveConfigPath(
+        string? explicitConfigPath,
+        ImmutableArray<ConfigSearchCandidate> defaultConfigSearchPaths,
+        Func<string, bool> isAdministratorControlled,
+        List<string> warnings)
     {
         if (!string.IsNullOrWhiteSpace(explicitConfigPath))
         {
@@ -522,15 +539,23 @@ internal static class Program
             return resolved;
         }
 
-        foreach (string candidate in defaultConfigSearchPaths)
+        foreach (ConfigSearchCandidate candidate in defaultConfigSearchPaths)
         {
-            if (File.Exists(candidate))
+            if (!File.Exists(candidate.Path))
             {
-                return candidate;
+                continue;
             }
+
+            if (candidate.RequiresAdministratorControl && !isAdministratorControlled(candidate.Path))
+            {
+                warnings.Add(BuildUntrustedMachineConfigWarning(candidate.Path));
+                continue;
+            }
+
+            return candidate.Path;
         }
 
-        return defaultConfigSearchPaths[0];
+        return defaultConfigSearchPaths[0].Path;
     }
 
     internal static void SeedExplicitConfigFromDefaults(

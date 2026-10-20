@@ -134,9 +134,11 @@ If the file you specified doesn't exist, it will be created containing the defau
 
 The next time you run, it will load its config from this file rather than using defaults. If you don't specify a config file path, it will still find it if it exists in one of the default locations:
 1. In the same folder as `BgRaster.exe`.
-1. `%ProgramData%\BgRaster`
 1. `%LocalAppData%\BgRaster`
 1. `%AppData%\BgRaster`
+1. `%ProgramData%\BgRaster`, but only if administrators control it
+
+The `%ProgramData%` example above must run from an administrative (elevated) shell. A non-elevated shell makes you the owner of the folder and file, and BgRaster then ignores that file when no `--config` is given. See [Machine-wide config](https://bgraster.gameshow.pro/developer/config-file-logic/#machine-wide-config).
 
 ## Sample configurations
 
